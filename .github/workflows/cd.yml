@@ -1,0 +1,50 @@
+name: cd
+
+on:
+  push:
+    branches:
+      - develop
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # push 할 코드 내려받기
+      - name: Checkout PR
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      # 자바 다운로드 및 설정
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # Docker 이미지 build 및 push
+      - name: docker build and push
+        run: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/JolupBisang:latest .
+          docker push ${{ secrets.DOCKER_USERNAME }}/JolupBisang:latest
+
+      # ec2에서 Docker pull
+      - name: Deploy to server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          port: ${{ secrets.SERVER_SSH_PORT }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SERVER_KEY }}
+          script: |
+            docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+            docker system prune -a -f
+            docker-compose down
+            docker rmi ${{ secrets.DOCKER_USERNAME }}/JolupBisang:latest
+            docker pull ${{ secrets.DOCKER_USERNAME }}/JolupBisang:latest
+            docker-compose up -d

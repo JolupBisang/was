@@ -11,4 +11,6 @@ FROM amazoncorretto:17
 WORKDIR /opt/app
 COPY --from=builder build/libs/*.jar /opt/app/spring-boot-application.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "spring-boot-application.jar"]
+ARG PROFILES
+ARG ENV
+ENTRYPOINT ["java", "-DSpring.profiles.active=${PROFILES}", "-Dserver.env={ENV}", "-jar", "spring-boot-application.jar"]
