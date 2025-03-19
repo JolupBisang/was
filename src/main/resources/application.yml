@@ -14,7 +14,6 @@ spring:
 
 server:
   port: 8080
-  address: localhost
 
 ---
 spring:
@@ -22,7 +21,6 @@ spring:
 
 server:
   port: 8080
-  address: 3.34.4.158
 
 ---
 spring:
@@ -30,7 +28,6 @@ spring:
 
 server:
   port: 8081
-  address: 3.34.4.158
 
 ---
 
