@@ -1,4 +1,4 @@
-package com.jolupbisang.demo.global.infra;
+package com.jolupbisang.demo.presentation.env;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
