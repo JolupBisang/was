@@ -1,4 +1,4 @@
-package com.jolupbisang.demo.global.auth;
+package com.jolupbisang.demo.global.security.auth;
 
 import com.jolupbisang.demo.domain.user.dto.UserInfoRes;
 import com.jolupbisang.demo.domain.user.service.UserService;
