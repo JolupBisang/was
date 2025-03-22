@@ -2,6 +2,7 @@ package com.jolupbisang.demo.domain.user.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -21,4 +22,14 @@ public class User {
 
     @Column(nullable = false)
     private String nickname;
+
+    @Enumerated(EnumType.STRING)
+    private OAuthPlatform platform;
+
+    @Builder
+    public User(String email, String nickname, OAuthPlatform platform) {
+        this.email = email;
+        this.nickname = nickname;
+        this.platform = platform;
+    }
 }
