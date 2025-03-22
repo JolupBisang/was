@@ -10,10 +10,15 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    public UserInfoRes findById(String userId) {
+    public UserInfoRes findById(Long userId) {
         return UserInfoRes.from(userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(UserErrorCode.NOT_FOUND)));
+    }
+
+    public UserInfoRes findByEmail(String email) {
+        return UserInfoRes.from(userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(UserErrorCode.NOT_FOUND)));
     }
 }
