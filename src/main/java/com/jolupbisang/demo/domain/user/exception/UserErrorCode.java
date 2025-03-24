@@ -1,6 +1,6 @@
 package com.jolupbisang.demo.domain.user.exception;
 
-import com.jolupbisang.demo.global.common.exception.ErrorCode;
+import com.jolupbisang.demo.global.exception.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 

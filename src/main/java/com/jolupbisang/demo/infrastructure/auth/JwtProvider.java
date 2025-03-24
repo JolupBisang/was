@@ -1,4 +1,4 @@
-package com.jolupbisang.demo.global.security.jwt;
+package com.jolupbisang.demo.infrastructure.auth;
 
 import com.jolupbisang.demo.global.properties.JwtProperties;
 import io.jsonwebtoken.Claims;

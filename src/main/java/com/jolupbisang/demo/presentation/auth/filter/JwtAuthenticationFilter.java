@@ -1,9 +1,9 @@
-package com.jolupbisang.demo.global.security.filter;
+package com.jolupbisang.demo.presentation.auth.filter;
 
 
-import com.jolupbisang.demo.global.common.exception.CustomException;
-import com.jolupbisang.demo.global.common.exception.GlobalErrorCode;
-import com.jolupbisang.demo.global.security.jwt.JwtProvider;
+import com.jolupbisang.demo.global.exception.exception.CustomException;
+import com.jolupbisang.demo.global.exception.exception.GlobalErrorCode;
+import com.jolupbisang.demo.infrastructure.auth.JwtProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

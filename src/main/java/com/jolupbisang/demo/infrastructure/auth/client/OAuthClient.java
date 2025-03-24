@@ -1,10 +1,10 @@
-package com.jolupbisang.demo.domain.auth.service.client;
+package com.jolupbisang.demo.infrastructure.auth.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jolupbisang.demo.domain.auth.Exception.AuthErrorCode;
-import com.jolupbisang.demo.domain.auth.dto.OAuthUserInfoDto;
-import com.jolupbisang.demo.global.common.exception.CustomException;
+import com.jolupbisang.demo.application.auth.Exception.AuthErrorCode;
+import com.jolupbisang.demo.application.auth.dto.OAuthUserInfoDto;
+import com.jolupbisang.demo.global.exception.exception.CustomException;
 import com.jolupbisang.demo.global.properties.OAuthProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;

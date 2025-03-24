@@ -1,4 +1,4 @@
-package com.jolupbisang.demo.global.common.entity;
+package com.jolupbisang.demo.domain.common;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;

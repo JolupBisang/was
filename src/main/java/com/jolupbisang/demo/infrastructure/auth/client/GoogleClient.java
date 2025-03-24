@@ -1,8 +1,8 @@
-package com.jolupbisang.demo.domain.auth.service.client;
+package com.jolupbisang.demo.infrastructure.auth.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jolupbisang.demo.domain.auth.dto.OAuthUserInfoDto;
+import com.jolupbisang.demo.application.auth.dto.OAuthUserInfoDto;
 import com.jolupbisang.demo.global.properties.OAuthProperties;
 import org.springframework.stereotype.Component;
 

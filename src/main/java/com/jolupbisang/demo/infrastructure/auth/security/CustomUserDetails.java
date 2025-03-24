@@ -1,4 +1,4 @@
-package com.jolupbisang.demo.global.security.auth;
+package com.jolupbisang.demo.infrastructure.auth.security;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

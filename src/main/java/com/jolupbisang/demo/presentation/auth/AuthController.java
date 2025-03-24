@@ -1,6 +1,6 @@
 package com.jolupbisang.demo.presentation.auth;
 
-import com.jolupbisang.demo.domain.auth.service.AuthService;
+import com.jolupbisang.demo.application.auth.service.AuthService;
 import com.jolupbisang.demo.domain.user.entity.OAuthPlatform;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

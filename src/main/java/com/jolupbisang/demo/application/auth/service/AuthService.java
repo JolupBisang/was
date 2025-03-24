@@ -1,13 +1,14 @@
-package com.jolupbisang.demo.domain.auth.service;
+package com.jolupbisang.demo.application.auth.service;
 
-import com.jolupbisang.demo.domain.auth.Exception.AuthErrorCode;
-import com.jolupbisang.demo.domain.auth.dto.OAuthUserInfoDto;
-import com.jolupbisang.demo.domain.auth.service.client.OAuthClient;
+import com.jolupbisang.demo.application.auth.Exception.AuthErrorCode;
+import com.jolupbisang.demo.application.auth.dto.OAuthUserInfoDto;
 import com.jolupbisang.demo.domain.user.entity.OAuthPlatform;
 import com.jolupbisang.demo.domain.user.entity.User;
 import com.jolupbisang.demo.domain.user.repository.UserRepository;
-import com.jolupbisang.demo.global.common.exception.CustomException;
-import com.jolupbisang.demo.global.security.jwt.JwtProvider;
+import com.jolupbisang.demo.global.exception.exception.CustomException;
+import com.jolupbisang.demo.infrastructure.auth.JwtProvider;
+import com.jolupbisang.demo.infrastructure.auth.OAuthClientFactory;
+import com.jolupbisang.demo.infrastructure.auth.client.OAuthClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

@@ -1,4 +1,4 @@
-package com.jolupbisang.demo.domain.auth.dto;
+package com.jolupbisang.demo.application.auth.dto;
 
 public record OAuthCodeDto(
         String code

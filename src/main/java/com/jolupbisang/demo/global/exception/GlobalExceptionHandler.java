@@ -1,5 +1,8 @@
-package com.jolupbisang.demo.global.common.exception;
+package com.jolupbisang.demo.global.exception;
 
+import com.jolupbisang.demo.global.exception.exception.CustomException;
+import com.jolupbisang.demo.global.exception.exception.ErrorCode;
+import com.jolupbisang.demo.global.exception.exception.GlobalErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

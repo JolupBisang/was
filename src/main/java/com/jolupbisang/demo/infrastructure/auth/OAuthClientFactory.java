@@ -1,8 +1,8 @@
-package com.jolupbisang.demo.domain.auth.service;
+package com.jolupbisang.demo.infrastructure.auth;
 
-import com.jolupbisang.demo.domain.auth.service.client.GoogleClient;
-import com.jolupbisang.demo.domain.auth.service.client.OAuthClient;
 import com.jolupbisang.demo.domain.user.entity.OAuthPlatform;
+import com.jolupbisang.demo.infrastructure.auth.client.GoogleClient;
+import com.jolupbisang.demo.infrastructure.auth.client.OAuthClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

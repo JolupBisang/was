@@ -1,4 +1,4 @@
-package com.jolupbisang.demo.domain.auth.dto;
+package com.jolupbisang.demo.application.auth.dto;
 
 import com.jolupbisang.demo.domain.user.entity.OAuthPlatform;
 import com.jolupbisang.demo.domain.user.entity.User;
