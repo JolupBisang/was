@@ -33,16 +33,20 @@ public class Meeting extends BaseTimeEntity {
     @Column(nullable = false)
     private int targetTime;
 
+    @Column(nullable = false)
+    private int restInterval;
+
     private LocalDateTime actualStartTime;
 
     private LocalDateTime actualEndTime;
 
     private String recordUrl;
 
-    public Meeting(String title, String location, LocalDateTime scheduledStartTime, int targetTime) {
+    public Meeting(String title, String location, LocalDateTime scheduledStartTime, int targetTime, int restInterval) {
         this.title = title;
         this.location = location;
         this.scheduledStartTime = scheduledStartTime;
         this.targetTime = targetTime;
+        this.restInterval = restInterval;
     }
 }
