@@ -19,6 +19,7 @@ public record MeetingReq(
         @NotNull(message = "회의 시작 시간은 필수입니다.")
         LocalDateTime scheduledStartTime,
 
+        @NotNull(message = "회의 목표 시간은 필수입니다.")
         @Min(value = 1, message = "회의 목표 시간은 1분 이상이어야 합니다.")
         Integer targetTime,
 
