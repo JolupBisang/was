@@ -38,4 +38,11 @@ public class Meeting extends BaseTimeEntity {
     private LocalDateTime actualEndTime;
 
     private String recordUrl;
+
+    public Meeting(String title, String location, LocalDateTime scheduledStartTime, int targetTime) {
+        this.title = title;
+        this.location = location;
+        this.scheduledStartTime = scheduledStartTime;
+        this.targetTime = targetTime;
+    }
 }
