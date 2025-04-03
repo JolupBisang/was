@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.view.RedirectView;
 
 @Controller
 @RequiredArgsConstructor
@@ -13,6 +14,14 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+
+    @GetMapping("/login/app/{platform}")
+    public RedirectView loginThroughApp(@RequestParam("code") String code,
+                                        @PathVariable OAuthPlatform platform) {
+        String jwt = authService.loginWithOAuth(platform, code);
+        String redirectUrl = "com.imhungry.jjongseol://oauth2callback?token=" + jwt;
+        return new RedirectView(redirectUrl);
+    }
 
     @GetMapping("/login/{platform}")
     @ResponseBody
