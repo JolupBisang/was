@@ -4,9 +4,10 @@ import com.jolupbisang.demo.application.auth.service.AuthService;
 import com.jolupbisang.demo.domain.user.OAuthPlatform;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
+@Controller
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -14,11 +15,10 @@ public class AuthController {
     private final AuthService authService;
 
     @GetMapping("/login/{platform}")
-    public ResponseEntity<?> login(@RequestParam("code") String code,
-                                   @PathVariable OAuthPlatform platform) {
-
-        String accessToken = authService.loginWithOAuth(platform, code);
-
-        return ResponseEntity.ok(accessToken);
+    @ResponseBody
+    public ResponseEntity<?> loginThroughWeb(@RequestParam("code") String code,
+                                             @PathVariable OAuthPlatform platform) {
+        String jwt = authService.loginWithOAuth(platform, code);
+        return ResponseEntity.ok(jwt);
     }
 }
