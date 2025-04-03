@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties("websocket")
 @Component
 public class WebSocketProperties {
-    private String textBufferSize;
-    private String binaryBufferSize;
-    private String sessionTimeout;
+    private Integer textBufferSize;
+    private Integer binaryBufferSize;
+    private Long sessionTimeout;
 }
