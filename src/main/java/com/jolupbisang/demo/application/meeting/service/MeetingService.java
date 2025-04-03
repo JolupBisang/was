@@ -65,9 +65,7 @@ public class MeetingService {
     public void processAndSendAudioData(WebSocketSession session, BinaryMessage message) throws IOException {
         ByteBuffer buffer = message.getPayload();
         AudioMeta audioMeta = extractAudioMeta(buffer);
-        log.info("{}", audioMeta);
         byte[] audioData = extractAudioData(buffer);
-        log.info("{}", audioData);
         saveAudio(audioMeta, audioData);
     }
 

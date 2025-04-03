@@ -24,7 +24,6 @@ public class MeetingSocketHandler extends BinaryWebSocketHandler {
 
     @Override
     protected void handleBinaryMessage(WebSocketSession session, BinaryMessage message) throws Exception {
-        log.info("핸들러 도착");
         meetingService.processAndSendAudioData(session, message);
     }
 
