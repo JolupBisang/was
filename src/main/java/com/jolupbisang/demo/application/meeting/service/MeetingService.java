@@ -5,12 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jolupbisang.demo.application.meeting.dto.AudioMeta;
 import com.jolupbisang.demo.application.meeting.dto.MeetingReq;
 import com.jolupbisang.demo.application.meeting.exception.MeetingErrorCode;
+import com.jolupbisang.demo.domain.agenda.Agenda;
 import com.jolupbisang.demo.domain.meeting.Meeting;
 import com.jolupbisang.demo.domain.meetingUser.MeetingUser;
 import com.jolupbisang.demo.domain.meetingUser.MeetingUserStatus;
 import com.jolupbisang.demo.domain.user.User;
 import com.jolupbisang.demo.global.exception.CustomException;
 import com.jolupbisang.demo.global.properties.MeetingProperties;
+import com.jolupbisang.demo.infrastructure.agenda.AgendaRepository;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
 import com.jolupbisang.demo.infrastructure.meetingUser.MeetingUserRepository;
 import com.jolupbisang.demo.infrastructure.user.UserRepository;
@@ -38,6 +40,7 @@ public class MeetingService {
     private final UserRepository userRepository;
     private final MeetingRepository meetingRepository;
     private final MeetingUserRepository meetingUserRepository;
+    private final AgendaRepository agendaRepository;
 
     private final MeetingProperties meetingProperties;
     private final ObjectMapper objectMapper;
@@ -54,6 +57,9 @@ public class MeetingService {
         meetingUserRepository.save(new MeetingUser(meeting, leader, true, MeetingUserStatus.ACCEPTED));
         meetingUserRepository.saveAll(participants.stream().map(p ->
                 new MeetingUser(meeting, p, false, MeetingUserStatus.WAITING)).toList());
+
+        agendaRepository.saveAll(meetingReq.agendas().stream().map(agenda ->
+                new Agenda(meeting, agenda)).toList());
     }
 
     public void processAndSendAudioData(WebSocketSession session, BinaryMessage message) throws IOException {
