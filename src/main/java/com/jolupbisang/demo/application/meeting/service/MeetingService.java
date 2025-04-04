@@ -66,6 +66,8 @@ public class MeetingService {
         ByteBuffer buffer = message.getPayload();
         AudioMeta audioMeta = extractAudioMeta(buffer);
         byte[] audioData = extractAudioData(buffer);
+
+        log.info("[{}] Audio accepted: userId: {}, meetingId: {}, chunkId: {}", session.getId(), audioMeta.userId(), audioMeta.meetingId(), audioMeta.chunkId());
         saveAudio(audioMeta, audioData);
     }
 

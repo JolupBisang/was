@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.CloseStatus;
+import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.BinaryWebSocketHandler;
 
@@ -19,7 +20,7 @@ public class MeetingSocketHandler extends BinaryWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        log.info("WebSocket Connection Established: {}", session.getId());
+        log.info("[{}] WebSocket Connection Established", session.getId());
     }
 
     @Override
@@ -28,7 +29,13 @@ public class MeetingSocketHandler extends BinaryWebSocketHandler {
     }
 
     @Override
+    public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
+        session.sendMessage(new TextMessage("Error: " + exception.getMessage()));
+        log.info("[{}] WebSocket Transport Error: {}", session.getId(), exception.getMessage());
+    }
+
+    @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        log.info("WebSocket Connection Closed: {} - Status: {}", session.getId(), status);
+        log.info("[{}] WebSocket Connection Closed - Status: {}", session.getId(), status);
     }
 }
