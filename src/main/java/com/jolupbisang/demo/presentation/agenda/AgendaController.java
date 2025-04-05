@@ -2,7 +2,7 @@ package com.jolupbisang.demo.presentation.agenda;
 
 import com.jolupbisang.demo.application.agenda.service.AgendaService;
 import com.jolupbisang.demo.infrastructure.auth.security.CustomUserDetails;
-import com.jolupbisang.demo.presentation.agenda.dto.AgendaStatusRequest;
+import com.jolupbisang.demo.presentation.agenda.dto.AgendaStatusReq;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,13 +17,13 @@ public class AgendaController {
     private final AgendaService agendaService;
 
     @PatchMapping("/{agendaId}")
-    public ResponseEntity<?> changeAgendaStatus(@RequestBody @Valid AgendaStatusRequest agendaStatusRequest,
+    public ResponseEntity<?> changeAgendaStatus(@RequestBody @Valid AgendaStatusReq agendaStatusReq,
                                                 @PathVariable("agendaId") Long agendaId,
                                                 @AuthenticationPrincipal CustomUserDetails customUserDetails) {
         agendaService.changeAgendaStatus(
                 agendaId,
                 customUserDetails.getUserId(),
-                agendaStatusRequest.isCompleted());
+                agendaStatusReq.isCompleted());
 
         return ResponseEntity.status(HttpStatus.ACCEPTED).body("회의 안건 상태 변경 성공");
     }
