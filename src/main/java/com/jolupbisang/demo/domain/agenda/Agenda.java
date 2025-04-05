@@ -28,4 +28,8 @@ public class Agenda {
         this.content = content;
         this.isCompleted = false;
     }
+
+    public void setIsCompleted(boolean isCompleted) {
+        this.isCompleted = true;
+    }
 }
