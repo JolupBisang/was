@@ -22,4 +22,14 @@ public class Agenda {
     private String content;
 
     private boolean isCompleted;
+
+    public Agenda(Meeting meeting, String content) {
+        this.meeting = meeting;
+        this.content = content;
+        this.isCompleted = false;
+    }
+
+    public void setIsCompleted(boolean isCompleted) {
+        this.isCompleted = true;
+    }
 }

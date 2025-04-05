@@ -36,8 +36,4 @@ public class MeetingUser {
         this.isHost = isHost;
         this.status = status;
     }
-
-
-    //서비스 두개를 합친 서비스
-    //서비스를 더 잘게 쪼갠 애들을 하나의 서비스가 사용
 }

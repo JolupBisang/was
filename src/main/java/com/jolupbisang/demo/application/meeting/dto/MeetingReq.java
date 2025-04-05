@@ -28,7 +28,10 @@ public record MeetingReq(
         Integer restInterval,
 
         @NotNull(message = "참여자 목록은 필수입니다.")
-        List<@Email(message = "참여자는 이메일 형식이어야 합니다.") String> participants
+        List<@Email(message = "참여자는 이메일 형식이어야 합니다.") String> participants,
+
+        @NotNull(message = "회의 안건 목록은 필수입니다.")
+        List<@NotBlank(message = "회의 안건은 1글자 이상이어야 합니다.") String> agendas
 ) {
     public Meeting toEntity() {
         return new Meeting(title, location, scheduledStartTime, targetTime, restInterval);
