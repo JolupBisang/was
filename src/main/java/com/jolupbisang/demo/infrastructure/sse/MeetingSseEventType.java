@@ -4,5 +4,5 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public enum MeetingSseEventType {
-    SHARE, FEEDBACK, SUMMARY;
+    PARTICIPATION_RATE, FEEDBACK, SUMMARY;
 }

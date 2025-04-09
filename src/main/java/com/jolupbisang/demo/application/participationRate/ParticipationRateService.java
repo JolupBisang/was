@@ -1,4 +1,4 @@
-package com.jolupbisang.demo.application.meetingShare;
+package com.jolupbisang.demo.application.participationRate;
 
 import com.jolupbisang.demo.infrastructure.sse.MeetingSseEventType;
 import com.jolupbisang.demo.infrastructure.sse.MeetingSseService;
@@ -10,12 +10,12 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class MeetingShareService {
+public class ParticipationRateService {
 
     private final MeetingSseService meetingSseService;
 
     public SseEmitter subscribe(Long meetingId, Long userId) {
-        return meetingSseService.subscribe(meetingId, userId, MeetingSseEventType.SHARE);
+        return meetingSseService.subscribe(String.valueOf(meetingId), String.valueOf(userId), MeetingSseEventType.PARTICIPATION_RATE);
     }
 
 }
