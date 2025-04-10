@@ -1,6 +1,6 @@
 package com.jolupbisang.demo.application.common.validator;
 
-import com.jolupbisang.demo.application.meeting.exception.MeetingAccessErrorCode;
+import com.jolupbisang.demo.application.common.exception.MeetingAccessErrorCode;
 import com.jolupbisang.demo.domain.meeting.Meeting;
 import com.jolupbisang.demo.domain.meeting.MeetingStatus;
 import com.jolupbisang.demo.domain.meetingUser.MeetingUserStatus;

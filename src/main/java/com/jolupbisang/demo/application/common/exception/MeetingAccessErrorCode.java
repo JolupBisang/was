@@ -1,4 +1,4 @@
-package com.jolupbisang.demo.application.meeting.exception;
+package com.jolupbisang.demo.application.common.exception;
 
 import com.jolupbisang.demo.global.exception.ErrorCode;
 import lombok.Getter;
