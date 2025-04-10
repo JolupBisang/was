@@ -10,7 +10,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/meeting/participation_rate")
+@RequestMapping("/api/participation_rate")
 public class ParticipationRateController {
 
     private final ParticipationRateService participationRateService;
