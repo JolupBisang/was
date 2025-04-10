@@ -1,10 +1,7 @@
 package com.jolupbisang.demo.domain.meeting;
 
 import com.jolupbisang.demo.domain.common.BaseTimeEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,6 +32,9 @@ public class Meeting extends BaseTimeEntity {
 
     @Column(nullable = false)
     private int restInterval;
+
+    @Enumerated(EnumType.STRING)
+    private MeetingStatus meetingStatus;
 
     private LocalDateTime actualStartTime;
 

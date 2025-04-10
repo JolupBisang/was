@@ -4,6 +4,7 @@ package com.jolupbisang.demo.presentation.auth.filter;
 import com.jolupbisang.demo.global.exception.CustomException;
 import com.jolupbisang.demo.global.exception.GlobalErrorCode;
 import com.jolupbisang.demo.infrastructure.auth.JwtProvider;
+import com.jolupbisang.demo.infrastructure.auth.security.CustomUserDetails;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -57,9 +58,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private Authentication getAuthentication(String token) {
-        String userId = String.valueOf(JwtProvider.getUserId(token));
+        Long userId = JwtProvider.getUserId(token);
+        String email = JwtProvider.getEmail(token);
+        String nickname = JwtProvider.getNickname(token);
 
-        UserDetails userDetails = userDetailsService.loadUserByUsername(userId);
+        UserDetails userDetails = new CustomUserDetails(userId, email, nickname);
 
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }

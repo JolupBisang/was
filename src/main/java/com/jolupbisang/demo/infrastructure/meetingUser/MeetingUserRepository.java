@@ -1,7 +1,9 @@
 package com.jolupbisang.demo.infrastructure.meetingUser;
 
 import com.jolupbisang.demo.domain.meetingUser.MeetingUser;
+import com.jolupbisang.demo.domain.meetingUser.MeetingUserStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface MeetingUserRepository extends JpaRepository<MeetingUser, Long> {
+    boolean existsByMeetingIdAndUserIdAndStatusIn(Long meetingId, Long userId, MeetingUserStatus... statuses);
 }
