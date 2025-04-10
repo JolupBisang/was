@@ -31,4 +31,8 @@ public class ParticipationRateService {
         return meetingSseService.subscribe(String.valueOf(meetingId), String.valueOf(userId), MeetingSseEventType.PARTICIPATION_RATE);
     }
 
+    public void sendTestMessage(Long meetingId) {
+        String testMessage = "Test message for meeting ID: " + meetingId;
+        meetingSseService.sendEventToMeeting(String.valueOf(meetingId), MeetingSseEventType.PARTICIPATION_RATE, testMessage);
+    }
 }
