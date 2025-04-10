@@ -74,7 +74,7 @@ public class MeetingSseService {
     private void sendConnectionMessage(String meetingId, MeetingSseEventType eventType, SseEmitter emitter) {
         try {
             emitter.send(SseEmitter.event()
-                    .name("connect")
+                    .name("CONNECT")
                     .data("connected to " + eventType + " event stream"));
         } catch (IOException e) {
             log.info("[{}]: meetingId {} SSE IOException error", emitter, meetingId, e);
