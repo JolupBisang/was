@@ -31,4 +31,12 @@ public class MeetingAccessValidator {
             throw new CustomException(MeetingAccessErrorCode.NOT_PARTICIPANT);
         }
     }
+
+    public void validateUserParticipating(Long meetingId, Long userId) {
+        boolean isParticipant = meetingUserRepository.existsByMeetingIdAndUserIdAndStatusIn(meetingId, userId, MeetingUserStatus.ACCEPTED);
+
+        if (!isParticipant) {
+            throw new CustomException(MeetingAccessErrorCode.NOT_PARTICIPANT);
+        }
+    }
 }

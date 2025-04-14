@@ -2,7 +2,9 @@ package com.jolupbisang.demo.application.meeting.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jolupbisang.demo.application.common.validator.MeetingAccessValidator;
 import com.jolupbisang.demo.application.meeting.dto.AudioMeta;
+import com.jolupbisang.demo.application.meeting.dto.MeetingDetailSummary;
 import com.jolupbisang.demo.application.meeting.dto.MeetingReq;
 import com.jolupbisang.demo.application.meeting.exception.MeetingErrorCode;
 import com.jolupbisang.demo.domain.agenda.Agenda;
@@ -16,6 +18,7 @@ import com.jolupbisang.demo.infrastructure.agenda.AgendaRepository;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
 import com.jolupbisang.demo.infrastructure.meetingUser.MeetingUserRepository;
 import com.jolupbisang.demo.infrastructure.user.UserRepository;
+import com.jolupbisang.demo.presentation.meeting.dto.MeetingDetailRes;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -30,7 +33,9 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -42,6 +47,7 @@ public class MeetingService {
     private final MeetingUserRepository meetingUserRepository;
     private final AgendaRepository agendaRepository;
 
+    private final MeetingAccessValidator meetingAccessValidator;
     private final MeetingProperties meetingProperties;
     private final ObjectMapper objectMapper;
 
@@ -62,13 +68,35 @@ public class MeetingService {
                 new Agenda(meeting, agenda)).toList());
     }
 
+    public MeetingDetailRes getMeetingDetail(Long meetingId, Long userId) {
+        meetingAccessValidator.validateUserParticipating(meetingId, userId);
+
+        return MeetingDetailRes.fromEntity(meetingRepository.findById(meetingId)
+                .orElseThrow(() -> new CustomException(MeetingErrorCode.NOT_FOUND)));
+    }
+
     public void processAndSendAudioData(WebSocketSession session, BinaryMessage message) throws IOException {
         ByteBuffer buffer = message.getPayload();
         AudioMeta audioMeta = extractAudioMeta(buffer);
-        log.info("{}", audioMeta);
         byte[] audioData = extractAudioData(buffer);
-        log.info("{}", audioData);
+
+        log.info("[{}] Audio accepted: userId: {}, meetingId: {}, chunkId: {}", session.getId(), audioMeta.userId(), audioMeta.meetingId(), audioMeta.chunkId());
         saveAudio(audioMeta, audioData);
+    }
+
+    public List<MeetingDetailSummary> getMeetingsByYearAndMonth(int year, int month, Long userId) {
+        if (year < 0 || month < 1 || month > 12) {
+            throw new CustomException(MeetingErrorCode.INVALID_DATE);
+        }
+
+        LocalDateTime startOfMonth = LocalDateTime.of(year, month, 1, 0, 0, 0);
+        LocalDateTime endOfMonth = startOfMonth.plusMonths(1).minusNanos(1);
+
+        List<Meeting> meetings = meetingRepository.findByUserIdAndStartTimeBetween(userId, startOfMonth, endOfMonth);
+
+        return meetings.stream()
+                .map(MeetingDetailSummary::fromEntity)
+                .collect(Collectors.toList());
     }
 
     private void saveAudio(AudioMeta audioMeta, byte[] audioData) throws IOException {
@@ -110,4 +138,5 @@ public class MeetingService {
 
         return audioBytes;
     }
+
 }
