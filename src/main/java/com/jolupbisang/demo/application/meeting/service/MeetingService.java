@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jolupbisang.demo.application.common.validator.MeetingAccessValidator;
 import com.jolupbisang.demo.application.meeting.dto.AudioMeta;
+import com.jolupbisang.demo.application.meeting.dto.MeetingDetailSummary;
 import com.jolupbisang.demo.application.meeting.dto.MeetingReq;
 import com.jolupbisang.demo.application.meeting.exception.MeetingErrorCode;
 import com.jolupbisang.demo.domain.agenda.Agenda;
@@ -32,7 +33,9 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -81,6 +84,21 @@ public class MeetingService {
         saveAudio(audioMeta, audioData);
     }
 
+    public List<MeetingDetailSummary> getMeetingsByYearAndMonth(int year, int month, Long userId) {
+        if (year < 0 || month < 1 || month > 12) {
+            throw new CustomException(MeetingErrorCode.INVALID_DATE);
+        }
+
+        LocalDateTime startOfMonth = LocalDateTime.of(year, month, 1, 0, 0, 0);
+        LocalDateTime endOfMonth = startOfMonth.plusMonths(1).minusNanos(1);
+
+        List<Meeting> meetings = meetingRepository.findByUserIdAndStartTimeBetween(userId, startOfMonth, endOfMonth);
+
+        return meetings.stream()
+                .map(MeetingDetailSummary::fromEntity)
+                .collect(Collectors.toList());
+    }
+
     private void saveAudio(AudioMeta audioMeta, byte[] audioData) throws IOException {
         Path dirPath = Path.of(meetingProperties.getBaseDir(),
                 Long.toString(audioMeta.meetingId()),
@@ -120,4 +138,5 @@ public class MeetingService {
 
         return audioBytes;
     }
+
 }
