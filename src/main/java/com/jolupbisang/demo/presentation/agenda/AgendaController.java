@@ -2,6 +2,7 @@ package com.jolupbisang.demo.presentation.agenda;
 
 import com.jolupbisang.demo.application.agenda.service.AgendaService;
 import com.jolupbisang.demo.infrastructure.auth.security.CustomUserDetails;
+import com.jolupbisang.demo.presentation.agenda.dto.AgendaDetailRes;
 import com.jolupbisang.demo.presentation.agenda.dto.AgendaStatusReq;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,5 +27,13 @@ public class AgendaController {
                 agendaStatusReq.isCompleted());
 
         return ResponseEntity.status(HttpStatus.ACCEPTED).body("회의 안건 상태 변경 성공");
+    }
+
+    @GetMapping("/{meetingId}")
+    public ResponseEntity<?> getAgendas(@PathVariable("meetingId") Long meetingId,
+                                        @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+
+        return ResponseEntity.status(HttpStatus.OK).body(
+                AgendaDetailRes.fromDto(agendaService.findByMeetingId(meetingId, customUserDetails.getUserId())));
     }
 }
