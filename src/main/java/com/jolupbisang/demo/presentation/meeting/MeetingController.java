@@ -3,6 +3,7 @@ package com.jolupbisang.demo.presentation.meeting;
 import com.jolupbisang.demo.application.meeting.dto.MeetingReq;
 import com.jolupbisang.demo.application.meeting.service.MeetingService;
 import com.jolupbisang.demo.infrastructure.auth.security.CustomUserDetails;
+import com.jolupbisang.demo.presentation.meeting.dto.MeetingDetailSummaryRes;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -30,5 +31,17 @@ public class MeetingController {
                                               @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         return ResponseEntity.ok(meetingService.getMeetingDetail(meetingId, userDetails.getUserId()));
+    }
+
+    @GetMapping
+    public ResponseEntity<?> getMeetings(@RequestParam("year") Integer year,
+                                         @RequestParam("month") Integer month,
+                                         @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        MeetingDetailSummaryRes response = MeetingDetailSummaryRes.fromDto(
+                meetingService.getMeetingsByYearAndMonth(year, month, userDetails.getUserId())
+        );
+        
+        return ResponseEntity.ok(response);
     }
 }
