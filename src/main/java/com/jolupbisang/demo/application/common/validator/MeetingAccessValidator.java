@@ -25,11 +25,7 @@ public class MeetingAccessValidator {
             throw new CustomException(MeetingAccessErrorCode.NOT_IN_PROGRESS);
         }
 
-        boolean isParticipant = meetingUserRepository.existsByMeetingIdAndUserIdAndStatusIn(meetingId, userId, MeetingUserStatus.ACCEPTED);
-
-        if (!isParticipant) {
-            throw new CustomException(MeetingAccessErrorCode.NOT_PARTICIPANT);
-        }
+        validateUserParticipating(meetingId, userId);
     }
 
     public void validateUserParticipating(Long meetingId, Long userId) {
