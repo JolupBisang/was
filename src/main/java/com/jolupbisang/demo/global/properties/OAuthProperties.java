@@ -20,6 +20,13 @@ public class OAuthProperties {
         private final String userInfoUri;
         private final String clientId;
         private final String clientSecret;
-        private final String redirectUri;
+        private final RedirectUris redirectUris;
+
+        @Getter
+        @RequiredArgsConstructor
+        public static class RedirectUris {
+            private final String web;
+            private final String app;
+        }
     }
 }
