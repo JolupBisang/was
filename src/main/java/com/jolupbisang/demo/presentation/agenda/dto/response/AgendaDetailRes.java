@@ -1,4 +1,4 @@
-package com.jolupbisang.demo.presentation.agenda.dto;
+package com.jolupbisang.demo.presentation.agenda.dto.response;
 
 import com.jolupbisang.demo.application.agenda.dto.AgendaDetail;
 
