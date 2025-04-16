@@ -1,9 +1,10 @@
 package com.jolupbisang.demo.presentation.meeting;
 
-import com.jolupbisang.demo.application.meeting.dto.MeetingReq;
 import com.jolupbisang.demo.application.meeting.service.MeetingService;
 import com.jolupbisang.demo.global.response.SuccessResponse;
 import com.jolupbisang.demo.infrastructure.auth.security.CustomUserDetails;
+import com.jolupbisang.demo.presentation.meeting.api.MeetingControllerApi;
+import com.jolupbisang.demo.presentation.meeting.dto.request.MeetingReq;
 import com.jolupbisang.demo.presentation.meeting.dto.response.MeetingCreationRes;
 import com.jolupbisang.demo.presentation.meeting.dto.response.MeetingDetailRes;
 import com.jolupbisang.demo.presentation.meeting.dto.response.MeetingDetailSummaryRes;
@@ -17,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/meetings")
-public class MeetingController {
+public class MeetingController implements MeetingControllerApi {
 
     private final MeetingService meetingService;
 
