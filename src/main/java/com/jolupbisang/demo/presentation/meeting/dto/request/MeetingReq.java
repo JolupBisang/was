@@ -1,4 +1,4 @@
-package com.jolupbisang.demo.application.meeting.dto;
+package com.jolupbisang.demo.presentation.meeting.dto.request;
 
 import com.jolupbisang.demo.domain.meeting.Meeting;
 import jakarta.validation.constraints.Email;
