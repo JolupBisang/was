@@ -1,4 +1,4 @@
-package com.jolupbisang.demo.presentation.meeting.dto;
+package com.jolupbisang.demo.presentation.meeting.dto.response;
 
 import com.jolupbisang.demo.domain.meeting.Meeting;
 
