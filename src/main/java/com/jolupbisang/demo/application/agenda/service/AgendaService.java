@@ -19,11 +19,13 @@ public class AgendaService {
     private final MeetingAccessValidator meetingAccessValidator;
 
     @Transactional
-    public void changeAgendaStatus(Long agendaId, Long userId, boolean isCompleted) {
+    public boolean changeAgendaStatus(Long agendaId, Long userId, boolean isCompleted) {
         Agenda agenda = agendaRepository.findByAgendaIdAndUserId(agendaId, userId)
                 .orElseThrow(() -> new CustomException(AgendaErrorCode.UNAUTHORIZED));
 
         agenda.setIsCompleted(isCompleted);
+
+        return agenda.getIsCompleted();
     }
 
     public List<AgendaDetail> findByMeetingId(Long meetingId, Long userId) {

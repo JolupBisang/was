@@ -3,6 +3,7 @@ package com.jolupbisang.demo.presentation.auth;
 import com.jolupbisang.demo.application.auth.service.AuthService;
 import com.jolupbisang.demo.application.auth.service.ClientPlatform;
 import com.jolupbisang.demo.domain.user.OAuthPlatform;
+import com.jolupbisang.demo.presentation.auth.api.AuthControllerApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -12,7 +13,7 @@ import org.springframework.web.servlet.view.RedirectView;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
-public class AuthController {
+public class AuthController implements AuthControllerApi {
 
     private final AuthService authService;
 

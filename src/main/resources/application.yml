@@ -34,3 +34,15 @@ server:
 spring:
   config.activate.on-profile: common
   application.name: demo
+
+# Swagger 공통 설정
+springdoc:
+  swagger-ui:
+    path: /index.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+    display-request-duration: true
+    disable-swagger-default-url: true
+  api-docs:
+    path: /v3/api-docs
+  packages-to-scan: com.jolupbisang.demo

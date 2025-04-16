@@ -12,7 +12,7 @@ public record AgendaDetail(
         return new AgendaDetail(
                 agenda.getId(),
                 agenda.getContent(),
-                agenda.isCompleted()
+                agenda.getIsCompleted()
         );
     }
 }

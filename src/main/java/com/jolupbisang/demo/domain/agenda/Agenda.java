@@ -21,7 +21,7 @@ public class Agenda {
 
     private String content;
 
-    private boolean isCompleted;
+    private Boolean isCompleted;
 
     public Agenda(Meeting meeting, String content) {
         this.meeting = meeting;
@@ -30,6 +30,6 @@ public class Agenda {
     }
 
     public void setIsCompleted(boolean isCompleted) {
-        this.isCompleted = true;
+        this.isCompleted = isCompleted;
     }
 }

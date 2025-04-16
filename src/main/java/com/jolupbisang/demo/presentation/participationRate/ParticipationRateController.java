@@ -2,6 +2,7 @@ package com.jolupbisang.demo.presentation.participationRate;
 
 import com.jolupbisang.demo.application.participationRate.ParticipationRateService;
 import com.jolupbisang.demo.infrastructure.auth.security.CustomUserDetails;
+import com.jolupbisang.demo.presentation.participationRate.api.ParticipationRateControllerApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -11,7 +12,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/participation_rate")
-public class ParticipationRateController {
+public class ParticipationRateController implements ParticipationRateControllerApi {
 
     private final ParticipationRateService participationRateService;
 
