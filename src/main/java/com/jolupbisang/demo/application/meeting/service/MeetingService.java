@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jolupbisang.demo.application.common.validator.MeetingAccessValidator;
 import com.jolupbisang.demo.application.meeting.dto.AudioMeta;
 import com.jolupbisang.demo.application.meeting.dto.MeetingDetailSummary;
-import com.jolupbisang.demo.application.meeting.dto.MeetingReq;
 import com.jolupbisang.demo.application.meeting.exception.MeetingErrorCode;
 import com.jolupbisang.demo.domain.agenda.Agenda;
 import com.jolupbisang.demo.domain.meeting.Meeting;
@@ -18,7 +17,8 @@ import com.jolupbisang.demo.infrastructure.agenda.AgendaRepository;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
 import com.jolupbisang.demo.infrastructure.meetingUser.MeetingUserRepository;
 import com.jolupbisang.demo.infrastructure.user.UserRepository;
-import com.jolupbisang.demo.presentation.meeting.dto.MeetingDetailRes;
+import com.jolupbisang.demo.presentation.meeting.dto.request.MeetingReq;
+import com.jolupbisang.demo.presentation.meeting.dto.response.MeetingDetailRes;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -52,7 +52,7 @@ public class MeetingService {
     private final ObjectMapper objectMapper;
 
     @Transactional
-    public void createMeeting(MeetingReq meetingReq, Long userId) {
+    public Long createMeeting(MeetingReq meetingReq, Long userId) {
         User leader = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(MeetingErrorCode.NOT_FOUND));
 
@@ -66,6 +66,8 @@ public class MeetingService {
 
         agendaRepository.saveAll(meetingReq.agendas().stream().map(agenda ->
                 new Agenda(meeting, agenda)).toList());
+
+        return meeting.getId();
     }
 
     public MeetingDetailRes getMeetingDetail(Long meetingId, Long userId) {
