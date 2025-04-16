@@ -2,6 +2,7 @@ package com.jolupbisang.demo.presentation.user;
 
 import com.jolupbisang.demo.application.user.service.UserService;
 import com.jolupbisang.demo.global.response.SuccessResponse;
+import com.jolupbisang.demo.presentation.user.api.UserControllerApi;
 import com.jolupbisang.demo.presentation.user.dto.response.UserInfoRes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/users")
-public class UserController {
+public class UserController implements UserControllerApi {
 
     private final UserService userService;
 
