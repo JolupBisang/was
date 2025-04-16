@@ -1,6 +1,6 @@
 package com.jolupbisang.demo.infrastructure.auth.security;
 
-import com.jolupbisang.demo.application.user.dto.UserInfoRes;
+import com.jolupbisang.demo.application.user.dto.UserInfo;
 import com.jolupbisang.demo.application.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,7 +16,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
-        UserInfoRes user = userService.findById(Long.parseLong(userId));
+        UserInfo user = userService.findById(Long.parseLong(userId));
         return new CustomUserDetails(
                 user.id(),
                 user.email(),

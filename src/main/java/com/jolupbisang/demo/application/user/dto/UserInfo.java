@@ -2,13 +2,13 @@ package com.jolupbisang.demo.application.user.dto;
 
 import com.jolupbisang.demo.domain.user.User;
 
-public record UserInfoRes(
+public record UserInfo(
         Long id,
         String email,
         String nickname
 ) {
-    public static UserInfoRes from(User user) {
-        return new UserInfoRes(
+    public static UserInfo fromEntity(User user) {
+        return new UserInfo(
                 user.getId(),
                 user.getEmail(),
                 user.getNickname());
