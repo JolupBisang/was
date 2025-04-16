@@ -22,7 +22,7 @@ public class SecurityConfig {
     private final JwtExceptionFilter jwtExceptionFilter;
 
     private static final String[] PUBLIC_ENDPOINTS = {
-            "/swagger-resources/**", "/swagger-ui/**", "/webjars/**", "/api-docs/**",  //Swagger
+            "/swagger-resources/**", "/swagger-ui/**", "/webjars/**", "/v3/api-docs/**",  //Swagger
             "/error", "/env",
             "/api/auth/**",
             "/ws/**"
