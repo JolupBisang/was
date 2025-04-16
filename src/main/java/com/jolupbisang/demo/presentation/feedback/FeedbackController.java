@@ -2,6 +2,7 @@ package com.jolupbisang.demo.presentation.feedback;
 
 import com.jolupbisang.demo.application.feedback.FeedbackService;
 import com.jolupbisang.demo.infrastructure.auth.security.CustomUserDetails;
+import com.jolupbisang.demo.presentation.feedback.api.FeedbackControllerApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -11,7 +12,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/feedback")
-public class FeedbackController {
+public class FeedbackController implements FeedbackControllerApi {
 
     private final FeedbackService feedbackService;
 
