@@ -33,6 +33,9 @@ public class Meeting extends BaseTimeEntity {
     @Column(nullable = false)
     private int restInterval;
 
+    @Column(nullable = false)
+    private int restDuration;
+
     @Enumerated(EnumType.STRING)
     private MeetingStatus meetingStatus;
 
@@ -42,11 +45,12 @@ public class Meeting extends BaseTimeEntity {
 
     private String recordUrl;
 
-    public Meeting(String title, String location, LocalDateTime scheduledStartTime, int targetTime, int restInterval) {
+    public Meeting(String title, String location, LocalDateTime scheduledStartTime, int targetTime, int restInterval, int restDuration) {
         this.title = title;
         this.location = location;
         this.scheduledStartTime = scheduledStartTime;
         this.targetTime = targetTime;
         this.restInterval = restInterval;
+        this.restDuration = restDuration;
     }
 }
