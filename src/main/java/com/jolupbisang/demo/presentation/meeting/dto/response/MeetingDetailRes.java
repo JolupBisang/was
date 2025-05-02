@@ -11,6 +11,7 @@ public record MeetingDetailRes(
         LocalDateTime scheduledStartTime,
         Integer targetTime,
         Integer restInterval,
+        Integer restDuration,
         String meetingStatus
 ) {
 
@@ -22,6 +23,7 @@ public record MeetingDetailRes(
                 meeting.getScheduledStartTime(),
                 meeting.getTargetTime(),
                 meeting.getRestInterval(),
+                meeting.getRestDuration(),
                 meeting.getMeetingStatus().name()
         );
     }

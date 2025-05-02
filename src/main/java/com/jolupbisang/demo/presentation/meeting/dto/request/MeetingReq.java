@@ -31,8 +31,13 @@ public record MeetingReq(
 
         @Schema(description = "회의 휴식 시간(분)", example = "10")
         @NotNull(message = "회의 휴식 시간은 필수입니다.")
-        @Min(value = 0, message = "회의 휴식 시간은 0분 이상이어야 합니다.")
+        @Min(value = 0, message = "회의 휴식 시간 간격은 0분 이상이어야 합니다.")
         Integer restInterval,
+
+        @Schema(description = "회의 휴식 시간 길이(분)", example = "5")
+        @NotNull(message = "회의 휴식 시간 길이는 필수입니다.")
+        @Min(value = 1, message = "회의 휴식 시간 길이는 1분 이상이어야 합니다.")
+        Integer restDuration,
 
         @Schema(description = "참여자 목록")
         @NotNull(message = "참여자 목록은 필수입니다.")
@@ -43,6 +48,6 @@ public record MeetingReq(
         List<@NotBlank(message = "회의 안건은 1글자 이상이어야 합니다.") String> agendas
 ) {
     public Meeting toEntity() {
-        return new Meeting(title, location, scheduledStartTime, targetTime, restInterval);
+        return new Meeting(title, location, scheduledStartTime, targetTime, restInterval, restDuration);
     }
 }
