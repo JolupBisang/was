@@ -1,9 +1,6 @@
 package com.jolupbisang.demo.application.meeting.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jolupbisang.demo.application.common.validator.MeetingAccessValidator;
-import com.jolupbisang.demo.application.meeting.dto.AudioMeta;
 import com.jolupbisang.demo.application.meeting.dto.MeetingDetailSummary;
 import com.jolupbisang.demo.application.meeting.exception.MeetingErrorCode;
 import com.jolupbisang.demo.domain.agenda.Agenda;
@@ -12,7 +9,6 @@ import com.jolupbisang.demo.domain.meetingUser.MeetingUser;
 import com.jolupbisang.demo.domain.meetingUser.MeetingUserStatus;
 import com.jolupbisang.demo.domain.user.User;
 import com.jolupbisang.demo.global.exception.CustomException;
-import com.jolupbisang.demo.global.properties.MeetingProperties;
 import com.jolupbisang.demo.infrastructure.agenda.AgendaRepository;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
 import com.jolupbisang.demo.infrastructure.meetingUser.MeetingUserRepository;
@@ -23,16 +19,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.socket.BinaryMessage;
-import org.springframework.web.socket.WebSocketSession;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -46,10 +33,7 @@ public class MeetingService {
     private final MeetingRepository meetingRepository;
     private final MeetingUserRepository meetingUserRepository;
     private final AgendaRepository agendaRepository;
-
     private final MeetingAccessValidator meetingAccessValidator;
-    private final MeetingProperties meetingProperties;
-    private final ObjectMapper objectMapper;
 
     @Transactional
     public Long createMeeting(MeetingReq meetingReq, Long userId) {
@@ -59,17 +43,13 @@ public class MeetingService {
         Meeting meeting = meetingReq.toEntity();
         meetingRepository.save(meeting);
 
-        List<User> participants = userRepository.findByEmailIn(meetingReq.participants());
-        meetingUserRepository.save(new MeetingUser(meeting, leader, true, MeetingUserStatus.ACCEPTED));
-        meetingUserRepository.saveAll(participants.stream().map(p ->
-                new MeetingUser(meeting, p, false, MeetingUserStatus.WAITING)).toList());
-
-        agendaRepository.saveAll(meetingReq.agendas().stream().map(agenda ->
-                new Agenda(meeting, agenda)).toList());
+        saveParticipants(meeting, leader, meetingReq.participants());
+        saveAgendas(meeting, meetingReq.agendas());
 
         return meeting.getId();
     }
 
+    @Transactional(readOnly = true)
     public MeetingDetailRes getMeetingDetail(Long meetingId, Long userId) {
         meetingAccessValidator.validateUserParticipating(meetingId, userId);
 
@@ -77,15 +57,7 @@ public class MeetingService {
                 .orElseThrow(() -> new CustomException(MeetingErrorCode.NOT_FOUND)));
     }
 
-    public void processAndSendAudioData(WebSocketSession session, BinaryMessage message) throws IOException {
-        ByteBuffer buffer = message.getPayload();
-        AudioMeta audioMeta = extractAudioMeta(buffer);
-        byte[] audioData = extractAudioData(buffer);
-
-        log.info("[{}] Audio accepted: userId: {}, meetingId: {}, chunkId: {}", session.getId(), audioMeta.userId(), audioMeta.meetingId(), audioMeta.chunkId());
-        saveAudio(audioMeta, audioData);
-    }
-
+    @Transactional(readOnly = true)
     public List<MeetingDetailSummary> getMeetingsByYearAndMonth(int year, int month, Long userId) {
         if (year < 0 || month < 1 || month > 12) {
             throw new CustomException(MeetingErrorCode.INVALID_DATE);
@@ -101,44 +73,24 @@ public class MeetingService {
                 .collect(Collectors.toList());
     }
 
-    private void saveAudio(AudioMeta audioMeta, byte[] audioData) throws IOException {
-        Path dirPath = Path.of(meetingProperties.getBaseDir(),
-                Long.toString(audioMeta.meetingId()),
-                Long.toString(audioMeta.userId()));
-        String filename = Integer.toString(audioMeta.chunkId());
+    private void saveParticipants(Meeting meeting, User leader, List<String> participantEmails) {
+        meetingUserRepository.save(new MeetingUser(meeting, leader, true, MeetingUserStatus.ACCEPTED));
 
-        if (!Files.exists(dirPath)) {
-            Files.createDirectories(dirPath);
-        }
-
-        File chunkFile = dirPath.resolve(filename).toFile();
-
-        try (FileOutputStream fos = new FileOutputStream(chunkFile)) {
-            fos.write(audioData);
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (participantEmails != null && !participantEmails.isEmpty()) {
+            List<User> participants = userRepository.findByEmailIn(participantEmails);
+            List<MeetingUser> meetingUsers = participants.stream()
+                    .map(participant -> new MeetingUser(meeting, participant, false, MeetingUserStatus.WAITING))
+                    .toList();
+            meetingUserRepository.saveAll(meetingUsers);
         }
     }
 
-    private AudioMeta extractAudioMeta(ByteBuffer byteBuffer) {
-        int metaLength = byteBuffer.getInt();
-        byte[] metaData = new byte[metaLength];
-        byteBuffer.get(metaData);
-        String metaString = new String(metaData, StandardCharsets.UTF_8);
-
-        try {
-            return objectMapper.readValue(metaString, AudioMeta.class);
-        } catch (JsonProcessingException ex) {
-            log.error("Error parsing JSON: {}", ex.getMessage());
-            return null;
+    private void saveAgendas(Meeting meeting, List<String> agendaContents) {
+        if (agendaContents != null && !agendaContents.isEmpty()) {
+            List<Agenda> agendas = agendaContents.stream()
+                    .map(content -> new Agenda(meeting, content))
+                    .toList();
+            agendaRepository.saveAll(agendas);
         }
     }
-
-    private byte[] extractAudioData(ByteBuffer byteBuffer) {
-        byte[] audioBytes = new byte[byteBuffer.remaining()];
-        byteBuffer.get(audioBytes);
-
-        return audioBytes;
-    }
-
 }

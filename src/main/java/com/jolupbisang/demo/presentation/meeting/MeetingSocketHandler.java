@@ -1,7 +1,6 @@
 package com.jolupbisang.demo.presentation.meeting;
 
-
-import com.jolupbisang.demo.application.meeting.service.MeetingService;
+import com.jolupbisang.demo.application.meeting.service.AudioService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -16,7 +15,7 @@ import org.springframework.web.socket.handler.BinaryWebSocketHandler;
 @RequiredArgsConstructor
 public class MeetingSocketHandler extends BinaryWebSocketHandler {
 
-    private final MeetingService meetingService;
+    private final AudioService audioService;
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
@@ -25,7 +24,7 @@ public class MeetingSocketHandler extends BinaryWebSocketHandler {
 
     @Override
     protected void handleBinaryMessage(WebSocketSession session, BinaryMessage message) throws Exception {
-        meetingService.processAndSendAudioData(session, message);
+        audioService.processAndSaveAudioData(session, message);
     }
 
     @Override
