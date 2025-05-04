@@ -46,9 +46,6 @@ public class GlobalExceptionHandler {
     }
 
     private record ErrorResponse(String message, String errorId, Map<String, String> errors) {
-        ErrorResponse(String message, String errorId) {
-            this(message, errorId, null);
-        }
     }
 }
 
