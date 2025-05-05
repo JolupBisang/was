@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jolupbisang.demo.application.meeting.service.AudioService;
 import com.jolupbisang.demo.global.exception.CustomException;
 import com.jolupbisang.demo.global.exception.GlobalErrorCode;
+import com.jolupbisang.demo.global.response.ErrorResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -14,7 +15,6 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.BinaryWebSocketHandler;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -75,12 +75,8 @@ public class MeetingSocketHandler extends BinaryWebSocketHandler {
 
     private ErrorResponse buildErrorResponse(Exception ex, String errorId) {
         if (ex instanceof CustomException) {
-            return new ErrorResponse(((CustomException) ex).getErrorCode().getMessage(), errorId, null);
+            return ErrorResponse.of(((CustomException) ex).getErrorCode().getMessage(), errorId);
         }
-
-        return new ErrorResponse(GlobalErrorCode.INTERNAL_SERVER_ERROR.getMessage(), errorId, null);
-    }
-
-    private record ErrorResponse(String message, String errorId, Map<String, String> errors) {
+        return ErrorResponse.of(GlobalErrorCode.INTERNAL_SERVER_ERROR.getMessage(), errorId);
     }
 }

@@ -1,5 +1,6 @@
 package com.jolupbisang.demo.global.exception;
 
+import com.jolupbisang.demo.global.response.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -42,10 +43,7 @@ public class GlobalExceptionHandler {
         String errorId = UUID.randomUUID().toString();
         log.error("[{}] Exception occurred: {}", errorId, errorCode.getMessage(), ex);
 
-        return ResponseEntity.status(errorCode.getStatus()).body(new ErrorResponse(errorCode.getMessage(), errorId, errors));
-    }
-
-    private record ErrorResponse(String message, String errorId, Map<String, String> errors) {
+        return ResponseEntity.status(errorCode.getStatus()).body(ErrorResponse.of(errorCode.getMessage(), errorId, errors));
     }
 }
 
