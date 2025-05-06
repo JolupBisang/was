@@ -3,6 +3,8 @@ package com.jolupbisang.demo.application.meeting.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jolupbisang.demo.application.meeting.dto.AudioMeta;
+import com.jolupbisang.demo.application.meeting.exception.AudioError;
+import com.jolupbisang.demo.global.exception.CustomException;
 import com.jolupbisang.demo.global.properties.MeetingProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,9 +33,9 @@ public class AudioService {
         AudioMeta audioMeta = extractAudioMeta(buffer);
         byte[] audioData = extractAudioData(buffer);
 
-        log.info("[{}] Audio accepted: userId: {}, meetingId: {}, chunkId: {}", 
+        log.info("[{}] Audio accepted: userId: {}, meetingId: {}, chunkId: {}",
                 session.getId(), audioMeta.userId(), audioMeta.meetingId(), audioMeta.chunkId());
-                
+
         saveAudio(audioMeta, audioData);
     }
 
@@ -52,7 +54,7 @@ public class AudioService {
         try (FileOutputStream fos = new FileOutputStream(chunkFile)) {
             fos.write(audioData);
         } catch (IOException e) {
-            log.error("Failed to save audio file", e);
+            log.error("[Failed to save audio file] meetingId: {}, userId:{}, chunkId:{} ", audioMeta.meetingId(), audioMeta.userId(), audioMeta.chunkId(), e);
             throw e;
         }
     }
@@ -66,8 +68,7 @@ public class AudioService {
         try {
             return objectMapper.readValue(metaString, AudioMeta.class);
         } catch (JsonProcessingException ex) {
-            log.error("Error parsing JSON: {}", ex.getMessage());
-            throw new RuntimeException("Failed to parse audio metadata", ex);
+            throw new CustomException(AudioError.INVALID_META_DATA);
         }
     }
 
