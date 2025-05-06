@@ -6,6 +6,7 @@ import com.jolupbisang.demo.application.meeting.dto.AudioMeta;
 import com.jolupbisang.demo.application.meeting.exception.AudioError;
 import com.jolupbisang.demo.global.exception.CustomException;
 import com.jolupbisang.demo.infrastructure.meeting.audio.AudioRepository;
+import com.jolupbisang.demo.infrastructure.meeting.client.WhisperClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ import java.nio.charset.StandardCharsets;
 public class AudioService {
 
     private final AudioRepository audioRepository;
+    private final WhisperClient whisperClient;
     private final ObjectMapper objectMapper;
 
     public void processAndSaveAudioData(WebSocketSession session, BinaryMessage message) throws IOException {
@@ -33,6 +35,7 @@ public class AudioService {
                 session.getId(), audioMeta.userId(), audioMeta.meetingId(), audioMeta.chunkId());
 
         audioRepository.save(audioMeta, audioData);
+        whisperClient.send(message);
     }
 
     private AudioMeta extractAudioMeta(ByteBuffer byteBuffer) {
