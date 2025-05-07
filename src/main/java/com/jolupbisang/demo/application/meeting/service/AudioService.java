@@ -2,6 +2,7 @@ package com.jolupbisang.demo.application.meeting.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jolupbisang.demo.application.common.validator.MeetingAccessValidator;
 import com.jolupbisang.demo.application.meeting.dto.AudioMeta;
 import com.jolupbisang.demo.application.meeting.exception.AudioError;
 import com.jolupbisang.demo.global.exception.CustomException;
@@ -24,6 +25,8 @@ public class AudioService {
 
     private final AudioRepository audioRepository;
     private final WhisperClient whisperClient;
+    private final MeetingAccessValidator meetingAccessValidator;
+
     private final ObjectMapper objectMapper;
 
     public void processAndSaveAudioData(WebSocketSession session, BinaryMessage message) throws IOException {
@@ -31,8 +34,9 @@ public class AudioService {
         AudioMeta audioMeta = extractAudioMeta(buffer);
         byte[] audioData = extractAudioData(buffer);
 
-        log.info("[{}] Audio accepted: userId: {}, meetingId: {}, chunkId: {}",
-                session.getId(), audioMeta.userId(), audioMeta.meetingId(), audioMeta.chunkId());
+        log.info("[{}] Audio accepted: userId: {}, meetingId: {}, chunkId: {}", session.getId(), audioMeta.userId(), audioMeta.meetingId(), audioMeta.chunkId());
+
+        meetingAccessValidator.validateMeetingInProgressAndUserParticipating(audioMeta.meetingId(), audioMeta.userId());
 
         audioRepository.save(audioMeta, audioData);
         whisperClient.send(message);
