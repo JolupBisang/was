@@ -6,7 +6,7 @@ public record AudioMeta(
         String type,
         long userId,
         long meetingId,
-        int chunkId,
+        long chunkId,
         LocalDateTime timestamp,
         String encoding
 ) {

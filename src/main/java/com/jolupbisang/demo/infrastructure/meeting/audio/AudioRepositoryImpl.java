@@ -16,15 +16,15 @@ import java.nio.file.Path;
 @Repository
 @RequiredArgsConstructor
 public class AudioRepositoryImpl implements AudioRepository {
-    
+
     private final MeetingProperties meetingProperties;
-    
+
     @Override
     public void save(AudioMeta audioMeta, byte[] audioData) throws IOException {
         Path dirPath = Path.of(meetingProperties.getBaseDir(),
                 Long.toString(audioMeta.meetingId()),
                 Long.toString(audioMeta.userId()));
-        String filename = Integer.toString(audioMeta.chunkId());
+        String filename = Long.toString(audioMeta.chunkId());
 
         if (!Files.exists(dirPath)) {
             Files.createDirectories(dirPath);
@@ -35,7 +35,7 @@ public class AudioRepositoryImpl implements AudioRepository {
         try (FileOutputStream fos = new FileOutputStream(chunkFile)) {
             fos.write(audioData);
         } catch (IOException e) {
-            log.error("[Failed to save audio file] meetingId: {}, userId:{}, chunkId:{} ", 
+            log.error("[Failed to save audio file] meetingId: {}, userId:{}, chunkId:{} ",
                     audioMeta.meetingId(), audioMeta.userId(), audioMeta.chunkId(), e);
             throw e;
         }
