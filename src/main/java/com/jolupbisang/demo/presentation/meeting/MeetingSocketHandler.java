@@ -1,23 +1,16 @@
 package com.jolupbisang.demo.presentation.meeting;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jolupbisang.demo.application.meeting.service.AudioService;
-import com.jolupbisang.demo.application.meeting.exception.AudioError;
-import com.jolupbisang.demo.global.exception.CustomException;
 import com.jolupbisang.demo.global.exception.WebSocketErrorHandler;
 import com.jolupbisang.demo.infrastructure.auth.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.CloseStatus;
-import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.BinaryWebSocketHandler;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import java.io.IOException;
 import java.net.URI;
 
 @Slf4j
@@ -27,24 +20,23 @@ public class MeetingSocketHandler extends BinaryWebSocketHandler {
 
     private final AudioService audioService;
     private final WebSocketErrorHandler webSocketErrorHandler;
-    
+
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
         try {
             Long meetingId = extractMeetingIdFromUri(session);
-            Authentication authentication = (Authentication) session.getPrincipal();
+            CustomUserDetails userDetails = (CustomUserDetails) session.getAttributes().get("userDetails");
 
-            if (authentication == null || !(authentication.getPrincipal() instanceof CustomUserDetails)) {
-                throw new IllegalArgumentException("Missing authentication details.");
+            if (userDetails == null) {
+                throw new IllegalStateException("User details not found in session");
             }
 
-            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
             Long userId = userDetails.getUserId();
-            
+
             log.info("[{}] Attempting to register session: userId={}, meetingId={}", session.getId(), userId, meetingId);
             audioService.registerSessionAndValidateAccess(session, meetingId, userId);
             log.info("[{}] Session registration successful: userId={}, meetingId={}", session.getId(), userId, meetingId);
-            
+
         } catch (Exception ex) {
             webSocketErrorHandler.handleWebSocketError(session, ex);
         }
@@ -70,7 +62,7 @@ public class MeetingSocketHandler extends BinaryWebSocketHandler {
         try {
             audioService.unregisterSession(session);
         } catch (Exception ex) {
-            log.error("[{}] Exception during session unregistration via AudioService on connection closed. Status: {}", 
+            log.error("[{}] Exception during session unregistration via AudioService on connection closed. Status: {}",
                     session.getId(), status, ex);
         }
         log.debug("[{}] WebSocket Connection Closed - Status: {}. Session unregistration attempted.", session.getId(), status);
@@ -81,13 +73,13 @@ public class MeetingSocketHandler extends BinaryWebSocketHandler {
         if (uri == null) {
             throw new IllegalStateException("WebSocket URI is null.");
         }
-        
+
         String path = uri.getPath();
-        if (path == null || !path.startsWith("/ws/meeting/")) {
+        if (path == null || !path.startsWith("/ws/meeting/audio/")) {
             throw new IllegalArgumentException("Invalid WebSocket path format.");
         }
-        
-        String meetingIdStr = path.substring("/ws/meeting/".length());
+
+        String meetingIdStr = path.substring("/ws/meeting/audio/".length());
         try {
             return Long.parseLong(meetingIdStr);
         } catch (NumberFormatException nfe) {
