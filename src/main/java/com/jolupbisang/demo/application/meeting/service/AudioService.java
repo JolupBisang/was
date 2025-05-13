@@ -10,17 +10,16 @@ import com.jolupbisang.demo.infrastructure.meeting.audio.AudioRepository;
 import com.jolupbisang.demo.infrastructure.meeting.client.WhisperClient;
 import com.jolupbisang.demo.infrastructure.meeting.session.MeetingSessionRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.BinaryMessage;
-import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.CloseStatus;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -34,12 +33,7 @@ public class AudioService {
     private final MeetingSessionRepository meetingSessionRepository;
 
     public void registerSessionAndValidateAccess(WebSocketSession session, Long meetingId, Long userId) {
-        Optional<WebSocketSession> existingSessionOpt = meetingSessionRepository.findByUserId(userId);
-
-        if (existingSessionOpt.isPresent()) {
-            closeAndRemoveExistingSession(existingSessionOpt.get(), userId);
-        }
-
+        meetingSessionRepository.findByUserId(userId).ifPresent(webSocketSession -> closeAndRemoveExistingSession(webSocketSession, userId));
         meetingAccessValidator.validateMeetingInProgressAndUserParticipating(meetingId, userId);
         meetingSessionRepository.save(session, userId, meetingId);
     }
