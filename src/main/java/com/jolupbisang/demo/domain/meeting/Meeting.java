@@ -37,6 +37,7 @@ public class Meeting extends BaseTimeEntity {
     private int restDuration;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private MeetingStatus meetingStatus;
 
     private LocalDateTime actualStartTime;
@@ -52,5 +53,6 @@ public class Meeting extends BaseTimeEntity {
         this.targetTime = targetTime;
         this.restInterval = restInterval;
         this.restDuration = restDuration;
+        this.meetingStatus = MeetingStatus.WAITING;
     }
 }
