@@ -12,6 +12,7 @@ import com.jolupbisang.demo.infrastructure.meeting.session.MeetingSessionReposit
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketSession;
@@ -32,16 +33,19 @@ public class AudioService {
     private final MeetingAccessValidator meetingAccessValidator;
     private final MeetingSessionRepository meetingSessionRepository;
 
+    @Transactional
     public void registerSessionAndValidateAccess(WebSocketSession session, Long meetingId, Long userId) {
         meetingSessionRepository.findByUserId(userId).ifPresent(webSocketSession -> closeAndRemoveExistingSession(webSocketSession, userId));
         meetingAccessValidator.validateMeetingInProgressAndUserParticipating(meetingId, userId);
         meetingSessionRepository.save(session, userId, meetingId);
     }
 
+    @Transactional
     public void unregisterSession(WebSocketSession session) {
         meetingSessionRepository.delete(session);
     }
 
+    @Transactional
     public void processAndSaveAudioData(WebSocketSession session, BinaryMessage message) throws IOException {
         long userId = meetingSessionRepository.getUserIdBySession(session)
                 .orElseThrow(() -> new CustomException(AudioError.SESSION_INFO_NOT_FOUND));
