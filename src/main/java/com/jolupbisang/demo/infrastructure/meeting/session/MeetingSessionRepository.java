@@ -13,5 +13,7 @@ public interface MeetingSessionRepository {
 
     Optional<Long> getMeetingIdBySession(WebSocketSession session);
 
-    boolean existsBySession(WebSocketSession session);
+    Optional<WebSocketSession> findByUserId(Long userId);
+
+    void deleteByUserId(Long userId);
 } 
