@@ -13,14 +13,18 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.WebSocketSession;
+import org.springframework.web.socket.CloseStatus;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AudioService {
 
     private final AudioRepository audioRepository;
@@ -30,6 +34,12 @@ public class AudioService {
     private final MeetingSessionRepository meetingSessionRepository;
 
     public void registerSessionAndValidateAccess(WebSocketSession session, Long meetingId, Long userId) {
+        Optional<WebSocketSession> existingSessionOpt = meetingSessionRepository.findByUserId(userId);
+
+        if (existingSessionOpt.isPresent()) {
+            closeAndRemoveExistingSession(existingSessionOpt.get(), userId);
+        }
+
         meetingAccessValidator.validateMeetingInProgressAndUserParticipating(meetingId, userId);
         meetingSessionRepository.save(session, userId, meetingId);
     }
@@ -109,5 +119,15 @@ public class AudioService {
                     this.encoding
             );
         }
+    }
+
+    private void closeAndRemoveExistingSession(WebSocketSession existingSession, Long userId) {
+        log.warn("User {} already has an active session {}. Closing the old session.", userId, existingSession.getId());
+        try {
+            existingSession.close(CloseStatus.POLICY_VIOLATION.withReason("New connection established"));
+        } catch (IOException e) {
+            log.error("Error closing existing WebSocket session {} for user {}: {}", existingSession.getId(), userId, e.getMessage());
+        }
+        meetingSessionRepository.deleteByUserId(userId);
     }
 } 
