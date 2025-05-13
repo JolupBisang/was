@@ -24,7 +24,7 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final UserDetailsService userDetailsService;
-    private final JwtProvider JwtProvider;
+    private final JwtProvider jwtProvider;
 
     private static final String TOKEN_TYPE = "Bearer ";
 
@@ -50,7 +50,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private String resolveAccessToken(String authToken) {
         String accessToken = authToken.substring(TOKEN_TYPE.length()).trim();
 
-        if (JwtProvider.isExpired(accessToken)) {
+        if (jwtProvider.isExpired(accessToken)) {
             throw new CustomException(GlobalErrorCode.EXPIRED_JWT);
         }
 
@@ -58,9 +58,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private Authentication getAuthentication(String token) {
-        Long userId = JwtProvider.getUserId(token);
-        String email = JwtProvider.getEmail(token);
-        String nickname = JwtProvider.getNickname(token);
+        Long userId = jwtProvider.getUserId(token);
+        String email = jwtProvider.getEmail(token);
+        String nickname = jwtProvider.getNickname(token);
 
         UserDetails userDetails = new CustomUserDetails(userId, email, nickname);
 

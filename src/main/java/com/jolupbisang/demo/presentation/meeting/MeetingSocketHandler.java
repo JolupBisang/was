@@ -1,21 +1,17 @@
 package com.jolupbisang.demo.presentation.meeting;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jolupbisang.demo.application.meeting.service.AudioService;
-import com.jolupbisang.demo.global.exception.CustomException;
-import com.jolupbisang.demo.global.exception.GlobalErrorCode;
-import com.jolupbisang.demo.global.response.ErrorResponse;
+import com.jolupbisang.demo.global.exception.WebSocketErrorHandler;
+import com.jolupbisang.demo.infrastructure.auth.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.CloseStatus;
-import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.BinaryWebSocketHandler;
 
-import java.io.IOException;
-import java.util.UUID;
+import java.net.URI;
 
 @Slf4j
 @Component
@@ -23,60 +19,77 @@ import java.util.UUID;
 public class MeetingSocketHandler extends BinaryWebSocketHandler {
 
     private final AudioService audioService;
-    private final ObjectMapper objectMapper;
+    private final WebSocketErrorHandler webSocketErrorHandler;
 
     @Override
-    public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        log.info("[{}] WebSocket Connection Established", session.getId());
+    public void afterConnectionEstablished(WebSocketSession session) {
+        try {
+            Long meetingId = extractMeetingIdFromUri(session);
+            CustomUserDetails userDetails = (CustomUserDetails) session.getAttributes().get("userDetails");
+
+            if (userDetails == null) {
+                throw new IllegalStateException("User details not found in session");
+            }
+
+            Long userId = userDetails.getUserId();
+
+            log.info("[{}] Attempting to register session: userId={}, meetingId={}", session.getId(), userId, meetingId);
+            audioService.registerSessionAndValidateAccess(session, meetingId, userId);
+            log.info("[{}] Session registration successful: userId={}, meetingId={}", session.getId(), userId, meetingId);
+
+        } catch (Exception ex) {
+            webSocketErrorHandler.handleWebSocketError(session, ex);
+            try {
+                log.warn("[{}] Closing session due to exception during connection establishment: {}", session.getId(), ex.getMessage());
+                session.close(CloseStatus.POLICY_VIOLATION);
+            } catch (Exception closeEx) {
+                log.error("[{}] Error closing WebSocket session after handling initial error: {}", session.getId(), closeEx.getMessage(), closeEx);
+            }
+        }
     }
 
     @Override
-    protected void handleBinaryMessage(WebSocketSession session, BinaryMessage message) throws Exception {
+    protected void handleBinaryMessage(WebSocketSession session, BinaryMessage message) {
         try {
             audioService.processAndSaveAudioData(session, message);
         } catch (Exception ex) {
-            handleExceptionAndNotifyClient(session, ex);
+            webSocketErrorHandler.handleWebSocketError(session, ex);
         }
     }
 
     @Override
-    public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
-        session.sendMessage(new TextMessage("Error: " + exception.getMessage()));
-        log.info("[{}] WebSocket Transport Error: {}", session.getId(), exception.getMessage());
+    public void handleTransportError(WebSocketSession session, Throwable exception) {
+        log.warn("[{}] WebSocket Transport Error: {}", session.getId(), exception.getMessage());
+        webSocketErrorHandler.handleWebSocketError(session, exception);
     }
 
     @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        log.info("[{}] WebSocket Connection Closed - Status: {}", session.getId(), status);
-    }
-
-    private void handleExceptionAndNotifyClient(WebSocketSession session, Exception ex) {
-        log.error("[{}] Exception during WebSocket operation: {}", session.getId(), ex.getMessage(), ex);
-
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         try {
-            if (session.isOpen()) {
-                sendErrorResponse(session, ex);
-                log.debug("[{}] Error message sent to client", session.getId());
-            } else {
-                log.debug("[{}] Session closed, cannot send error message", session.getId());
-            }
-        } catch (Exception sendEx) {
-            log.error("[{}] Failed to send error message: {}", session.getId(), sendEx.getMessage());
+            audioService.unregisterSession(session);
+        } catch (Exception ex) {
+            log.error("[{}] Exception during session unregistration via AudioService on connection closed. Status: {}",
+                    session.getId(), status, ex);
         }
+        log.debug("[{}] WebSocket Connection Closed - Status: {}. Session unregistration attempted.", session.getId(), status);
     }
 
-    private void sendErrorResponse(WebSocketSession session, Exception ex) throws IOException {
-        String errorId = UUID.randomUUID().toString();
-        ErrorResponse errorResponse = buildErrorResponse(ex, errorId);
-
-        log.error("[{}] Exception occurred: {}", errorId, errorResponse.message(), ex);
-        session.sendMessage(new TextMessage(objectMapper.writeValueAsString(errorResponse)));
-    }
-
-    private ErrorResponse buildErrorResponse(Exception ex, String errorId) {
-        if (ex instanceof CustomException) {
-            return ErrorResponse.of(((CustomException) ex).getErrorCode().getMessage(), errorId);
+    private Long extractMeetingIdFromUri(WebSocketSession session) {
+        URI uri = session.getUri();
+        if (uri == null) {
+            throw new IllegalStateException("WebSocket URI is null.");
         }
-        return ErrorResponse.of(GlobalErrorCode.INTERNAL_SERVER_ERROR.getMessage(), errorId);
+
+        String path = uri.getPath();
+        if (path == null || !path.startsWith("/ws/meeting/audio/")) {
+            throw new IllegalArgumentException("Invalid WebSocket path format.");
+        }
+
+        String meetingIdStr = path.substring("/ws/meeting/audio/".length());
+        try {
+            return Long.parseLong(meetingIdStr);
+        } catch (NumberFormatException nfe) {
+            throw new IllegalArgumentException("Invalid meeting ID format: " + meetingIdStr);
+        }
     }
 }
