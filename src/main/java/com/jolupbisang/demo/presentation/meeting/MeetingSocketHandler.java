@@ -41,7 +41,7 @@ public class MeetingSocketHandler extends BinaryWebSocketHandler {
             webSocketErrorHandler.handleWebSocketError(session, ex);
             try {
                 log.warn("[{}] Closing session due to exception during connection establishment: {}", session.getId(), ex.getMessage());
-                session.close(CloseStatus.NORMAL);
+                session.close(CloseStatus.POLICY_VIOLATION);
             } catch (Exception closeEx) {
                 log.error("[{}] Error closing WebSocket session after handling initial error: {}", session.getId(), closeEx.getMessage(), closeEx);
             }
