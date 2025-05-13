@@ -31,6 +31,7 @@ public class WebSocketAuthInterceptor implements HandshakeInterceptor {
 
         String token = extractToken(request);
         if (token == null) {
+            log.warn("Handshake failed: Missing token in request URI: {}", request.getURI());
             return false;
         }
 
