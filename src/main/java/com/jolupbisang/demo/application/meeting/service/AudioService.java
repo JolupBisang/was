@@ -8,6 +8,7 @@ import com.jolupbisang.demo.application.meeting.exception.AudioError;
 import com.jolupbisang.demo.global.exception.CustomException;
 import com.jolupbisang.demo.infrastructure.meeting.audio.AudioRepository;
 import com.jolupbisang.demo.infrastructure.meeting.client.WhisperClient;
+import com.jolupbisang.demo.infrastructure.meeting.session.AudioProgressRepository;
 import com.jolupbisang.demo.infrastructure.meeting.session.MeetingSessionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,12 +33,14 @@ public class AudioService {
     private final ObjectMapper objectMapper;
     private final MeetingAccessValidator meetingAccessValidator;
     private final MeetingSessionRepository meetingSessionRepository;
+    private final AudioProgressRepository audioProgressRepository;
 
     @Transactional
-    public void registerSessionAndValidateAccess(WebSocketSession session, Long meetingId, Long userId) {
-        meetingSessionRepository.findByUserId(userId).ifPresent(webSocketSession -> closeAndRemoveExistingSession(webSocketSession, userId));
-        meetingAccessValidator.validateMeetingInProgressAndUserParticipating(meetingId, userId);
-        meetingSessionRepository.save(session, userId, meetingId);
+    public long processSessionStartAndGetLastProcessedChunkId(WebSocketSession session, Long userId, Long meetingId) {
+        registerSessionAndValidateAccess(session, meetingId, userId);
+
+        return audioProgressRepository.findLastProcessedChunkId(userId, meetingId)
+                .orElse(-1L);
     }
 
     @Transactional
@@ -58,7 +61,14 @@ public class AudioService {
         byte[] audioData = extractAudioData(buffer);
 
         audioRepository.save(audioMetaResult, audioData);
+        audioProgressRepository.saveLastProcessedChunkId(userId, meetingId, audioMetaResult.chunkId());
         whisperClient.send(message);
+    }
+
+    private void registerSessionAndValidateAccess(WebSocketSession session, Long meetingId, Long userId) {
+        meetingSessionRepository.findByUserId(userId).ifPresent(webSocketSession -> closeAndRemoveExistingSession(webSocketSession, userId));
+        meetingAccessValidator.validateMeetingInProgressAndUserParticipating(meetingId, userId);
+        meetingSessionRepository.save(session, userId, meetingId);
     }
 
     private AudioMeta getAudioMeta(ByteBuffer byteBuffer, long userId, long meetingId) {
