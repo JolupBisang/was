@@ -1,13 +1,17 @@
 package com.jolupbisang.demo.presentation.meeting;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jolupbisang.demo.application.meeting.service.AudioService;
 import com.jolupbisang.demo.global.exception.WebSocketErrorHandler;
+import com.jolupbisang.demo.global.response.SocketResponse;
+import com.jolupbisang.demo.global.response.SocketResponseType;
 import com.jolupbisang.demo.infrastructure.auth.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.CloseStatus;
+import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.BinaryWebSocketHandler;
 
@@ -20,6 +24,7 @@ public class MeetingSocketHandler extends BinaryWebSocketHandler {
 
     private final AudioService audioService;
     private final WebSocketErrorHandler webSocketErrorHandler;
+    private final ObjectMapper objectMapper;
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
@@ -28,14 +33,16 @@ public class MeetingSocketHandler extends BinaryWebSocketHandler {
             CustomUserDetails userDetails = (CustomUserDetails) session.getAttributes().get("userDetails");
 
             if (userDetails == null) {
-                throw new IllegalStateException("User details not found in session");
+                log.warn("[{}] User details not found in session. Closing session.", session.getId());
+                session.close(CloseStatus.POLICY_VIOLATION.withReason("User details not found"));
+                return;
             }
 
             Long userId = userDetails.getUserId();
+            long lastProcessedChunkId = audioService.processSessionStartAndGetLastProcessedChunkId(session, userId, meetingId);
 
-            log.info("[{}] Attempting to register session: userId={}, meetingId={}", session.getId(), userId, meetingId);
-            audioService.registerSessionAndValidateAccess(session, meetingId, userId);
-            log.info("[{}] Session registration successful: userId={}, meetingId={}", session.getId(), userId, meetingId);
+            SocketResponse<Long> socketResponse = SocketResponse.of(SocketResponseType.LAST_PROCESSED_CHUNK_ID, lastProcessedChunkId);
+            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(socketResponse)));
 
         } catch (Exception ex) {
             webSocketErrorHandler.handleWebSocketError(session, ex);
