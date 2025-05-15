@@ -56,9 +56,16 @@ public class AudioService {
         long meetingId = meetingSessionRepository.getMeetingIdBySession(session)
                 .orElseThrow(() -> new CustomException(AudioError.SESSION_INFO_NOT_FOUND));
 
+        long expectedChunkId = audioProgressRepository.findLastProcessedChunkId(userId, meetingId)
+                .orElse(-1L) + 1;
+
         ByteBuffer buffer = message.getPayload();
         AudioMeta audioMetaResult = getAudioMeta(buffer, userId, meetingId);
         byte[] audioData = extractAudioData(buffer);
+
+        if (expectedChunkId != audioMetaResult.chunkId()) {
+            log.error("Expected chunkId {} does not match received chunkId {}.", expectedChunkId, audioMetaResult.chunkId());
+        }
 
         audioRepository.save(audioMetaResult, audioData);
         audioProgressRepository.saveLastProcessedChunkId(userId, meetingId, audioMetaResult.chunkId());
