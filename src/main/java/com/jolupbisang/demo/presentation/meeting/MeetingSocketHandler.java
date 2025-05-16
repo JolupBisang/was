@@ -13,16 +13,17 @@ import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
-import org.springframework.web.socket.handler.BinaryWebSocketHandler;
+import org.springframework.web.socket.handler.AbstractWebSocketHandler;
 
 import java.net.URI;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class MeetingSocketHandler extends BinaryWebSocketHandler {
+public class MeetingSocketHandler extends AbstractWebSocketHandler {
 
     private final AudioService audioService;
+    private final MeetingSocketDispatcher meetingSocketDispatcher;
     private final WebSocketErrorHandler webSocketErrorHandler;
     private final ObjectMapper objectMapper;
 
@@ -56,9 +57,18 @@ public class MeetingSocketHandler extends BinaryWebSocketHandler {
     }
 
     @Override
+    protected void handleTextMessage(WebSocketSession session, TextMessage message) {
+        try {
+            meetingSocketDispatcher.dispatchTextMessage(session, message.getPayload());
+        } catch (Exception ex) {
+            webSocketErrorHandler.handleWebSocketError(session, ex);
+        }
+    }
+
+    @Override
     protected void handleBinaryMessage(WebSocketSession session, BinaryMessage message) {
         try {
-            audioService.processAndSaveAudioData(session, message);
+            meetingSocketDispatcher.dispatchBinaryMessage(session, message);
         } catch (Exception ex) {
             webSocketErrorHandler.handleWebSocketError(session, ex);
         }
