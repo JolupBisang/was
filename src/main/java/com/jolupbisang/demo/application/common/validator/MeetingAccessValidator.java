@@ -35,4 +35,12 @@ public class MeetingAccessValidator {
             throw new CustomException(MeetingAccessErrorCode.NOT_PARTICIPANT);
         }
     }
+
+    public void validateUserIsLeader(Long meetingId, Long userId) {
+        boolean isLeader = meetingUserRepository.existsByMeetingIdAndUserIdAndIsLeader(meetingId, userId, true);
+        
+        if (!isLeader) {
+            throw new CustomException(MeetingAccessErrorCode.NOT_LEADER);
+        }
+    }
 }
