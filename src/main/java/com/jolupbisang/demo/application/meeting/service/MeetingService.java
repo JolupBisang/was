@@ -5,6 +5,7 @@ import com.jolupbisang.demo.application.meeting.dto.MeetingDetailSummary;
 import com.jolupbisang.demo.application.meeting.exception.MeetingErrorCode;
 import com.jolupbisang.demo.domain.agenda.Agenda;
 import com.jolupbisang.demo.domain.meeting.Meeting;
+import com.jolupbisang.demo.domain.meeting.MeetingStatus;
 import com.jolupbisang.demo.domain.meetingUser.MeetingUser;
 import com.jolupbisang.demo.domain.meetingUser.MeetingUserStatus;
 import com.jolupbisang.demo.domain.user.User;
@@ -13,6 +14,7 @@ import com.jolupbisang.demo.infrastructure.agenda.AgendaRepository;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
 import com.jolupbisang.demo.infrastructure.meetingUser.MeetingUserRepository;
 import com.jolupbisang.demo.infrastructure.user.UserRepository;
+import com.jolupbisang.demo.presentation.meeting.dto.request.MeetingApiStatus;
 import com.jolupbisang.demo.presentation.meeting.dto.request.MeetingReq;
 import com.jolupbisang.demo.presentation.meeting.dto.response.MeetingDetailRes;
 import lombok.RequiredArgsConstructor;
@@ -73,6 +75,26 @@ public class MeetingService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
+    public void changeMeetingStatus(Long meetingId, Long userId, MeetingApiStatus apiTargetStatus) {
+        Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(() -> new CustomException(MeetingErrorCode.NOT_FOUND));
+
+        switch (apiTargetStatus) {
+            case IN_PROGRESS:
+                startMeeting(meeting, meetingId, userId);
+                break;
+            case COMPLETED:
+                completeMeeting(meeting, meetingId, userId);
+                break;
+            case CANCELLED:
+                cancelMeeting(meeting, meetingId, userId);
+                break;
+            default:
+                throw new CustomException(MeetingErrorCode.CANNOT_CHANGE_TO_REQUESTED_STATUS);
+        }
+    }
+
     private void saveParticipants(Meeting meeting, User leader, List<String> participantEmails) {
         meetingUserRepository.save(new MeetingUser(meeting, leader, true, MeetingUserStatus.ACCEPTED));
 
@@ -92,5 +114,29 @@ public class MeetingService {
                     .toList();
             agendaRepository.saveAll(agendas);
         }
+    }
+
+    private void startMeeting(Meeting meeting, Long meetingId, Long userId) {
+        meetingAccessValidator.validateUserIsLeader(meetingId, userId);
+        if (meeting.getMeetingStatus() != MeetingStatus.WAITING) {
+            throw new CustomException(MeetingErrorCode.MEETING_NOT_WAITING);
+        }
+        meeting.startMeeting();
+    }
+
+    private void completeMeeting(Meeting meeting, Long meetingId, Long userId) {
+        meetingAccessValidator.validateUserIsLeader(meetingId, userId);
+        if (meeting.getMeetingStatus() != MeetingStatus.IN_PROGRESS) {
+            throw new CustomException(MeetingErrorCode.MEETING_NOT_IN_PROGRESS);
+        }
+        meeting.endMeeting();
+    }
+
+    private void cancelMeeting(Meeting meeting, Long meetingId, Long userId) {
+        meetingAccessValidator.validateUserIsLeader(meetingId, userId);
+        if (meeting.getMeetingStatus() != MeetingStatus.WAITING) {
+            throw new CustomException(MeetingErrorCode.MEETING_NOT_WAITING);
+        }
+        meeting.cancelMeeting();
     }
 }
