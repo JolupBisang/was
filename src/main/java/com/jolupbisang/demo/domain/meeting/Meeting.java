@@ -55,4 +55,18 @@ public class Meeting extends BaseTimeEntity {
         this.restDuration = restDuration;
         this.meetingStatus = MeetingStatus.WAITING;
     }
+
+    public void startMeeting() {
+        this.meetingStatus = MeetingStatus.IN_PROGRESS;
+        this.actualStartTime = LocalDateTime.now();
+    }
+
+    public void endMeeting() {
+        this.meetingStatus = MeetingStatus.COMPLETED;
+        this.actualEndTime = LocalDateTime.now();
+    }
+
+    public void cancelMeeting() {
+        this.meetingStatus = MeetingStatus.CANCELLED;
+    }
 }
