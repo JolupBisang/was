@@ -1,6 +1,5 @@
 package com.jolupbisang.demo.presentation.auth.filter;
 
-
 import com.jolupbisang.demo.global.exception.CustomException;
 import com.jolupbisang.demo.global.exception.GlobalErrorCode;
 import com.jolupbisang.demo.infrastructure.auth.JwtProvider;
@@ -15,7 +14,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -23,7 +21,6 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final UserDetailsService userDetailsService;
     private final JwtProvider jwtProvider;
 
     private static final String TOKEN_TYPE = "Bearer ";
