@@ -36,10 +36,10 @@ public class MeetingAccessValidator {
         }
     }
 
-    public void validateUserIsLeader(Long meetingId, Long userId) {
-        boolean isLeader = meetingUserRepository.existsByMeetingIdAndUserIdAndIsLeader(meetingId, userId, true);
+    public void validateUserIsHost(Long meetingId, Long userId) {
+        boolean isHost = meetingUserRepository.existsByMeetingIdAndUserIdAndIsHost(meetingId, userId, true);
 
-        if (!isLeader) {
+        if (!isHost) {
             throw new CustomException(MeetingAccessErrorCode.NOT_LEADER);
         }
     }

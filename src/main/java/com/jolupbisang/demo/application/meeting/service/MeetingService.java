@@ -117,19 +117,19 @@ public class MeetingService {
     }
 
     private void startMeeting(Meeting meeting, Long meetingId, Long userId) {
-        meetingAccessValidator.validateUserIsLeader(meetingId, userId);
+        meetingAccessValidator.validateUserIsHost(meetingId, userId);
         meetingAccessValidator.validateMeetingIsWaiting(meetingId);
         meeting.startMeeting();
     }
 
     private void completeMeeting(Meeting meeting, Long meetingId, Long userId) {
-        meetingAccessValidator.validateUserIsLeader(meetingId, userId);
+        meetingAccessValidator.validateUserIsHost(meetingId, userId);
         meetingAccessValidator.validateMeetingIsInProgress(meetingId);
         meeting.endMeeting();
     }
 
     private void cancelMeeting(Meeting meeting, Long meetingId, Long userId) {
-        meetingAccessValidator.validateUserIsLeader(meetingId, userId);
+        meetingAccessValidator.validateUserIsHost(meetingId, userId);
         if (meeting.getMeetingStatus() != MeetingStatus.WAITING) {
             throw new CustomException(MeetingErrorCode.MEETING_NOT_WAITING);
         }
