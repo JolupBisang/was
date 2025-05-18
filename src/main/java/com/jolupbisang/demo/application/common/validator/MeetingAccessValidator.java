@@ -38,9 +38,27 @@ public class MeetingAccessValidator {
 
     public void validateUserIsLeader(Long meetingId, Long userId) {
         boolean isLeader = meetingUserRepository.existsByMeetingIdAndUserIdAndIsLeader(meetingId, userId, true);
-        
+
         if (!isLeader) {
             throw new CustomException(MeetingAccessErrorCode.NOT_LEADER);
+        }
+    }
+
+    public void validateMeetingIsInProgress(Long meetingId) {
+        Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(() -> new CustomException(MeetingAccessErrorCode.NOT_FOUND));
+
+        if (!meeting.getMeetingStatus().equals(MeetingStatus.IN_PROGRESS)) {
+            throw new CustomException(MeetingAccessErrorCode.NOT_IN_PROGRESS);
+        }
+    }
+
+    public void validateMeetingIsWaiting(Long meetingId) {
+        Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(() -> new CustomException(MeetingAccessErrorCode.NOT_FOUND));
+
+        if (!meeting.getMeetingStatus().equals(MeetingStatus.WAITING)) {
+            throw new CustomException(MeetingAccessErrorCode.NOT_WAITING);
         }
     }
 }

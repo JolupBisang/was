@@ -118,17 +118,13 @@ public class MeetingService {
 
     private void startMeeting(Meeting meeting, Long meetingId, Long userId) {
         meetingAccessValidator.validateUserIsLeader(meetingId, userId);
-        if (meeting.getMeetingStatus() != MeetingStatus.WAITING) {
-            throw new CustomException(MeetingErrorCode.MEETING_NOT_WAITING);
-        }
+        meetingAccessValidator.validateMeetingIsWaiting(meetingId);
         meeting.startMeeting();
     }
 
     private void completeMeeting(Meeting meeting, Long meetingId, Long userId) {
         meetingAccessValidator.validateUserIsLeader(meetingId, userId);
-        if (meeting.getMeetingStatus() != MeetingStatus.IN_PROGRESS) {
-            throw new CustomException(MeetingErrorCode.MEETING_NOT_IN_PROGRESS);
-        }
+        meetingAccessValidator.validateMeetingIsInProgress(meetingId);
         meeting.endMeeting();
     }
 
