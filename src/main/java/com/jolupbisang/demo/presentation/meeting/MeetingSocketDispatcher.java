@@ -1,17 +1,15 @@
 package com.jolupbisang.demo.presentation.meeting;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jolupbisang.demo.application.meeting.service.AudioService; // AudioService는 dispatcher로 이동하거나 dispatcher에서 호출
-import com.jolupbisang.demo.presentation.meeting.dto.request.WebSocketRequestMessage;
-
+import com.jolupbisang.demo.application.meeting.service.AudioService;
+import com.jolupbisang.demo.presentation.meeting.dto.request.SocketRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import java.io.IOException;
-
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.WebSocketSession;
+
+import java.io.IOException;
 
 @Slf4j
 @Component
@@ -23,7 +21,7 @@ public class MeetingSocketDispatcher {
 
     public void dispatchTextMessage(WebSocketSession session, String messagePayload) {
         try {
-            WebSocketRequestMessage requestMessage = objectMapper.readValue(messagePayload, WebSocketRequestMessage.class);
+            SocketRequest requestMessage = objectMapper.readValue(messagePayload, SocketRequest.class);
 
             switch (requestMessage.type()) {
                 case CANCEL_COMPLETION:

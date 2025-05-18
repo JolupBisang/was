@@ -1,5 +1,5 @@
 package com.jolupbisang.demo.presentation.meeting.dto.request;
 
-public enum MessageType {
+public enum SocketRequestType {
     CANCEL_COMPLETION,
 } 
