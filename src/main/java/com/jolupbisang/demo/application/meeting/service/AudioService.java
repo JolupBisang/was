@@ -64,7 +64,7 @@ public class AudioService {
         byte[] audioData = extractAudioData(buffer);
 
         if (expectedChunkId != audioMetaResult.chunkId()) {
-            log.error("Expected chunkId {} does not match received chunkId {}.", expectedChunkId, audioMetaResult.chunkId());
+            log.error("[session: {}]Expected chunkId {} does not match received chunkId {}.", session.getId(), expectedChunkId, audioMetaResult.chunkId());
         }
 
         audioRepository.save(audioMetaResult, audioData);
