@@ -64,5 +64,13 @@ public class MeetingSessionRepositoryImpl implements MeetingSessionRepository {
         }
         sessionsToDelete.forEach(this::delete);
     }
+
+    @Override
+    public List<WebSocketSession> findAllByMeetingId(Long meetingId) {
+        return sessions.entrySet().stream()
+                .filter(entry -> entry.getValue().meetingId().equals(meetingId))
+                .map(Map.Entry::getKey)
+                .toList();
+    }
 } 
 
