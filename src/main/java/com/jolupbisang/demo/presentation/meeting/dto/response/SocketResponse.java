@@ -20,8 +20,8 @@ public class SocketResponse<T> {
     public static SocketResponse<Void> of(SocketResponseType type) {
         return new SocketResponse<>(type, null);
     }
-    
-    public static SocketResponse<ErrorResponse> error(String errorMessage, String errorId) { 
+
+    public static SocketResponse<ErrorResponse> error(String errorMessage, String errorId) {
         ErrorResponse errorData = ErrorResponse.of(errorMessage, errorId);
         return new SocketResponse<>(SocketResponseType.ERROR, errorData);
     }

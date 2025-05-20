@@ -1,5 +1,6 @@
 package com.jolupbisang.demo.application.meeting.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jolupbisang.demo.application.common.validator.MeetingAccessValidator;
 import com.jolupbisang.demo.application.meeting.dto.MeetingDetailSummary;
 import com.jolupbisang.demo.application.meeting.exception.MeetingErrorCode;
@@ -12,16 +13,21 @@ import com.jolupbisang.demo.domain.user.User;
 import com.jolupbisang.demo.global.exception.CustomException;
 import com.jolupbisang.demo.infrastructure.agenda.AgendaRepository;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
+import com.jolupbisang.demo.infrastructure.meeting.session.MeetingSessionRepository;
 import com.jolupbisang.demo.infrastructure.meetingUser.MeetingUserRepository;
 import com.jolupbisang.demo.infrastructure.user.UserRepository;
 import com.jolupbisang.demo.presentation.meeting.dto.request.MeetingApiStatus;
 import com.jolupbisang.demo.presentation.meeting.dto.request.MeetingReq;
 import com.jolupbisang.demo.presentation.meeting.dto.response.MeetingDetailRes;
+import com.jolupbisang.demo.presentation.meeting.dto.response.SocketResponse;
+import com.jolupbisang.demo.presentation.meeting.dto.response.SocketResponseType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.socket.TextMessage;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,7 +41,9 @@ public class MeetingService {
     private final MeetingRepository meetingRepository;
     private final MeetingUserRepository meetingUserRepository;
     private final AgendaRepository agendaRepository;
+    private final MeetingSessionRepository meetingSessionRepository;
     private final MeetingAccessValidator meetingAccessValidator;
+    private final ObjectMapper objectMapper;
 
     @Transactional
     public Long createMeeting(MeetingReq meetingReq, Long userId) {
@@ -125,6 +133,17 @@ public class MeetingService {
     private void completeMeeting(Meeting meeting, Long meetingId, Long userId) {
         meetingAccessValidator.validateUserIsHost(meetingId, userId);
         meetingAccessValidator.validateMeetingIsInProgress(meetingId);
+
+        meetingSessionRepository.findAllByMeetingId(meetingId)
+                .forEach(session -> {
+                    try {
+                        session.sendMessage(new TextMessage(objectMapper.writeValueAsBytes(SocketResponse.of(SocketResponseType.MEETING_COMPLETED, "회의가 종료되었습니다."))));
+                        session.close();
+                    } catch (IOException e) {
+                        log.error("[session: {}]Error closing session: {}]", session.getId(), e.getMessage(), e);
+                    }
+                });
+
         meeting.endMeeting();
     }
 
