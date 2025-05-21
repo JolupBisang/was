@@ -2,6 +2,7 @@ package com.jolupbisang.demo.global.exception;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jolupbisang.demo.global.response.ErrorResponse;
+import com.jolupbisang.demo.presentation.meeting.dto.response.SocketResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -18,20 +19,18 @@ public class WebSocketErrorHandler {
 
     private final ObjectMapper objectMapper;
 
-
     public void handleWebSocketError(WebSocketSession session, Throwable exception) {
         String errorId = UUID.randomUUID().toString();
         ErrorCode errorCode = resolveErrorCode(exception);
         String clientMessage = errorCode.getMessage();
-
-    
+        
         log.error("[WebSocket Error - ErrorId: {}, Session: {}] ResolvedMessage: {}",
                 errorId, session.getId(), clientMessage, exception);
 
         if (session.isOpen()) {
             try {
-                ErrorResponse errorResponse = ErrorResponse.of(clientMessage, errorId);
-                session.sendMessage(new TextMessage(objectMapper.writeValueAsString(errorResponse)));
+                SocketResponse<ErrorResponse> socketErrorResponse = SocketResponse.error(clientMessage, errorId);
+                session.sendMessage(new TextMessage(objectMapper.writeValueAsString(socketErrorResponse)));
             } catch (Exception e) {
                 log.error("[WebSocket Send Fail - ErrorId: {}, Session: {}] Failed to send error response to client, SendExMsg: {}",
                     errorId, session.getId(), exception.getMessage(), e);

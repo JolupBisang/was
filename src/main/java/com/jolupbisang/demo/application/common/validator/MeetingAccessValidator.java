@@ -35,4 +35,30 @@ public class MeetingAccessValidator {
             throw new CustomException(MeetingAccessErrorCode.NOT_PARTICIPANT);
         }
     }
+
+    public void validateUserIsHost(Long meetingId, Long userId) {
+        boolean isHost = meetingUserRepository.existsByMeetingIdAndUserIdAndIsHost(meetingId, userId, true);
+
+        if (!isHost) {
+            throw new CustomException(MeetingAccessErrorCode.NOT_LEADER);
+        }
+    }
+
+    public void validateMeetingIsInProgress(Long meetingId) {
+        Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(() -> new CustomException(MeetingAccessErrorCode.NOT_FOUND));
+
+        if (!meeting.getMeetingStatus().equals(MeetingStatus.IN_PROGRESS)) {
+            throw new CustomException(MeetingAccessErrorCode.NOT_IN_PROGRESS);
+        }
+    }
+
+    public void validateMeetingIsWaiting(Long meetingId) {
+        Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(() -> new CustomException(MeetingAccessErrorCode.NOT_FOUND));
+
+        if (!meeting.getMeetingStatus().equals(MeetingStatus.WAITING)) {
+            throw new CustomException(MeetingAccessErrorCode.NOT_WAITING);
+        }
+    }
 }

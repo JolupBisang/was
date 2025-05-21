@@ -5,6 +5,7 @@ import com.jolupbisang.demo.global.response.SuccessResponse;
 import com.jolupbisang.demo.infrastructure.auth.security.CustomUserDetails;
 import com.jolupbisang.demo.presentation.meeting.api.MeetingControllerApi;
 import com.jolupbisang.demo.presentation.meeting.dto.request.MeetingReq;
+import com.jolupbisang.demo.presentation.meeting.dto.request.MeetingStatusUpdateReq;
 import com.jolupbisang.demo.presentation.meeting.dto.response.MeetingCreationRes;
 import com.jolupbisang.demo.presentation.meeting.dto.response.MeetingDetailRes;
 import com.jolupbisang.demo.presentation.meeting.dto.response.MeetingDetailSummaryRes;
@@ -49,5 +50,16 @@ public class MeetingController implements MeetingControllerApi {
         );
 
         return ResponseEntity.ok(SuccessResponse.of("회의 목록 조회 성공", response));
+    }
+
+    @PutMapping("/{meetingId}/status")
+    public ResponseEntity<?> updateMeetingStatus(@PathVariable Long meetingId,
+                                                 @Valid @RequestBody MeetingStatusUpdateReq statusUpdateReq,
+                                                 @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        meetingService.changeMeetingStatus(meetingId, userDetails.getUserId(), statusUpdateReq.targetStatus());
+
+
+        return ResponseEntity.ok(SuccessResponse.of("성공적으로 변경되었습니다.", null));
     }
 }
