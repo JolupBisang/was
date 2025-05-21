@@ -2,6 +2,7 @@ package com.jolupbisang.demo.presentation.meeting.api;
 
 import com.jolupbisang.demo.infrastructure.auth.security.CustomUserDetails;
 import com.jolupbisang.demo.presentation.meeting.dto.request.MeetingReq;
+import com.jolupbisang.demo.presentation.meeting.dto.request.MeetingStatusUpdateReq;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -98,6 +99,7 @@ public interface MeetingControllerApi {
     ResponseEntity<?> getMeetingDetail(
             @Parameter(description = "회의 ID", required = true, example = "1")
             @PathVariable Long meetingId,
+            @Parameter(hidden = true)
             @AuthenticationPrincipal CustomUserDetails userDetails);
 
     @Operation(summary = "월별 회의 목록 조회", description = "년도와 월을 기준으로 회의 목록을 조회합니다.")
@@ -144,5 +146,77 @@ public interface MeetingControllerApi {
             @RequestParam("year") Integer year,
             @Parameter(description = "월", required = true, example = "7")
             @RequestParam("month") Integer month,
+            @AuthenticationPrincipal CustomUserDetails userDetails);
+
+    @Operation(summary = "회의 상태 변경", description = "회의 상태를 변경합니다. 요청 바디의 'targetStatus' 필드에 'IN_PROGRESS', 'COMPLETED', 'CANCELLED' 중 하나를 명시해야 합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "회의 상태 변경 성공",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(name = "상태 변경 성공", value = """
+                                        {
+                                            "message": "성공적으로 변경되었습니다.",
+                                            "data": null
+                                        }
+                                    """)
+                    })),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청 (예: 지원하지 않는 targetStatus, 회의 상태 규칙 위반, 필수 필드 누락)",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(name = "잘못된 targetStatus", value = """
+                                        {
+                                            "message": "요청된 상태로 회의를 변경할 수 없거나 유효하지 않은 상태 값입니다.",
+                                            "errorId": "846f8bed-a9ce-46c0-a229-40ad3a273b24",
+                                            "errors": null
+                                        }
+                                    """),
+                            @ExampleObject(name = "대기 상태 아님(IN_PROGRESS 요청 시)", value = """
+                                        {
+                                            "message": "대기중인 회의가 아닙니다.",
+                                            "errorId": "435899bd-13c7-434d-9fbb-ff5816056147",
+                                            "errors": null
+                                        }
+                                    """),
+                            @ExampleObject(name = "진행중 상태 아님(COMPLETED 요청 시)", value = """
+                                        {
+                                            "message": "진행중인 회의가 아닙니다.",
+                                            "errorId": "371c1d77-eb2e-432e-ae65-63400afafcd6",
+                                            "errors": null
+                                        }
+                                    """),
+                            @ExampleObject(name = "필수 필드 누락", value = """
+                                        {
+                                            "message": "잘못된 입력입니다.",
+                                            "errorId": "aad60f0b-76bc-4b29-8db1-6f28144f7151",
+                                            "errors": {
+                                                "targetStatus": "변경할 회의 상태는 필수입니다."
+                                            }
+                                        }
+                                    """)
+                    })),
+            @ApiResponse(responseCode = "403", description = "권한 없음 (예: 회의 리더가 아님)",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(name = "상태 변경 실패 - 권한 없음", value = """
+                                        {
+                                            "message": "해당 작업은 회의 리더만 수행할 수 있습니다.",
+                                            "errorId": "85cad392-249f-4613-ab7c-cd069fa724b1",
+                                            "errors": null
+                                        }
+                                    """)
+                    })),
+            @ApiResponse(responseCode = "404", description = "회의를 찾을 수 없음",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(name = "상태 변경 실패 - 회의 없음", value = """
+                                        {
+                                            "message": "존재하지 않는 회의입니다.",
+                                            "errorId": "1353e6d9-02dd-4b80-9e7a-77e46392798b",
+                                            "errors": null
+                                        }
+                                    """)
+                    }))
+    })
+    ResponseEntity<?> updateMeetingStatus(
+            @Parameter(description = "회의 ID", required = true, example = "1")
+            @PathVariable Long meetingId,
+            @Valid @RequestBody MeetingStatusUpdateReq statusUpdateReq,
+            @Parameter(hidden = true)
             @AuthenticationPrincipal CustomUserDetails userDetails);
 }
