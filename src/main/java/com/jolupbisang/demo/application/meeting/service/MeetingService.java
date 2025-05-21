@@ -48,7 +48,7 @@ public class MeetingService {
     @Transactional
     public Long createMeeting(MeetingReq meetingReq, Long userId) {
         User leader = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(MeetingErrorCode.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(MeetingErrorCode.USER_NOT_FOUND));
 
         Meeting meeting = meetingReq.toEntity();
         meetingRepository.save(meeting);
@@ -64,7 +64,7 @@ public class MeetingService {
         meetingAccessValidator.validateUserParticipating(meetingId, userId);
 
         return MeetingDetailRes.fromEntity(meetingRepository.findById(meetingId)
-                .orElseThrow(() -> new CustomException(MeetingErrorCode.NOT_FOUND)));
+                .orElseThrow(() -> new CustomException(MeetingErrorCode.MEETING_NOT_FOUND)));
     }
 
     @Transactional(readOnly = true)
@@ -86,7 +86,7 @@ public class MeetingService {
     @Transactional
     public void changeMeetingStatus(Long meetingId, Long userId, MeetingApiStatus apiTargetStatus) {
         Meeting meeting = meetingRepository.findById(meetingId)
-                .orElseThrow(() -> new CustomException(MeetingErrorCode.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(MeetingErrorCode.MEETING_NOT_FOUND));
 
         switch (apiTargetStatus) {
             case IN_PROGRESS:
