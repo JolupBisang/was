@@ -4,7 +4,6 @@ import com.jolupbisang.demo.application.meeting.service.MeetingService;
 import com.jolupbisang.demo.global.response.SuccessResponse;
 import com.jolupbisang.demo.infrastructure.auth.security.CustomUserDetails;
 import com.jolupbisang.demo.presentation.meeting.api.MeetingControllerApi;
-import com.jolupbisang.demo.presentation.meeting.dto.request.MeetingApiStatus;
 import com.jolupbisang.demo.presentation.meeting.dto.request.MeetingReq;
 import com.jolupbisang.demo.presentation.meeting.dto.request.MeetingStatusUpdateReq;
 import com.jolupbisang.demo.presentation.meeting.dto.response.MeetingCreationRes;
@@ -58,8 +57,7 @@ public class MeetingController implements MeetingControllerApi {
                                                  @Valid @RequestBody MeetingStatusUpdateReq statusUpdateReq,
                                                  @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        MeetingApiStatus targetStatus = statusUpdateReq.targetStatus();
-        meetingService.changeMeetingStatus(meetingId, userDetails.getUserId(), targetStatus);
+        meetingService.changeMeetingStatus(meetingId, userDetails.getUserId(), statusUpdateReq.targetStatus());
 
 
         return ResponseEntity.ok(SuccessResponse.of("성공적으로 변경되었습니다.", null));

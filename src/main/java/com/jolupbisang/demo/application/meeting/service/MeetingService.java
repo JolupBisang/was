@@ -16,7 +16,6 @@ import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
 import com.jolupbisang.demo.infrastructure.meeting.session.MeetingSessionRepository;
 import com.jolupbisang.demo.infrastructure.meetingUser.MeetingUserRepository;
 import com.jolupbisang.demo.infrastructure.user.UserRepository;
-import com.jolupbisang.demo.presentation.meeting.dto.request.MeetingApiStatus;
 import com.jolupbisang.demo.presentation.meeting.dto.request.MeetingReq;
 import com.jolupbisang.demo.presentation.meeting.dto.response.MeetingDetailRes;
 import com.jolupbisang.demo.presentation.meeting.dto.response.SocketResponse;
@@ -84,18 +83,18 @@ public class MeetingService {
     }
 
     @Transactional
-    public void changeMeetingStatus(Long meetingId, Long userId, MeetingApiStatus apiTargetStatus) {
+    public void changeMeetingStatus(Long meetingId, Long userId, String apiTargetStatus) {
         Meeting meeting = meetingRepository.findById(meetingId)
                 .orElseThrow(() -> new CustomException(MeetingErrorCode.MEETING_NOT_FOUND));
 
         switch (apiTargetStatus) {
-            case IN_PROGRESS:
+            case "IN_PROGRESS":
                 startMeeting(meeting, meetingId, userId);
                 break;
-            case COMPLETED:
+            case "COMPLETED":
                 completeMeeting(meeting, meetingId, userId);
                 break;
-            case CANCELLED:
+            case "CANCELLED":
                 cancelMeeting(meeting, meetingId, userId);
                 break;
             default:
