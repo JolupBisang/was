@@ -85,4 +85,13 @@ public class Meeting extends BaseTimeEntity {
     public boolean isCancelled() {
         return this.meetingStatus == MeetingStatus.CANCELLED;
     }
+
+    public void updateMeetingDetails(String title, String location, LocalDateTime scheduledStartTime, int targetTime, int restInterval, int restDuration) {
+        this.title = title;
+        this.location = location;
+        this.scheduledStartTime = scheduledStartTime;
+        this.targetTime = targetTime;
+        this.restInterval = restInterval;
+        this.restDuration = restDuration;
+    }
 }

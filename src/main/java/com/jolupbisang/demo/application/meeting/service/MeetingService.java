@@ -17,6 +17,7 @@ import com.jolupbisang.demo.infrastructure.meeting.session.MeetingSessionReposit
 import com.jolupbisang.demo.infrastructure.meetingUser.MeetingUserRepository;
 import com.jolupbisang.demo.infrastructure.user.UserRepository;
 import com.jolupbisang.demo.presentation.meeting.dto.request.MeetingReq;
+import com.jolupbisang.demo.presentation.meeting.dto.request.MeetingUpdateReq;
 import com.jolupbisang.demo.presentation.meeting.dto.response.MeetingDetailRes;
 import com.jolupbisang.demo.presentation.meeting.dto.response.SocketResponse;
 import com.jolupbisang.demo.presentation.meeting.dto.response.SocketResponseType;
@@ -100,6 +101,27 @@ public class MeetingService {
             default:
                 throw new CustomException(MeetingErrorCode.CANNOT_CHANGE_TO_REQUESTED_STATUS);
         }
+    }
+
+    @Transactional
+    public void updateMeeting(Long meetingId, Long userId, MeetingUpdateReq meetingUpdateReq) {
+        meetingAccessValidator.validateUserIsHost(meetingId, userId);
+
+        Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(() -> new CustomException(MeetingErrorCode.MEETING_NOT_FOUND));
+
+        if (meeting.isCompleted() || meeting.isCancelled()) {
+            throw new CustomException(MeetingErrorCode.CANNOT_UPDATE_MEETING);
+        }
+
+        meeting.updateMeetingDetails(
+                meetingUpdateReq.title(),
+                meetingUpdateReq.location(),
+                meetingUpdateReq.scheduledStartTime(),
+                meetingUpdateReq.targetTime(),
+                meetingUpdateReq.restInterval(),
+                meetingUpdateReq.restDuration()
+        );
     }
 
     private void saveParticipants(Meeting meeting, User leader, List<String> participantEmails) {
