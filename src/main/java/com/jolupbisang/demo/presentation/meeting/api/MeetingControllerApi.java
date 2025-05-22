@@ -3,6 +3,7 @@ package com.jolupbisang.demo.presentation.meeting.api;
 import com.jolupbisang.demo.infrastructure.auth.security.CustomUserDetails;
 import com.jolupbisang.demo.presentation.meeting.dto.request.MeetingReq;
 import com.jolupbisang.demo.presentation.meeting.dto.request.MeetingStatusUpdateReq;
+import com.jolupbisang.demo.presentation.meeting.dto.request.MeetingUpdateReq;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -217,6 +218,61 @@ public interface MeetingControllerApi {
             @Parameter(description = "회의 ID", required = true, example = "1")
             @PathVariable Long meetingId,
             @Valid @RequestBody MeetingStatusUpdateReq statusUpdateReq,
+            @Parameter(hidden = true)
+            @AuthenticationPrincipal CustomUserDetails userDetails);
+
+    @Operation(summary = "회의 정보 수정", description = "회의 정보를 수정합니다. 회의 리더만 수정 가능하며, 종료된 회의는 수정할 수 없습니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "회의 정보 수정 성공",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(name = "수정 성공", value = """
+                                        {
+                                            "message": "회의 정보가 성공적으로 수정되었습니다.",
+                                            "data": null
+                                        }
+                                    """)
+                    })),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청 (예: 필수 필드 누락, 종료된 회의)",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(name = "필수 필드 누락", value = """
+                                        {
+                                            "message": "잘못된 입력입니다.",
+                                            "errorId": "46455254-8092-4fb8-99b2-2bfb8defd1f2",
+                                            "errors": {
+                                                "agendas": "회의 안건 목록은 필수입니다.",
+                                                "scheduledStartTime": "회의 시작 시간은 필수입니다.",
+                                                "restInterval": "회의 휴식 시간은 필수입니다.",
+                                                "location": "회의 장소는 필수입니다.",
+                                                "title": "회의 제목은 필수입니다.",
+                                                "restDuration": "회의 휴식 시간 길이는 필수입니다.",
+                                                "targetTime": "회의 목표 시간은 필수입니다."
+                                            }
+                                        }
+                                    """),
+                            @ExampleObject(name = "종료되었거나 취소된 회의", value = """
+                                        {
+                                            "message": "종료되었거나 취소된 회의는 수정할 수 없습니다.",
+                                            "errorId": "af34d4f0-4ec7-40a6-b8ff-ad75f84efb4d",
+                                            "errors": null
+                                        }
+                                    """)
+                    })),
+            @ApiResponse(responseCode = "403", description = "권한 없음 (예: 회의 리더가 아님)",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(name = "수정 실패 - 권한 없음", value = """
+                                        {
+                                            "message": "해당 작업은 회의 리더만 수행할 수 있습니다.",
+                                            "errorId": "798640f6-a807-417c-bb75-67116f55ee58",
+                                            "errors": null
+                                        }
+                                    """)
+                    }))
+    })
+    ResponseEntity<?> updateMeeting(
+            @Parameter(description = "회의 ID", required = true, example = "1")
+            @PathVariable Long meetingId,
+            @Parameter(description = "회의 수정 요청 정보", required = true)
+            @Valid @RequestBody MeetingUpdateReq meetingUpdateReq,
             @Parameter(hidden = true)
             @AuthenticationPrincipal CustomUserDetails userDetails);
 }
