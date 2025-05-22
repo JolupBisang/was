@@ -7,12 +7,12 @@ import org.springframework.web.socket.TextMessage;
 import java.io.IOException;
 
 @Getter
-public class ContextDoneRequest extends WhisperRequest {
-    private final String groupId;
+public class ContextDoneRequest {
+
+    private final Dict dict;
 
     private ContextDoneRequest(String groupId) {
-        super(WhisperRequestType.CONTEXT_DONE);
-        this.groupId = groupId;
+        this.dict = new Dict(WhisperRequestType.CONTEXT_DONE, groupId);
     }
 
     public static ContextDoneRequest of(String groupId) {
@@ -21,5 +21,16 @@ public class ContextDoneRequest extends WhisperRequest {
 
     public TextMessage toTextMessage(ObjectMapper objectMapper) throws IOException {
         return new TextMessage(objectMapper.writeValueAsString(this));
+    }
+
+    @Getter
+    private static class Dict {
+        private final WhisperRequestType type;
+        private final String groupId;
+
+        public Dict(WhisperRequestType type, String groupId) {
+            this.type = type;
+            this.groupId = groupId;
+        }
     }
 } 

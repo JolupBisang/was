@@ -7,18 +7,15 @@ import org.springframework.web.socket.BinaryMessage;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
 
 @Getter
-public class DiarizedRequest extends WhisperRequest {
-    private final String groupId;
-    private final String userId;
+public class DiarizedRequest {
+
+    private final Dict dict;
     private final byte[] audio;
 
     private DiarizedRequest(String groupId, String userId, byte[] audio) {
-        super(WhisperRequestType.DIARIZED);
-        this.groupId = groupId;
-        this.userId = userId;
+        this.dict = new Dict(WhisperRequestType.DIARIZED, groupId, userId);
         this.audio = audio;
     }
 
@@ -27,11 +24,7 @@ public class DiarizedRequest extends WhisperRequest {
     }
 
     public BinaryMessage toBinary(ObjectMapper objectMapper) throws IOException {
-        String metadata = objectMapper.writeValueAsString(Map.of(
-            "type", type.name(),
-            "groupId", groupId,
-            "userId", userId
-        ));
+        String metadata = objectMapper.writeValueAsString(this.dict);
 
         byte[] metadataBytes = metadata.getBytes(StandardCharsets.UTF_8);
         int metadataLength = metadataBytes.length;
@@ -42,5 +35,18 @@ public class DiarizedRequest extends WhisperRequest {
         buffer.put(audio);
 
         return new BinaryMessage(buffer.array());
+    }
+
+    @Getter
+    private static class Dict {
+        private final WhisperRequestType type;
+        private final String groupId;
+        private final String userId;
+
+        public Dict(WhisperRequestType type, String groupId, String userId) {
+            this.type = type;
+            this.groupId = groupId;
+            this.userId = userId;
+        }
     }
 } 
