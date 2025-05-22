@@ -69,7 +69,7 @@ public class AudioService {
 
         audioRepository.save(audioMetaResult, audioData);
         audioProgressRepository.saveLastProcessedChunkId(userId, meetingId, audioMetaResult.chunkId());
-        whisperClient.send(message);
+        whisperClient.sendDiarized(meetingId, userId, audioData);
     }
 
     private void registerSessionAndValidateAccess(WebSocketSession session, Long meetingId, Long userId) {
