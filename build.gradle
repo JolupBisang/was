@@ -51,6 +51,10 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     runtimeOnly 'com.mysql:mysql-connector-j'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    // AWS S3
+    implementation platform('io.awspring.cloud:spring-cloud-aws-dependencies:3.1.1')
+    implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3'
 }
 
 tasks.named('test') {
