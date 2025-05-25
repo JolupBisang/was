@@ -3,6 +3,7 @@ package com.jolupbisang.demo.application.meeting.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jolupbisang.demo.application.common.validator.MeetingAccessValidator;
 import com.jolupbisang.demo.application.meeting.dto.MeetingDetailSummary;
+import com.jolupbisang.demo.application.meeting.event.MeetingCompletedEvent;
 import com.jolupbisang.demo.application.meeting.exception.MeetingErrorCode;
 import com.jolupbisang.demo.domain.agenda.Agenda;
 import com.jolupbisang.demo.domain.meeting.Meeting;
@@ -23,6 +24,7 @@ import com.jolupbisang.demo.presentation.meeting.dto.response.SocketResponse;
 import com.jolupbisang.demo.presentation.meeting.dto.response.SocketResponseType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.TextMessage;
@@ -44,6 +46,7 @@ public class MeetingService {
     private final MeetingSessionRepository meetingSessionRepository;
     private final MeetingAccessValidator meetingAccessValidator;
     private final ObjectMapper objectMapper;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public Long createMeeting(MeetingReq meetingReq, Long userId) {
@@ -166,6 +169,8 @@ public class MeetingService {
                 });
 
         meeting.endMeeting();
+
+        eventPublisher.publishEvent(new MeetingCompletedEvent(this, meetingId));
     }
 
     private void cancelMeeting(Meeting meeting, Long meetingId, Long userId) {
