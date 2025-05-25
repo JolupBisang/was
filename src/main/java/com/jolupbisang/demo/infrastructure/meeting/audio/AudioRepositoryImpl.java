@@ -1,96 +1,48 @@
 package com.jolupbisang.demo.infrastructure.meeting.audio;
 
 import com.jolupbisang.demo.application.meeting.dto.AudioMeta;
-import com.jolupbisang.demo.global.properties.MeetingProperties;
+import com.jolupbisang.demo.infrastructure.aws.s3.S3ClientUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
-import java.io.File;
-import java.io.FileOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.io.InputStream;
 
 @Slf4j
 @Repository
 @RequiredArgsConstructor
 public class AudioRepositoryImpl implements AudioRepository {
 
-    private final MeetingProperties meetingProperties;
+    private final S3ClientUtil s3ClientUtil;
 
     @Override
-    public void save(AudioMeta audioMeta, byte[] audioData) throws IOException {
-        Path dirPath = Path.of(meetingProperties.getBaseDir(),
-                Long.toString(audioMeta.meetingId()),
-                Long.toString(audioMeta.userId()));
-        String filename = Long.toString(audioMeta.chunkId());
+    public String save(AudioMeta audioMeta, byte[] audioData) throws IOException {
+        String s3Key = generateS3ChunkKey(audioMeta);
 
-        if (!Files.exists(dirPath)) {
-            Files.createDirectories(dirPath);
+        String contentType = "audio/opus";
+        if (audioMeta.encoding() != null && !audioMeta.encoding().trim().isEmpty()) {
+            if (audioMeta.encoding().toLowerCase().startsWith("audio/")) {
+                contentType = audioMeta.encoding();
+            }
         }
 
-        File chunkFile = dirPath.resolve(filename).toFile();
-
-        try (FileOutputStream fos = new FileOutputStream(chunkFile)) {
-            fos.write(audioData);
+        String audioURL = null;
+        try (InputStream audioInputStream = new ByteArrayInputStream(audioData)) {
+            audioURL = s3ClientUtil.uploadInputStream(s3Key, audioInputStream, audioData.length, contentType);
+            log.debug("Saved audio chunk to S3: {}", s3Key);
         } catch (IOException e) {
-            log.error("[Failed to save audio file] meetingId: {}, userId:{}, chunkId:{} ",
-                    audioMeta.meetingId(), audioMeta.userId(), audioMeta.chunkId(), e);
+            log.error("Failed to save audio chunk {} to S3 for meetingId: {}, userId: {}.",
+                    s3Key, audioMeta.meetingId(), audioMeta.userId(), e);
             throw e;
         }
+
+        return audioURL;
     }
 
-    @Override
-    public List<Path> getAllAudioChunkPaths(Long meetingId, Long userId) throws IOException {
-        Path userAudioDir = getUserAudioChunksDirectory(meetingId, userId);
-        List<Path> audioChunks = new ArrayList<>();
-
-        if (Files.exists(userAudioDir) && Files.isDirectory(userAudioDir)) {
-            try (DirectoryStream<Path> chunkFiles = Files.newDirectoryStream(userAudioDir)) {
-                for (Path chunkFile : chunkFiles) {
-                    if (Files.isRegularFile(chunkFile)) {
-                        audioChunks.add(chunkFile);
-                    }
-                }
-            }
-        } else {
-            log.warn("Audio chunk directory not found or not a directory: {}", userAudioDir);
-            return Collections.emptyList();
-        }
-        return audioChunks;
-    }
-
-    @Override
-    public List<Long> getAllUserIdByMeetingId(Long meetingId) throws IOException {
-        Path meetingAudioBasePath = Path.of(meetingProperties.getBaseDir(), String.valueOf(meetingId));
-        if (!Files.exists(meetingAudioBasePath) || !Files.isDirectory(meetingAudioBasePath)) {
-            log.warn("Audio base directory not found for meetingId: {}. No participants with audio.", meetingId);
-            return Collections.emptyList();
-        }
-
-        List<Long> userIds = new ArrayList<>();
-        try (DirectoryStream<Path> userAudioDirs = Files.newDirectoryStream(meetingAudioBasePath)) {
-            for (Path userAudioDir : userAudioDirs) {
-                if (Files.isDirectory(userAudioDir)) {
-                    try {
-                        userIds.add(Long.parseLong(userAudioDir.getFileName().toString()));
-                    } catch (NumberFormatException e) {
-                        log.warn("Invalid user ID directory name: {}", userAudioDir.getFileName(), e);
-                    }
-                }
-            }
-        }
-        return userIds;
-    }
-
-    private Path getUserAudioChunksDirectory(Long meetingId, Long userId) {
-        return Path.of(meetingProperties.getBaseDir(),
-                Long.toString(meetingId),
-                Long.toString(userId));
+    private String generateS3ChunkKey(AudioMeta audioMeta) {
+        return String.format("pending-chunks/meeting-%d/user-%d/%d.opus",
+                audioMeta.meetingId(), audioMeta.userId(), audioMeta.chunkId());
     }
 }

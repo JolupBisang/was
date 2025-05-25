@@ -42,4 +42,10 @@ public class S3ClientUtil {
             return url.toString();
         }
     }
+
+    public String uploadInputStream(String key, InputStream inputStream, long contentLength, String contentType) throws IOException {
+        Resource s3Resource = s3Template.upload(s3Properties.getBucket(), key, inputStream);
+        URL url = s3Resource.getURL();
+        return url.toString();
+    }
 }
