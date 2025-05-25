@@ -16,7 +16,8 @@ public enum AudioError implements ErrorCode {
     METADATA_CHUNKID_NULL(HttpStatus.BAD_REQUEST, "오디오 메타데이터의 'chunkId' 필드가 null입니다."),
     METADATA_ENCODING_INVALID(HttpStatus.BAD_REQUEST, "오디오 메타데이터의 'encoding' 필드가 null이거나 비어있습니다."),
     METADATA_TIMESTAMP_NULL(HttpStatus.BAD_REQUEST, "오디오 메타데이터의 'timestamp' 필드가 null이거나 유효한 날짜/시간 형식이 아닙니다."),
-    METADATA_INVALID_PAYLOAD_LENGTH(HttpStatus.BAD_REQUEST, "오디오 메타데이터 페이로드 길이가 유효하지 않습니다.");
+    METADATA_INVALID_PAYLOAD_LENGTH(HttpStatus.BAD_REQUEST, "오디오 메타데이터 페이로드 길이가 유효하지 않습니다."),
+    MEETING_USER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 회의의 사용자를 찾을 수 없습니다.");
 
 
     private final HttpStatus status;
