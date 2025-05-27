@@ -21,7 +21,7 @@ public class AudioRepositoryImpl implements AudioRepository {
     public String save(AudioMeta audioMeta, byte[] audioData) throws IOException {
         String s3Key = generateS3ChunkKey(audioMeta);
 
-        String contentType = "audio/opus";
+        String contentType = "audio/pcm";
         if (audioMeta.encoding() != null && !audioMeta.encoding().trim().isEmpty()) {
             if (audioMeta.encoding().toLowerCase().startsWith("audio/")) {
                 contentType = audioMeta.encoding();
@@ -42,7 +42,7 @@ public class AudioRepositoryImpl implements AudioRepository {
     }
 
     private String generateS3ChunkKey(AudioMeta audioMeta) {
-        return String.format("pending-chunks/meeting-%d/user-%d/%d.opus",
+        return String.format("pending-chunks/meeting-%d/user-%d/%d.pcm",
                 audioMeta.meetingId(), audioMeta.userId(), audioMeta.chunkId());
     }
 }
