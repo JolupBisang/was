@@ -11,26 +11,13 @@ import org.springframework.stereotype.Component;
 @Setter
 public class AwsProperties {
 
-    private Credentials credentials = new Credentials();
-    private Region region = new Region();
-    private Stack stack = new Stack();
+    private Credentials credentials;
+    private String region;
 
     @Getter
     @Setter
     public static class Credentials {
         private String accessKey;
         private String secretKey;
-    }
-
-    @Getter
-    @Setter
-    public static class Region {
-        private String staticRegion;
-    }
-
-    @Getter
-    @Setter
-    public static class Stack {
-        private boolean auto;
     }
 } 
