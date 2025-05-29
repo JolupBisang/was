@@ -1,7 +1,6 @@
-package com.jolupbisang.demo.infrastructure.meeting.client.dto;
+package com.jolupbisang.demo.infrastructure.meeting.client.dto.request;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Getter;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.BinaryMessage;
 import java.nio.ByteBuffer;
@@ -9,17 +8,14 @@ import java.nio.charset.StandardCharsets;
 
 import java.io.IOException;
 
-@Getter
-public class ContextRequest {
+public record ContextDoneRequest(Dict dict) {
 
-    private final Dict dict;
-
-    private ContextRequest(String groupId) {
-        this.dict = new Dict(WhisperRequestType.CONTEXT, groupId);
+    private ContextDoneRequest(String groupId) {
+        this(new Dict(WhisperRequestType.CONTEXT_DONE, groupId));
     }
 
-    public static ContextRequest of(String groupId) {
-        return new ContextRequest(groupId);
+    public static ContextDoneRequest of(String groupId) {
+        return new ContextDoneRequest(groupId);
     }
 
     public TextMessage toTextMessage(ObjectMapper objectMapper) throws IOException {
@@ -38,14 +34,6 @@ public class ContextRequest {
         return new BinaryMessage(buffer.array());
     }
 
-    @Getter
-    private static class Dict {
-        private final WhisperRequestType type;
-        private final String groupId;
-
-        public Dict(WhisperRequestType type, String groupId) {
-            this.type = type;
-            this.groupId = groupId;
-        }
+    private record Dict(WhisperRequestType type, String groupId) {
     }
 } 

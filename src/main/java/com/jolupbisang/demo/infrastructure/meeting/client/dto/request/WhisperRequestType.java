@@ -1,4 +1,4 @@
-package com.jolupbisang.demo.infrastructure.meeting.client.dto;
+package com.jolupbisang.demo.infrastructure.meeting.client.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 

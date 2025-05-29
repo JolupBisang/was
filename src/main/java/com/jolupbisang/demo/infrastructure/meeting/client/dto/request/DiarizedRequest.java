@@ -1,22 +1,15 @@
-package com.jolupbisang.demo.infrastructure.meeting.client.dto;
+package com.jolupbisang.demo.infrastructure.meeting.client.dto.request;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Getter;
 import org.springframework.web.socket.BinaryMessage;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
-@Getter
-public class DiarizedRequest {
-
-    private final Dict dict;
-    private final byte[] audio;
+public record DiarizedRequest(Dict dict, byte[] audio) {
 
     private DiarizedRequest(String groupId, String userId, byte[] audio) {
-        this.dict = new Dict(WhisperRequestType.DIARIZED, groupId, userId);
-        this.audio = audio;
+        this(new Dict(WhisperRequestType.DIARIZED, groupId, userId), audio);
     }
 
     public static DiarizedRequest of(String groupId, String userId, byte[] audio) {
@@ -37,16 +30,6 @@ public class DiarizedRequest {
         return new BinaryMessage(buffer.array());
     }
 
-    @Getter
-    private static class Dict {
-        private final WhisperRequestType type;
-        private final String groupId;
-        private final String userId;
-
-        public Dict(WhisperRequestType type, String groupId, String userId) {
-            this.type = type;
-            this.groupId = groupId;
-            this.userId = userId;
-        }
+    private record Dict(WhisperRequestType type, String groupId, String userId) {
     }
 } 
