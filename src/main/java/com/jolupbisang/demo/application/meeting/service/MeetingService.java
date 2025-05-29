@@ -45,6 +45,7 @@ public class MeetingService {
     private final AgendaRepository agendaRepository;
     private final MeetingSessionRepository meetingSessionRepository;
     private final MeetingAccessValidator meetingAccessValidator;
+
     private final ObjectMapper objectMapper;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -66,8 +67,12 @@ public class MeetingService {
     public MeetingDetailRes getMeetingDetail(Long meetingId, Long userId) {
         meetingAccessValidator.validateUserParticipating(meetingId, userId);
 
-        return MeetingDetailRes.fromEntity(meetingRepository.findById(meetingId)
-                .orElseThrow(() -> new CustomException(MeetingErrorCode.MEETING_NOT_FOUND)));
+        Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(() -> new CustomException(MeetingErrorCode.MEETING_NOT_FOUND));
+
+        List<User> participants = userRepository.findByMeetingId(meetingId);
+
+        return MeetingDetailRes.fromEntity(meeting, participants);
     }
 
     @Transactional(readOnly = true)
