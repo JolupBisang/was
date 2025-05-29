@@ -73,17 +73,24 @@ public interface MeetingControllerApi {
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(name = "조회 성공", value = """
                                         {
-                                            "message": "회의 조회 성공",
-                                            "data": {
-                                                "meetingId": 1,
-                                                "title": "프로젝트 킥오프 회의",
-                                                "location": "서울 본사 회의실 A",
-                                                "scheduledStartTime": "2025-03-27T10:00:00",
-                                                "targetTime": 60,
-                                                "restInterval": 60,
-                                                "meetingStatus": "WAITING"
-                                            }
-                                        }
+                                             "message": "회의 조회 성공",
+                                             "data": {
+                                                 "meetingId": 2,
+                                                 "title": "프로젝트 킥오프 회의",
+                                                 "location": "서울 본사 회의실 A",
+                                                 "scheduledStartTime": "2025-03-27T10:00:00",
+                                                 "targetTime": 60,
+                                                 "restInterval": 60,
+                                                 "restDuration": 0,
+                                                 "meetingStatus": "IN_PROGRESS",
+                                                 "participants": [
+                                                     {
+                                                         "userId": 1,
+                                                         "email": "oneyoung0623@gmail.com"
+                                                     }
+                                                 ]
+                                             }
+                                         }
                                     """),
                     })),
             @ApiResponse(responseCode = "403", description = "권한 없음 또는 없는 회의",
