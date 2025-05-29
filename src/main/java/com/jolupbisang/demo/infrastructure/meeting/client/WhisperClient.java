@@ -1,19 +1,19 @@
 package com.jolupbisang.demo.infrastructure.meeting.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jolupbisang.demo.infrastructure.meeting.client.dto.ContextDoneRequest;
-import com.jolupbisang.demo.infrastructure.meeting.client.dto.ContextRequest;
-import com.jolupbisang.demo.infrastructure.meeting.client.dto.DiarizedRequest;
+import com.jolupbisang.demo.infrastructure.meeting.client.dto.request.ContextDoneRequest;
+import com.jolupbisang.demo.infrastructure.meeting.client.dto.request.ContextRequest;
+import com.jolupbisang.demo.infrastructure.meeting.client.dto.request.DiarizedRequest;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.CloseStatus;
-import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.client.WebSocketClient;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
-import org.springframework.web.socket.handler.TextWebSocketHandler;
+import org.springframework.web.socket.handler.BinaryWebSocketHandler;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
@@ -21,7 +21,7 @@ import java.util.concurrent.ExecutionException;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class WhisperClient extends TextWebSocketHandler {
+public class WhisperClient extends BinaryWebSocketHandler {
 
     private final ObjectMapper objectMapper;
     private WebSocketSession whisperSession;
@@ -39,7 +39,7 @@ public class WhisperClient extends TextWebSocketHandler {
     }
 
     @Override
-    public void handleTextMessage(WebSocketSession session, TextMessage message) {
+    public void handleBinaryMessage(WebSocketSession session, BinaryMessage message) {
         //todo: whisper response 처리
     }
 
