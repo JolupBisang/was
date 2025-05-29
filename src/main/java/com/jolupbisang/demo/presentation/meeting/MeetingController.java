@@ -6,6 +6,7 @@ import com.jolupbisang.demo.infrastructure.auth.security.CustomUserDetails;
 import com.jolupbisang.demo.presentation.meeting.api.MeetingControllerApi;
 import com.jolupbisang.demo.presentation.meeting.dto.request.MeetingReq;
 import com.jolupbisang.demo.presentation.meeting.dto.request.MeetingStatusUpdateReq;
+import com.jolupbisang.demo.presentation.meeting.dto.request.MeetingUpdateReq;
 import com.jolupbisang.demo.presentation.meeting.dto.response.MeetingCreationRes;
 import com.jolupbisang.demo.presentation.meeting.dto.response.MeetingDetailRes;
 import com.jolupbisang.demo.presentation.meeting.dto.response.MeetingDetailSummaryRes;
@@ -61,5 +62,13 @@ public class MeetingController implements MeetingControllerApi {
 
 
         return ResponseEntity.ok(SuccessResponse.of("성공적으로 변경되었습니다.", null));
+    }
+
+    @PutMapping("/{meetingId}")
+    public ResponseEntity<?> updateMeeting(@PathVariable Long meetingId,
+                                           @Valid @RequestBody MeetingUpdateReq meetingUpdateReq,
+                                           @AuthenticationPrincipal CustomUserDetails userDetails) {
+        meetingService.updateMeeting(meetingId, userDetails.getUserId(), meetingUpdateReq);
+        return ResponseEntity.ok(SuccessResponse.of("회의 정보가 성공적으로 수정되었습니다.", null));
     }
 }

@@ -69,4 +69,29 @@ public class Meeting extends BaseTimeEntity {
     public void cancelMeeting() {
         this.meetingStatus = MeetingStatus.CANCELLED;
     }
+
+    public boolean isWaiting() {
+        return this.meetingStatus == MeetingStatus.WAITING;
+    }
+
+    public boolean isInProgress() {
+        return this.meetingStatus == MeetingStatus.IN_PROGRESS;
+    }
+
+    public boolean isCompleted() {
+        return this.meetingStatus == MeetingStatus.COMPLETED;
+    }
+
+    public boolean isCancelled() {
+        return this.meetingStatus == MeetingStatus.CANCELLED;
+    }
+
+    public void updateMeetingDetails(String title, String location, LocalDateTime scheduledStartTime, int targetTime, int restInterval, int restDuration) {
+        this.title = title;
+        this.location = location;
+        this.scheduledStartTime = scheduledStartTime;
+        this.targetTime = targetTime;
+        this.restInterval = restInterval;
+        this.restDuration = restDuration;
+    }
 }

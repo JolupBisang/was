@@ -3,6 +3,7 @@ package com.jolupbisang.demo.application.meeting.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jolupbisang.demo.application.common.validator.MeetingAccessValidator;
 import com.jolupbisang.demo.application.meeting.dto.MeetingDetailSummary;
+import com.jolupbisang.demo.application.meeting.event.MeetingCompletedEvent;
 import com.jolupbisang.demo.application.meeting.exception.MeetingErrorCode;
 import com.jolupbisang.demo.domain.agenda.Agenda;
 import com.jolupbisang.demo.domain.meeting.Meeting;
@@ -17,11 +18,13 @@ import com.jolupbisang.demo.infrastructure.meeting.session.MeetingSessionReposit
 import com.jolupbisang.demo.infrastructure.meetingUser.MeetingUserRepository;
 import com.jolupbisang.demo.infrastructure.user.UserRepository;
 import com.jolupbisang.demo.presentation.meeting.dto.request.MeetingReq;
+import com.jolupbisang.demo.presentation.meeting.dto.request.MeetingUpdateReq;
 import com.jolupbisang.demo.presentation.meeting.dto.response.MeetingDetailRes;
 import com.jolupbisang.demo.presentation.meeting.dto.response.SocketResponse;
 import com.jolupbisang.demo.presentation.meeting.dto.response.SocketResponseType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.TextMessage;
@@ -42,7 +45,9 @@ public class MeetingService {
     private final AgendaRepository agendaRepository;
     private final MeetingSessionRepository meetingSessionRepository;
     private final MeetingAccessValidator meetingAccessValidator;
+
     private final ObjectMapper objectMapper;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public Long createMeeting(MeetingReq meetingReq, Long userId) {
@@ -62,8 +67,12 @@ public class MeetingService {
     public MeetingDetailRes getMeetingDetail(Long meetingId, Long userId) {
         meetingAccessValidator.validateUserParticipating(meetingId, userId);
 
-        return MeetingDetailRes.fromEntity(meetingRepository.findById(meetingId)
-                .orElseThrow(() -> new CustomException(MeetingErrorCode.MEETING_NOT_FOUND)));
+        Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(() -> new CustomException(MeetingErrorCode.MEETING_NOT_FOUND));
+
+        List<User> participants = userRepository.findByMeetingId(meetingId);
+
+        return MeetingDetailRes.fromEntity(meeting, participants);
     }
 
     @Transactional(readOnly = true)
@@ -100,6 +109,27 @@ public class MeetingService {
             default:
                 throw new CustomException(MeetingErrorCode.CANNOT_CHANGE_TO_REQUESTED_STATUS);
         }
+    }
+
+    @Transactional
+    public void updateMeeting(Long meetingId, Long userId, MeetingUpdateReq meetingUpdateReq) {
+        meetingAccessValidator.validateUserIsHost(meetingId, userId);
+
+        Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(() -> new CustomException(MeetingErrorCode.MEETING_NOT_FOUND));
+
+        if (meeting.isCompleted() || meeting.isCancelled()) {
+            throw new CustomException(MeetingErrorCode.CANNOT_UPDATE_MEETING);
+        }
+
+        meeting.updateMeetingDetails(
+                meetingUpdateReq.title(),
+                meetingUpdateReq.location(),
+                meetingUpdateReq.scheduledStartTime(),
+                meetingUpdateReq.targetTime(),
+                meetingUpdateReq.restInterval(),
+                meetingUpdateReq.restDuration()
+        );
     }
 
     private void saveParticipants(Meeting meeting, User leader, List<String> participantEmails) {
@@ -144,6 +174,8 @@ public class MeetingService {
                 });
 
         meeting.endMeeting();
+
+        eventPublisher.publishEvent(new MeetingCompletedEvent(this, meetingId));
     }
 
     private void cancelMeeting(Meeting meeting, Long meetingId, Long userId) {

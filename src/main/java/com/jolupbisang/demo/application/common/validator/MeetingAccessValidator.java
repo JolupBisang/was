@@ -48,7 +48,7 @@ public class MeetingAccessValidator {
         Meeting meeting = meetingRepository.findById(meetingId)
                 .orElseThrow(() -> new CustomException(MeetingAccessErrorCode.NOT_FOUND));
 
-        if (!meeting.getMeetingStatus().equals(MeetingStatus.IN_PROGRESS)) {
+        if (!meeting.isInProgress()) {
             throw new CustomException(MeetingAccessErrorCode.NOT_IN_PROGRESS);
         }
     }
@@ -57,7 +57,7 @@ public class MeetingAccessValidator {
         Meeting meeting = meetingRepository.findById(meetingId)
                 .orElseThrow(() -> new CustomException(MeetingAccessErrorCode.NOT_FOUND));
 
-        if (!meeting.getMeetingStatus().equals(MeetingStatus.WAITING)) {
+        if (!meeting.isWaiting()) {
             throw new CustomException(MeetingAccessErrorCode.NOT_WAITING);
         }
     }

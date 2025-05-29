@@ -7,5 +7,5 @@ import java.io.IOException;
 
 @Repository
 public interface AudioRepository {
-    void save(AudioMeta audioMeta, byte[] audioData) throws IOException;
+    String save(AudioMeta audioMeta, byte[] audioData) throws IOException;
 }

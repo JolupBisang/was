@@ -4,14 +4,21 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jolupbisang.demo.application.common.validator.MeetingAccessValidator;
 import com.jolupbisang.demo.application.meeting.dto.AudioMeta;
+import com.jolupbisang.demo.application.meeting.dto.StepFunctionOutput;
+import com.jolupbisang.demo.application.meeting.event.MeetingCompletedEvent;
 import com.jolupbisang.demo.application.meeting.exception.AudioError;
 import com.jolupbisang.demo.global.exception.CustomException;
+import com.jolupbisang.demo.infrastructure.aws.sfn.SfnClientUtil;
 import com.jolupbisang.demo.infrastructure.meeting.audio.AudioRepository;
 import com.jolupbisang.demo.infrastructure.meeting.client.WhisperClient;
 import com.jolupbisang.demo.infrastructure.meeting.session.AudioProgressRepository;
 import com.jolupbisang.demo.infrastructure.meeting.session.MeetingSessionRepository;
+import com.jolupbisang.demo.infrastructure.meetingUser.MeetingUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.BinaryMessage;
@@ -22,6 +29,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +42,11 @@ public class AudioService {
     private final MeetingAccessValidator meetingAccessValidator;
     private final MeetingSessionRepository meetingSessionRepository;
     private final AudioProgressRepository audioProgressRepository;
+    private final MeetingUserRepository meetingUserRepository;
+    private final SfnClientUtil sfnClientUtil;
+
+    @Value("${cloud.aws.sfn.merge-audio-state-machine-arn}")
+    private String MERGE_AUDIO_STATE_MACHINE_ARN;
 
     @Transactional
     public long processSessionStartAndGetLastProcessedChunkId(WebSocketSession session, Long userId, Long meetingId) {
@@ -69,7 +82,48 @@ public class AudioService {
 
         audioRepository.save(audioMetaResult, audioData);
         audioProgressRepository.saveLastProcessedChunkId(userId, meetingId, audioMetaResult.chunkId());
-        whisperClient.send(message);
+        whisperClient.sendDiarized(meetingId, userId, audioData);
+    }
+
+    @EventListener
+    public void handleMeetingCompletedEvent(MeetingCompletedEvent event) {
+        Long meetingId = event.getMeetingId();
+        log.info("Received MeetingCompletedEvent for meetingId: {}. Triggering SfnClientUtil with ARN: {}", meetingId, MERGE_AUDIO_STATE_MACHINE_ARN);
+        StepFunctionOutput stepFunctionOutput = sfnClientUtil.startMergeAudioStateMachine(MERGE_AUDIO_STATE_MACHINE_ARN, meetingId);
+
+        if (stepFunctionOutput != null) {
+            processStepFunctionOutput(meetingId, stepFunctionOutput);
+        } else {
+            log.warn("Step Function execution for meetingId: {} returned null output. No record URLs will be updated.", meetingId);
+        }
+    }
+
+    private void processStepFunctionOutput(Long meetingId, StepFunctionOutput stepFunctionOutput) {
+        List<StepFunctionOutput.MergedPath> paths = stepFunctionOutput.paths();
+
+        if (paths == null || paths.isEmpty()) {
+            log.warn("Step Function output for meetingId: {} (Status: {}) has no paths or an empty path list.",
+                    meetingId, stepFunctionOutput.statusCode());
+            return;
+        }
+
+        paths.stream()
+                .filter(mergedPath -> {
+                    boolean isValid = mergedPath.userId() != null && mergedPath.s3Path() != null && !mergedPath.s3Path().isBlank();
+                    if (!isValid) {
+                        log.warn("Invalid MergedPath data for meetingId: {}. Path details: {}. Skipping.", meetingId, mergedPath);
+                    }
+                    return isValid;
+                })
+                .forEach(mergedPath ->
+                        meetingUserRepository.findByMeetingIdAndUserId(meetingId, mergedPath.userId())
+                                .ifPresentOrElse(
+                                        meetingUser -> {
+                                            meetingUser.updateRecordUrl(mergedPath.s3Path());
+                                        },
+                                        () -> log.error("MeetingUser not found for userId: {} in meetingId: {}. Cannot update recordUrl.", mergedPath.userId(), meetingId)
+                                )
+                );
     }
 
     private void registerSessionAndValidateAccess(WebSocketSession session, Long meetingId, Long userId) {
@@ -108,6 +162,16 @@ public class AudioService {
         return audioBytes;
     }
 
+    private void closeAndRemoveExistingSession(WebSocketSession existingSession, Long userId) {
+        log.warn("User {} already has an active session {}. Closing the old session.", userId, existingSession.getId());
+        try {
+            existingSession.close(CloseStatus.POLICY_VIOLATION.withReason("New connection established"));
+        } catch (IOException e) {
+            log.error("Error closing existing WebSocket session {} for user {}: {}", existingSession.getId(), userId, e.getMessage());
+        }
+        meetingSessionRepository.deleteByUserId(userId);
+    }
+
     private record AudioDetails(String type, Long chunkId, String encoding, LocalDateTime timestamp) {
         public AudioDetails {
             if (type == null || type.trim().isEmpty()) {
@@ -134,15 +198,5 @@ public class AudioService {
                     this.encoding
             );
         }
-    }
-
-    private void closeAndRemoveExistingSession(WebSocketSession existingSession, Long userId) {
-        log.warn("User {} already has an active session {}. Closing the old session.", userId, existingSession.getId());
-        try {
-            existingSession.close(CloseStatus.POLICY_VIOLATION.withReason("New connection established"));
-        } catch (IOException e) {
-            log.error("Error closing existing WebSocket session {} for user {}: {}", existingSession.getId(), userId, e.getMessage());
-        }
-        meetingSessionRepository.deleteByUserId(userId);
     }
 } 
