@@ -53,7 +53,7 @@ public class WhisperClient extends TextWebSocketHandler {
         try {
             if (whisperSession != null && whisperSession.isOpen()) {
                 DiarizedRequest request = DiarizedRequest.of(String.valueOf(meetingId), String.valueOf(userId), audioData);
-                whisperSession.sendMessage(request.toBinary(objectMapper));
+                whisperSession.sendMessage(request.toBinaryMessage(objectMapper));
             }
         } catch (IOException e) {
             log.error("[WhisperClient] Failed to send diarized request", e);
@@ -64,7 +64,7 @@ public class WhisperClient extends TextWebSocketHandler {
         try {
             if (whisperSession != null && whisperSession.isOpen()) {
                 ContextRequest request = ContextRequest.of(String.valueOf(meetingId));
-                whisperSession.sendMessage(request.toTextMessage(objectMapper));
+                whisperSession.sendMessage(request.toBinaryMessage(objectMapper));
             } else {
                 log.error("[WhisperClient] Whisper WebSocket connection is not available");
             }
@@ -77,7 +77,7 @@ public class WhisperClient extends TextWebSocketHandler {
         try {
             if (whisperSession != null && whisperSession.isOpen()) {
                 ContextDoneRequest request = ContextDoneRequest.of(String.valueOf(meetingId));
-                whisperSession.sendMessage(request.toTextMessage(objectMapper));
+                whisperSession.sendMessage(request.toBinaryMessage(objectMapper));
             } else {
                 log.error("[WhisperClient] Whisper WebSocket connection is not available");
             }

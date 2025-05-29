@@ -3,6 +3,9 @@ package com.jolupbisang.demo.infrastructure.meeting.client.dto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.BinaryMessage;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
 import java.io.IOException;
 
@@ -21,6 +24,18 @@ public class ContextRequest {
 
     public TextMessage toTextMessage(ObjectMapper objectMapper) throws IOException {
         return new TextMessage(objectMapper.writeValueAsString(this));
+    }
+
+    public BinaryMessage toBinaryMessage(ObjectMapper objectMapper) throws IOException {
+        String metadata = objectMapper.writeValueAsString(this.dict);
+        byte[] metadataBytes = metadata.getBytes(StandardCharsets.UTF_8);
+        int metadataLength = metadataBytes.length;
+
+        ByteBuffer buffer = ByteBuffer.allocate(4 + metadataLength);
+        buffer.putInt(metadataLength);
+        buffer.put(metadataBytes);
+
+        return new BinaryMessage(buffer.array());
     }
 
     @Getter

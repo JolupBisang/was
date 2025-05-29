@@ -3,6 +3,9 @@ package com.jolupbisang.demo.infrastructure.meeting.client.dto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.BinaryMessage;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
 import java.io.IOException;
 import java.util.List;
@@ -24,6 +27,18 @@ public class MetaDataRequest {
 
     public TextMessage toTextMessage(ObjectMapper objectMapper) throws IOException {
         return new TextMessage(objectMapper.writeValueAsString(this));
+    }
+
+    public BinaryMessage toBinaryMessage(ObjectMapper objectMapper) throws IOException {
+        String jsonPayload = objectMapper.writeValueAsString(this);
+        byte[] jsonBytes = jsonPayload.getBytes(StandardCharsets.UTF_8);
+        int jsonLength = jsonBytes.length;
+
+        ByteBuffer buffer = ByteBuffer.allocate(4 + jsonLength);
+        buffer.putInt(jsonLength);
+        buffer.put(jsonBytes);
+
+        return new BinaryMessage(buffer.array());
     }
 
     @Getter

@@ -23,7 +23,7 @@ public class DiarizedRequest {
         return new DiarizedRequest(groupId, userId, audio);
     }
 
-    public BinaryMessage toBinary(ObjectMapper objectMapper) throws IOException {
+    public BinaryMessage toBinaryMessage(ObjectMapper objectMapper) throws IOException {
         String metadata = objectMapper.writeValueAsString(this.dict);
 
         byte[] metadataBytes = metadata.getBytes(StandardCharsets.UTF_8);
