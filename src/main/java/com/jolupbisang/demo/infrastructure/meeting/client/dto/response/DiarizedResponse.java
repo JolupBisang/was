@@ -21,8 +21,8 @@ public record DiarizedResponse(
     }
 
     public record Word(
-            float start,
-            float end,
+            int start,
+            int end,
             String text,
             String lang
     ) {

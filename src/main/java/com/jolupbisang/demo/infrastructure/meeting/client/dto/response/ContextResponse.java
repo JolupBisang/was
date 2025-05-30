@@ -5,13 +5,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 public record ContextResponse(
+        @JsonProperty("group_id")
+        long groupId,
         String context,
         List<Integer> agenda,
-        Feedback feedback
+        FeedbackRes feedback
 ) {
-    public record Feedback(
+    public record FeedbackRes(
             @JsonProperty("user_id")
-            String userId
+            Long userId,
+            String comment
     ) {
     }
 }
