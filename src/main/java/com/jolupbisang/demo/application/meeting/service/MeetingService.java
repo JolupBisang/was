@@ -2,8 +2,9 @@ package com.jolupbisang.demo.application.meeting.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jolupbisang.demo.application.common.validator.MeetingAccessValidator;
+import com.jolupbisang.demo.application.event.MeetingCompletedEvent;
+import com.jolupbisang.demo.application.event.MeetingStartingEvent;
 import com.jolupbisang.demo.application.meeting.dto.MeetingDetailSummary;
-import com.jolupbisang.demo.application.meeting.event.MeetingCompletedEvent;
 import com.jolupbisang.demo.application.meeting.exception.MeetingErrorCode;
 import com.jolupbisang.demo.domain.agenda.Agenda;
 import com.jolupbisang.demo.domain.meeting.Meeting;
@@ -157,6 +158,7 @@ public class MeetingService {
         meetingAccessValidator.validateUserIsHost(meetingId, userId);
         meetingAccessValidator.validateMeetingIsWaiting(meetingId);
         meeting.startMeeting();
+        eventPublisher.publishEvent(new MeetingStartingEvent(this, meetingId));
     }
 
     private void completeMeeting(Meeting meeting, Long meetingId, Long userId) {

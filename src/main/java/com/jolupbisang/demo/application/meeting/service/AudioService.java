@@ -3,9 +3,9 @@ package com.jolupbisang.demo.application.meeting.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jolupbisang.demo.application.common.validator.MeetingAccessValidator;
+import com.jolupbisang.demo.application.event.MeetingCompletedEvent;
 import com.jolupbisang.demo.application.meeting.dto.AudioMeta;
 import com.jolupbisang.demo.application.meeting.dto.StepFunctionOutput;
-import com.jolupbisang.demo.application.meeting.event.MeetingCompletedEvent;
 import com.jolupbisang.demo.application.meeting.exception.AudioError;
 import com.jolupbisang.demo.global.exception.CustomException;
 import com.jolupbisang.demo.infrastructure.aws.sfn.SfnClientUtil;
@@ -16,7 +16,6 @@ import com.jolupbisang.demo.infrastructure.meeting.session.MeetingSessionReposit
 import com.jolupbisang.demo.infrastructure.meetingUser.MeetingUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
