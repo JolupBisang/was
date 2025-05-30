@@ -1,26 +1,41 @@
 package com.jolupbisang.demo.infrastructure.meeting.client.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.BinaryMessage;
+
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.io.IOException;
 import java.util.List;
 
-public record MetaDataRequest(Dict dict, MeetingMetaData metadata) {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public record MetaDataRequest(
+        WhisperRequestType flag,
 
-    private MetaDataRequest(String userId, String groupId, List<String> agenda, int numPeople, String meetingTopic) {
-        this(new Dict(WhisperRequestType.METADATA, userId, groupId),
-             new MeetingMetaData(agenda, numPeople, meetingTopic));
-    }
+        @JsonProperty("group_id")
+        String groupId,
 
-    public static MetaDataRequest of(String userId, String groupId, List<String> agenda, int numPeople, String meetingTopic) {
-        return new MetaDataRequest(userId, groupId, agenda, numPeople, meetingTopic);
-    }
+        List<String> agenda,
 
-    public TextMessage toTextMessage(ObjectMapper objectMapper) throws IOException {
-        return new TextMessage(objectMapper.writeValueAsString(this));
+        @JsonProperty("num_people")
+        Long numPeople,
+
+        @JsonProperty("meeting_topic")
+        String meetingTopic
+) {
+
+    public static MetaDataRequest of(long groupId, List<String> agenda, Long numPeople, String meetingTopic) {
+        List<String> tempAgenda = agenda == null || agenda.isEmpty() ? null : agenda;
+
+        return new MetaDataRequest(
+                WhisperRequestType.METADATA,
+                String.valueOf(groupId),
+                tempAgenda,
+                numPeople,
+                meetingTopic
+        );
     }
 
     public BinaryMessage toBinaryMessage(ObjectMapper objectMapper) throws IOException {
@@ -33,11 +48,5 @@ public record MetaDataRequest(Dict dict, MeetingMetaData metadata) {
         buffer.put(jsonBytes);
 
         return new BinaryMessage(buffer.array());
-    }
-
-    private record Dict(WhisperRequestType type, String userId, String groupId) {
-    }
-
-    private record MeetingMetaData(List<String> agenda, int numPeople, String meetingTopic) {
     }
 }

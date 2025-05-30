@@ -1,28 +1,25 @@
 package com.jolupbisang.demo.infrastructure.meeting.client.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.BinaryMessage;
+
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.io.IOException;
 
-public record ContextRequest(Dict dict) {
+public record ContextRequest(
+        WhisperRequestType flag,
+        @JsonProperty("group_id")
+        String groupId
+) {
 
-    private ContextRequest(String groupId) {
-        this(new Dict(WhisperRequestType.CONTEXT, groupId));
-    }
-
-    public static ContextRequest of(String groupId) {
-        return new ContextRequest(groupId);
-    }
-
-    public TextMessage toTextMessage(ObjectMapper objectMapper) throws IOException {
-        return new TextMessage(objectMapper.writeValueAsString(this));
+    public static ContextRequest of(long groupId) {
+        return new ContextRequest(WhisperRequestType.CONTEXT, String.valueOf(groupId));
     }
 
     public BinaryMessage toBinaryMessage(ObjectMapper objectMapper) throws IOException {
-        String metadata = objectMapper.writeValueAsString(this.dict);
+        String metadata = objectMapper.writeValueAsString(this);
         byte[] metadataBytes = metadata.getBytes(StandardCharsets.UTF_8);
         int metadataLength = metadataBytes.length;
 
@@ -31,8 +28,5 @@ public record ContextRequest(Dict dict) {
         buffer.put(metadataBytes);
 
         return new BinaryMessage(buffer.array());
-    }
-
-    private record Dict(WhisperRequestType type, String groupId) {
     }
 } 

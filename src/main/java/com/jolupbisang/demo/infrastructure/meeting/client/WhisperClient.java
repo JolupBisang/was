@@ -49,10 +49,10 @@ public class WhisperClient extends BinaryWebSocketHandler {
         connectToWhisperServer();
     }
 
-    public void sendDiarized(long meetingId, long userId, byte[] audioData) {
+    public void sendDiarized(long meetingId, long userId, Integer scOffset, byte[] audioData) {
         try {
             if (whisperSession != null && whisperSession.isOpen()) {
-                DiarizedRequest request = DiarizedRequest.of(String.valueOf(meetingId), String.valueOf(userId), audioData);
+                DiarizedRequest request = DiarizedRequest.of(meetingId, userId, scOffset, audioData);
                 whisperSession.sendMessage(request.toBinaryMessage(objectMapper));
             }
         } catch (IOException e) {
@@ -63,10 +63,8 @@ public class WhisperClient extends BinaryWebSocketHandler {
     public void sendContext(long meetingId) {
         try {
             if (whisperSession != null && whisperSession.isOpen()) {
-                ContextRequest request = ContextRequest.of(String.valueOf(meetingId));
+                ContextRequest request = ContextRequest.of(meetingId);
                 whisperSession.sendMessage(request.toBinaryMessage(objectMapper));
-            } else {
-                log.error("[WhisperClient] Whisper WebSocket connection is not available");
             }
         } catch (IOException e) {
             log.error("[WhisperClient] Failed to send context request to Whisper server", e);
@@ -76,10 +74,8 @@ public class WhisperClient extends BinaryWebSocketHandler {
     public void sendContextDone(long meetingId) {
         try {
             if (whisperSession != null && whisperSession.isOpen()) {
-                ContextDoneRequest request = ContextDoneRequest.of(String.valueOf(meetingId));
+                ContextDoneRequest request = ContextDoneRequest.of(meetingId);
                 whisperSession.sendMessage(request.toBinaryMessage(objectMapper));
-            } else {
-                log.error("[WhisperClient] Whisper WebSocket connection is not available");
             }
         } catch (IOException e) {
             log.error("[WhisperClient] Failed to send context_done request to Whisper server", e);
