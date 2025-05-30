@@ -40,7 +40,7 @@ public class WhisperClient extends BinaryWebSocketHandler {
 
     @Override
     public void handleBinaryMessage(WebSocketSession session, BinaryMessage message) {
-        //todo: whisper response 처리
+
     }
 
     @Override
@@ -49,7 +49,7 @@ public class WhisperClient extends BinaryWebSocketHandler {
         connectToWhisperServer();
     }
 
-    public void sendDiarized(long meetingId, long userId, Integer scOffset, byte[] audioData) {
+    public void sendDiarization(long meetingId, long userId, Integer scOffset, byte[] audioData) {
         try {
             if (whisperSession != null && whisperSession.isOpen()) {
                 DiarizedRequest request = DiarizedRequest.of(meetingId, userId, scOffset, audioData);
