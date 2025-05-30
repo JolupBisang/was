@@ -1,8 +1,8 @@
 package com.jolupbisang.demo.infrastructure.meeting.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jolupbisang.demo.application.event.ContextReceivedEvent;
-import com.jolupbisang.demo.application.event.DiarizedReceivedEvent;
+import com.jolupbisang.demo.application.event.whisper.WhisperContextEvent;
+import com.jolupbisang.demo.application.event.whisper.WhisperDiarizedEvent;
 import com.jolupbisang.demo.infrastructure.meeting.client.dto.request.ContextDoneRequest;
 import com.jolupbisang.demo.infrastructure.meeting.client.dto.request.ContextRequest;
 import com.jolupbisang.demo.infrastructure.meeting.client.dto.request.DiarizedRequest;
@@ -144,11 +144,11 @@ public class WhisperClient extends BinaryWebSocketHandler {
 
     private void processContextResponse(String jsonResponse) throws IOException {
         ContextResponse contextResponse = objectMapper.readValue(jsonResponse, ContextResponse.class);
-        this.eventPublisher.publishEvent(new ContextReceivedEvent(contextResponse));
+        this.eventPublisher.publishEvent(new WhisperContextEvent(contextResponse));
     }
 
     private void processDiarizedResponse(String jsonResponse) throws IOException {
         DiarizedResponse diarizedResponse = objectMapper.readValue(jsonResponse, DiarizedResponse.class);
-        this.eventPublisher.publishEvent(new DiarizedReceivedEvent(diarizedResponse));
+        this.eventPublisher.publishEvent(new WhisperDiarizedEvent(diarizedResponse));
     }
 }
