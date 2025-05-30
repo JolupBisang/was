@@ -1,4 +1,4 @@
-package com.jolupbisang.demo.application.meeting.event;
+package com.jolupbisang.demo.application.event;
 
 import org.springframework.context.ApplicationEvent;
 
