@@ -20,6 +20,8 @@ public class MeetingSseService {
     //첫번째 key: meetingId, 두번째 key: userId + "_" + eventType
     private final Map<String, Map<String, SseEmitter>> meetingEmitters = new ConcurrentHashMap<>();
 
+    private static final long SEE_EMITTER_TIMEOUT = 10 * 60 * 1000; //10분
+
     public SseEmitter subscribe(String meetingId, String userId, MeetingSseEventType eventType) {
         meetingEmitters.putIfAbsent(meetingId, new ConcurrentHashMap<>());
 
@@ -73,7 +75,7 @@ public class MeetingSseService {
     }
 
     private SseEmitter createEmitter(String meetingId, String emitterKey) {
-        SseEmitter emitter = new SseEmitter(180000L);
+        SseEmitter emitter = new SseEmitter(SEE_EMITTER_TIMEOUT);
         emitter.onCompletion(() -> {
             meetingEmitters.get(meetingId).remove(emitterKey);
             if (meetingEmitters.get(meetingId).isEmpty()) {
