@@ -6,6 +6,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -23,9 +25,12 @@ public class Summary {
 
     private boolean isRecap;
 
-    public Summary(Meeting meeting, String content, boolean isRecap) {
+    private LocalDateTime timestamp;
+
+    public Summary(Meeting meeting, String content, boolean isRecap, LocalDateTime timestamp) {
         this.meeting = meeting;
         this.content = content;
         this.isRecap = isRecap;
+        this.timestamp = timestamp;
     }
 }
