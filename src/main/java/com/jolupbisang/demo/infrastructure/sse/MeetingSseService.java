@@ -1,5 +1,6 @@
 package com.jolupbisang.demo.infrastructure.sse;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +17,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public class MeetingSseService {
 
     private final ObjectMapper objectMapper;
+    //첫번째 key: meetingId, 두번째 key: userId + "_" + eventType
     private final Map<String, Map<String, SseEmitter>> meetingEmitters = new ConcurrentHashMap<>();
+
+    private static final long SEE_EMITTER_TIMEOUT = 10 * 60 * 1000; //10분
 
     public SseEmitter subscribe(String meetingId, String userId, MeetingSseEventType eventType) {
         meetingEmitters.putIfAbsent(meetingId, new ConcurrentHashMap<>());
@@ -42,6 +46,8 @@ public class MeetingSseService {
                     emitter.send(SseEmitter.event()
                             .name(eventType.toString())
                             .data(objectMapper.writeValueAsString(data)));
+                } catch (JsonProcessingException e) {
+                    log.error("[Whisper Client SSE Error] meetingId: {}, userId: {}, eventType: {}, data: {}", meetingId, key, eventType, data, e);
                 } catch (IOException e) {
                     emitter.completeWithError(e);
                 }
@@ -49,8 +55,27 @@ public class MeetingSseService {
         });
     }
 
+    public void sendEventToUserOfMeeting(String meetingId, String userId, MeetingSseEventType eventType, Object data) {
+        if (!meetingEmitters.containsKey(meetingId) || !meetingEmitters.get(meetingId).containsKey(userId + "_" + eventType)) {
+            log.error("연결된 클라이언트가 없습니다. meetingId: {}", meetingId);
+            return;
+        }
+
+        SseEmitter userEmitter = meetingEmitters.get(meetingId).get(userId + "_" + eventType);
+        try {
+            userEmitter.send(SseEmitter.event()
+                    .name(eventType.toString())
+                    .data(objectMapper.writeValueAsString(data)));
+        } catch (JsonProcessingException e) {
+            log.error("[Whisper Client SSE Error] meetingId: {}, userId: {}, eventType: {}, data: {}", meetingId, userId, eventType, data, e);
+        } catch (IOException e) {
+            userEmitter.completeWithError(e);
+        }
+
+    }
+
     private SseEmitter createEmitter(String meetingId, String emitterKey) {
-        SseEmitter emitter = new SseEmitter(180000L);
+        SseEmitter emitter = new SseEmitter(SEE_EMITTER_TIMEOUT);
         emitter.onCompletion(() -> {
             meetingEmitters.get(meetingId).remove(emitterKey);
             if (meetingEmitters.get(meetingId).isEmpty()) {

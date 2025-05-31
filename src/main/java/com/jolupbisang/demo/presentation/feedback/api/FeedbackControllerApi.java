@@ -57,12 +57,4 @@ public interface FeedbackControllerApi {
     SseEmitter subscribe(@Parameter(description = "회의 ID", required = true, example = "1")
                          @PathVariable Long meetingId,
                          @AuthenticationPrincipal CustomUserDetails userDetails);
-
-    @Operation(summary = "테스트 피드백 발송", description = "테스트 목적으로 특정 회의에 피드백을 발송합니다")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "피드백 발송 성공"),
-            @ApiResponse(responseCode = "404", description = "회의를 찾을 수 없음")
-    })
-    void sendTestFeedback(@Parameter(description = "회의 ID", required = true, example = "1")
-                          @PathVariable Long meetingId);
 }

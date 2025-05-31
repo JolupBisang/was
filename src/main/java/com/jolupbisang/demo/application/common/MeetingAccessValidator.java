@@ -1,4 +1,4 @@
-package com.jolupbisang.demo.application.common.validator;
+package com.jolupbisang.demo.application.common;
 
 import com.jolupbisang.demo.application.common.exception.MeetingAccessErrorCode;
 import com.jolupbisang.demo.domain.meeting.Meeting;

@@ -2,7 +2,7 @@ package com.jolupbisang.demo.application.agenda.service;
 
 import com.jolupbisang.demo.application.agenda.dto.AgendaDetail;
 import com.jolupbisang.demo.application.agenda.exception.AgendaErrorCode;
-import com.jolupbisang.demo.application.common.validator.MeetingAccessValidator;
+import com.jolupbisang.demo.application.common.MeetingAccessValidator;
 import com.jolupbisang.demo.domain.agenda.Agenda;
 import com.jolupbisang.demo.global.exception.CustomException;
 import com.jolupbisang.demo.infrastructure.agenda.AgendaRepository;

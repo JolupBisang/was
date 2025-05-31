@@ -1,6 +1,6 @@
 package com.jolupbisang.demo.application.participationRate;
 
-import com.jolupbisang.demo.application.common.validator.MeetingAccessValidator;
+import com.jolupbisang.demo.application.common.MeetingAccessValidator;
 import com.jolupbisang.demo.infrastructure.sse.MeetingSseEventType;
 import com.jolupbisang.demo.infrastructure.sse.MeetingSseService;
 import lombok.RequiredArgsConstructor;

@@ -1,9 +1,11 @@
 package com.jolupbisang.demo.application.meeting.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jolupbisang.demo.application.common.validator.MeetingAccessValidator;
+import com.jolupbisang.demo.application.common.MeetingAccessValidator;
+import com.jolupbisang.demo.application.common.MeetingSessionManager;
+import com.jolupbisang.demo.application.event.MeetingCompletedEvent;
+import com.jolupbisang.demo.application.event.MeetingStartingEvent;
 import com.jolupbisang.demo.application.meeting.dto.MeetingDetailSummary;
-import com.jolupbisang.demo.application.meeting.event.MeetingCompletedEvent;
 import com.jolupbisang.demo.application.meeting.exception.MeetingErrorCode;
 import com.jolupbisang.demo.domain.agenda.Agenda;
 import com.jolupbisang.demo.domain.meeting.Meeting;
@@ -14,7 +16,6 @@ import com.jolupbisang.demo.domain.user.User;
 import com.jolupbisang.demo.global.exception.CustomException;
 import com.jolupbisang.demo.infrastructure.agenda.AgendaRepository;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
-import com.jolupbisang.demo.infrastructure.meeting.session.MeetingSessionRepository;
 import com.jolupbisang.demo.infrastructure.meetingUser.MeetingUserRepository;
 import com.jolupbisang.demo.infrastructure.user.UserRepository;
 import com.jolupbisang.demo.presentation.meeting.dto.request.MeetingReq;
@@ -43,7 +44,7 @@ public class MeetingService {
     private final MeetingRepository meetingRepository;
     private final MeetingUserRepository meetingUserRepository;
     private final AgendaRepository agendaRepository;
-    private final MeetingSessionRepository meetingSessionRepository;
+    private final MeetingSessionManager meetingSessionManager;
     private final MeetingAccessValidator meetingAccessValidator;
 
     private final ObjectMapper objectMapper;
@@ -157,13 +158,14 @@ public class MeetingService {
         meetingAccessValidator.validateUserIsHost(meetingId, userId);
         meetingAccessValidator.validateMeetingIsWaiting(meetingId);
         meeting.startMeeting();
+        eventPublisher.publishEvent(new MeetingStartingEvent(this, meetingId));
     }
 
     private void completeMeeting(Meeting meeting, Long meetingId, Long userId) {
         meetingAccessValidator.validateUserIsHost(meetingId, userId);
         meetingAccessValidator.validateMeetingIsInProgress(meetingId);
 
-        meetingSessionRepository.findAllByMeetingId(meetingId)
+        meetingSessionManager.findAllByMeetingId(meetingId)
                 .forEach(session -> {
                     try {
                         session.sendMessage(new TextMessage(objectMapper.writeValueAsBytes(SocketResponse.of(SocketResponseType.MEETING_COMPLETED, "회의가 종료되었습니다."))));
