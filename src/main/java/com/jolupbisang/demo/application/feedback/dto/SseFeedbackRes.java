@@ -9,7 +9,7 @@ public record SseFeedbackRes(
         String comment
 ) {
 
-    public static SseSummaryRes of(LocalDateTime timestamp, String comment) {
-        return new SseSummaryRes(timestamp, comment);
+    public static SseFeedbackRes of(LocalDateTime timestamp, String comment) {
+        return new SseFeedbackRes(timestamp, comment);
     }
 }
