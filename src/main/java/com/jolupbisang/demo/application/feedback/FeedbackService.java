@@ -2,6 +2,7 @@ package com.jolupbisang.demo.application.feedback;
 
 import com.jolupbisang.demo.application.common.MeetingAccessValidator;
 import com.jolupbisang.demo.application.event.FeedbackReceivedEvent;
+import com.jolupbisang.demo.application.feedback.dto.SseFeedbackRes;
 import com.jolupbisang.demo.application.feedback.exception.FeedbackErrorCode;
 import com.jolupbisang.demo.domain.feedback.Feedback;
 import com.jolupbisang.demo.domain.meeting.Meeting;
@@ -63,12 +64,6 @@ public class FeedbackService {
         }
 
         feedbackRepository.save(new Feedback(meeting, user, comment, timestamp));
-        meetingSseService.sendEventToUserOfMeeting(String.valueOf(meetingId), String.valueOf(userId), MeetingSseEventType.FEEDBACK, comment);
-    }
-
-    public void sendFeedback(Long meetingId) {
-        String testFeedback = "Test feedback for meeting ID: " + meetingId;
-
-        meetingSseService.sendEventToMeeting(String.valueOf(meetingId), MeetingSseEventType.FEEDBACK, testFeedback);
+        meetingSseService.sendEventToUserOfMeeting(String.valueOf(meetingId), String.valueOf(userId), MeetingSseEventType.FEEDBACK, SseFeedbackRes.of(timestamp, comment));
     }
 }

@@ -13,6 +13,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,13 +31,16 @@ public class ContextService {
 
     private static final int CONTEXT_SEND_INTERVAL_MINUTES = 5;
 
-    @Async
+    @Async("AsyncTaskExecutor")
     @EventListener
     public void handleMeetingStart(MeetingStartingEvent event) {
         Long meetingId = event.getMeetingId();
         Runnable task = () -> whisperClient.sendContext(meetingId);
 
-        ScheduledFuture<?> scheduledFuture = taskScheduler.scheduleAtFixedRate(task, Duration.ofMinutes(CONTEXT_SEND_INTERVAL_MINUTES));
+        ScheduledFuture<?> scheduledFuture = taskScheduler.scheduleAtFixedRate(
+                task,
+                Instant.now().plusSeconds(60 * CONTEXT_SEND_INTERVAL_MINUTES),
+                Duration.ofMinutes(CONTEXT_SEND_INTERVAL_MINUTES));
         scheduledTasks.put(meetingId, scheduledFuture);
     }
 
@@ -58,10 +62,11 @@ public class ContextService {
         ContextResponse contextResponse = event.getContextResponse();
         Object source = event.getSource();
         long meetingId = contextResponse.groupId();
+        boolean isRecap = contextResponse.isRecap();
 
         String context = contextResponse.context();
         if (context != null && !context.isEmpty()) {
-            eventPublisher.publishEvent(new SummaryReceivedEvent(source, meetingId, context));
+            eventPublisher.publishEvent(new SummaryReceivedEvent(source, meetingId, context, isRecap));
         }
 
         List<Integer> agenda = contextResponse.agenda();

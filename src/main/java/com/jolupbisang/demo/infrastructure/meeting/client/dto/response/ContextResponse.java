@@ -7,6 +7,8 @@ import java.util.List;
 public record ContextResponse(
         @JsonProperty("group_id")
         long groupId,
+        @JsonProperty("is_recap")
+        boolean isRecap,
         String context,
         List<Integer> agenda,
         FeedbackRes feedback
