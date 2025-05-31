@@ -3,6 +3,7 @@ package com.jolupbisang.demo.infrastructure.meeting.client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jolupbisang.demo.application.event.whisper.WhisperContextEvent;
 import com.jolupbisang.demo.application.event.whisper.WhisperDiarizedEvent;
+import com.jolupbisang.demo.global.properties.WhisperProperties;
 import com.jolupbisang.demo.infrastructure.meeting.client.dto.request.ContextDoneRequest;
 import com.jolupbisang.demo.infrastructure.meeting.client.dto.request.ContextRequest;
 import com.jolupbisang.demo.infrastructure.meeting.client.dto.request.DiarizedRequest;
@@ -34,7 +35,7 @@ public class WhisperClient extends BinaryWebSocketHandler {
     private final ApplicationEventPublisher eventPublisher;
     private WebSocketSession whisperSession;
 
-    private static final String WHISPER_WEBSOCKET_URL = "wss://your-whisper-server-url/ws";
+    private final WhisperProperties whisperProperties;
 
     @PostConstruct
     public void init() {
@@ -115,7 +116,7 @@ public class WhisperClient extends BinaryWebSocketHandler {
     private void connectToWhisperServer() {
         WebSocketClient client = new StandardWebSocketClient();
         try {
-            whisperSession = client.execute(this, WHISPER_WEBSOCKET_URL).get();
+            whisperSession = client.execute(this, whisperProperties.getWebsocketUrl()).get();
             log.info("[WhisperClient] Connected to Whisper server");
         } catch (InterruptedException | ExecutionException e) {
             log.error("[WhisperClient] Failed to connect to Whisper server", e);
