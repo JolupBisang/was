@@ -34,7 +34,7 @@ public class ContextService {
     @Async("AsyncTaskExecutor")
     @EventListener
     public void handleMeetingStart(MeetingStartingEvent event) {
-        Long meetingId = event.getMeetingId();
+        long meetingId = event.getMeetingId();
         Runnable task = () -> whisperClient.sendContext(meetingId);
 
         ScheduledFuture<?> scheduledFuture = taskScheduler.scheduleAtFixedRate(
@@ -79,4 +79,27 @@ public class ContextService {
             eventPublisher.publishEvent(new FeedbackReceivedEvent(source, meetingId, feedbackRes.userId(), feedbackRes.comment()));
         }
     }
+
+
+    /*
+     * 테스트용 스케줄러입니다. 주석을 풀고 싶행시 시작후 1분마다 피드백과 중간요약을 제공합니다.
+     * userId 부분을 꼭 자기의 userId로 바꾸고 실행해야합니다!!
+     */
+//    @Async("AsyncTaskExecutor")
+//    @EventListener
+//    public void makeTestTask(MeetingStartingEvent event) {
+//        long meetingId = event.getMeetingId();
+//        long userId = 1L;
+//        Runnable task = () -> {
+//            log.info("This is test");
+//            eventPublisher.publishEvent(new SummaryReceivedEvent(this, meetingId, "Test summary", false));
+//            eventPublisher.publishEvent(new FeedbackReceivedEvent(this, meetingId, userId, "Test feedback"));
+//        };
+//
+//        taskScheduler.scheduleAtFixedRate(
+//                task,
+//                Instant.now().plusSeconds(60),
+//                Duration.ofMinutes(1));
+//    }
+
 } 
