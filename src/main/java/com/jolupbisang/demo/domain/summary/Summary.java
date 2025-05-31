@@ -20,4 +20,12 @@ public class Summary {
     private Meeting meeting;
 
     private String content;
+
+    private boolean isRecap;
+
+    public Summary(Meeting meeting, String content, boolean isRecap) {
+        this.meeting = meeting;
+        this.content = content;
+        this.isRecap = isRecap;
+    }
 }
