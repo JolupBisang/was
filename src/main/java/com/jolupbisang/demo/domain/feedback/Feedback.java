@@ -29,4 +29,11 @@ public class Feedback {
     private String comment;
 
     private LocalDateTime timeStamp;
+
+    public Feedback(Meeting meeting, User user, String comment, LocalDateTime timeStamp) {
+        this.meeting = meeting;
+        this.user = user;
+        this.comment = comment;
+        this.timeStamp = timeStamp;
+    }
 }
