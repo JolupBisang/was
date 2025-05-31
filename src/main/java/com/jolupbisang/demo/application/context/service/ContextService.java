@@ -82,7 +82,7 @@ public class ContextService {
 
 
     /*
-     * 테스트용 스케줄러입니다. 주석을 풀고 싶행시 시작후 1분마다 피드백과 중간요약을 제공합니다.
+     * 테스트용 스케줄러입니다. 주석을 풀고 싶으시면 시작후 1분마다 피드백과 중간요약을 제공합니다.
      * userId 부분을 꼭 자기의 userId로 바꾸고 실행해야합니다!!
      */
 //    @Async("AsyncTaskExecutor")
