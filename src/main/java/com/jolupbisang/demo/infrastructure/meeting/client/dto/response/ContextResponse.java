@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 public record ContextResponse(
+        String flag,
         @JsonProperty("group_id")
         long groupId,
         @JsonProperty("is_recap")

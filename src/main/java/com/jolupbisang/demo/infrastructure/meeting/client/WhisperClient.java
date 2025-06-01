@@ -1,5 +1,6 @@
 package com.jolupbisang.demo.infrastructure.meeting.client;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jolupbisang.demo.application.event.whisper.WhisperContextEvent;
 import com.jolupbisang.demo.application.event.whisper.WhisperDiarizedEvent;
@@ -62,9 +63,11 @@ public class WhisperClient extends BinaryWebSocketHandler {
                 return;
             }
 
-            if (jsonResponse.contains("\"context\"")) {
+            String flag = objectMapper.readTree(jsonResponse).path("flag").asText();
+
+            if ("context".equals(flag)) {
                 processContextResponse(jsonResponse);
-            } else if (jsonResponse.contains("\"completed\"")) {
+            } else if ("completed".equals(flag)) {
                 processDiarizedResponse(jsonResponse);
             } else {
                 log.warn("[WhisperClient] Unknown message type received: {}", jsonResponse);
