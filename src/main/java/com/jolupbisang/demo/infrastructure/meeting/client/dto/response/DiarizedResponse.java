@@ -17,9 +17,9 @@ public record DiarizedResponse(
             String text,
             List<Word> words,
             @JsonProperty("user_id")
-            String userId,
+            long userId,
             @JsonProperty("audio_id")
-            String audioUserId
+            long audioUserId
     ) {
     }
 
