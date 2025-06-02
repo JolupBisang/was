@@ -10,9 +10,9 @@ import com.jolupbisang.demo.application.meeting.dto.StepFunctionOutput;
 import com.jolupbisang.demo.application.meeting.exception.AudioError;
 import com.jolupbisang.demo.global.exception.CustomException;
 import com.jolupbisang.demo.infrastructure.aws.sfn.SfnClientUtil;
+import com.jolupbisang.demo.infrastructure.meeting.audio.AudioProgressRepository;
 import com.jolupbisang.demo.infrastructure.meeting.audio.AudioRepository;
 import com.jolupbisang.demo.infrastructure.meeting.client.WhisperClient;
-import com.jolupbisang.demo.infrastructure.meeting.session.AudioProgressRepository;
 import com.jolupbisang.demo.infrastructure.meetingUser.MeetingUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -82,13 +82,13 @@ public class AudioService {
         }
 
         audioRepository.save(audioMetaResult, audioData);
-        audioProgressRepository.saveLastProcessedChunkId(userId, meetingId, audioMetaResult.chunkId());
+        audioProgressRepository.saveLastProcessedChunkId(userId, meetingId, audioMetaResult.chunkId(), audioMetaResult.timestamp());
         whisperClient.sendDiarization(meetingId, userId, null, audioData);
     }
 
     @EventListener
     public void handleMeetingCompletedEvent(MeetingCompletedEvent event) {
-        Long meetingId = event.getMeetingId();
+        long meetingId = event.getMeetingId();
         log.info("Received MeetingCompletedEvent for meetingId: {}. Triggering SfnClientUtil with ARN: {}", meetingId, MERGE_AUDIO_STATE_MACHINE_ARN);
         StepFunctionOutput stepFunctionOutput = sfnClientUtil.startMergeAudioStateMachine(MERGE_AUDIO_STATE_MACHINE_ARN, meetingId);
 
