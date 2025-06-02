@@ -67,6 +67,7 @@ public class SegmentService {
 
     private void saveCompletedSegment(DiarizedResponse.Segment segmentData, long meetingId) {
         long userId = segmentData.userId();
+        LocalDateTime timestamp = calculateTimestamp(segmentData, meetingId);
 
         try {
             meetingAccessValidator.validateMeetingInProgressAndUserParticipating(meetingId, userId);
@@ -96,6 +97,7 @@ public class SegmentService {
                                         meeting,
                                         user,
                                         segmentData.order(),
+                                        timestamp,
                                         segmentData.text(),
                                         segmentData.lang().isEmpty() ? null : segmentData.lang().get(0))
                         )

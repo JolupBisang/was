@@ -2,9 +2,12 @@ package com.jolupbisang.demo.domain.segment;
 
 import com.jolupbisang.demo.domain.meeting.Meeting;
 import com.jolupbisang.demo.domain.user.User;
-
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -29,17 +32,21 @@ public class Segment {
     @Column(name = "segment_order", nullable = false)
     private int segmentOrder;
 
+    @Column(nullable = false)
+    private LocalDateTime timestamp;
+
     @Lob
     @Column(nullable = false)
     private String text;
 
-    @Column(length = 10)
+    @Column(length = 10, nullable = false)
     private String lang;
 
-    public Segment(Meeting meeting, User user, int segmentOrder, String text, String lang) {
+    public Segment(Meeting meeting, User user, int segmentOrder, LocalDateTime timestamp, String text, String lang) {
         this.meeting = meeting;
         this.user = user;
         this.segmentOrder = segmentOrder;
+        this.timestamp = timestamp;
         this.text = text;
         this.lang = lang;
     }
