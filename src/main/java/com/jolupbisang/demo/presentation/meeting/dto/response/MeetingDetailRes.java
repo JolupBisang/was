@@ -1,12 +1,9 @@
 package com.jolupbisang.demo.presentation.meeting.dto.response;
 
 import com.jolupbisang.demo.domain.meeting.Meeting;
-import com.jolupbisang.demo.domain.meetingUser.MeetingUser;
 import com.jolupbisang.demo.domain.user.User;
 
-import javax.lang.model.type.ArrayType;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,10 +16,11 @@ public record MeetingDetailRes(
         Integer restInterval,
         Integer restDuration,
         String meetingStatus,
-        List<Participant> participants
+        List<Participant> participants,
+        boolean isHost
 ) {
 
-    public static MeetingDetailRes fromEntity(Meeting meeting, List<User> participants) {
+    public static MeetingDetailRes fromEntity(Meeting meeting, List<User> participants, boolean isHost) {
         return new MeetingDetailRes(
                 meeting.getId(),
                 meeting.getTitle(),
@@ -32,14 +30,15 @@ public record MeetingDetailRes(
                 meeting.getRestInterval(),
                 meeting.getRestDuration(),
                 meeting.getMeetingStatus().name(),
-                participants.stream().map(Participant::fromEntity).collect(Collectors.toList())
+                participants.stream().map(Participant::fromEntity).collect(Collectors.toList()),
+                isHost
         );
     }
 
     public record Participant(
             Long userId,
             String email
-    ){
+    ) {
         public static Participant fromEntity(User user) {
             return new Participant(user.getId(), user.getEmail());
         }
