@@ -11,6 +11,7 @@ import com.jolupbisang.demo.domain.user.User;
 import com.jolupbisang.demo.global.response.SocketResponse;
 import com.jolupbisang.demo.global.response.SocketResponseType;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
+import com.jolupbisang.demo.infrastructure.meeting.audio.AudioProgressRepository;
 import com.jolupbisang.demo.infrastructure.meeting.client.dto.response.DiarizedResponse;
 import com.jolupbisang.demo.infrastructure.segment.SegmentRepository;
 import com.jolupbisang.demo.infrastructure.user.UserRepository;
@@ -35,7 +36,9 @@ public class SegmentService {
     private final ObjectMapper objectMapper;
     private final MeetingRepository meetingRepository;
     private final UserRepository userRepository;
+
     private final MeetingAccessValidator meetingAccessValidator;
+    private final AudioProgressRepository audioProgressRepository;
 
     @EventListener
     public void handleWhisperDiarizedEvent(WhisperDiarizedEvent event) {
@@ -106,7 +109,7 @@ public class SegmentService {
             return;
         }
 
-        SocketSegmentRes socketSegmentRes = SocketSegmentRes.of(segmentData, LocalDateTime.now());
+        SocketSegmentRes socketSegmentRes = SocketSegmentRes.of(segmentData, calculateTimestamp(segmentData, meetingId));
         SocketResponse<SocketSegmentRes> socketResponse = SocketResponse.of(SocketResponseType.DIARIZED_SEGMENT, socketSegmentRes);
 
         try {
@@ -114,12 +117,32 @@ public class SegmentService {
             TextMessage textMessage = new TextMessage(messagePayload);
 
             for (WebSocketSession session : sessionsInMeeting) {
-                if (session.isOpen()) {
-                    session.sendMessage(textMessage);
-                }
+                sendToSingleSession(session, textMessage);
             }
         } catch (IOException e) {
             log.error("[SegmentService] Error sending candidate segment (order: {}) via WebSocket for meetingId: {}: {}", segmentData.order(), meetingId, e.getMessage());
         }
+    }
+
+    private LocalDateTime calculateTimestamp(DiarizedResponse.Segment segmentData, long meetingId) {
+        LocalDateTime baseTime = audioProgressRepository.findFirstProcessedTime(meetingId).orElse(null);
+
+        if (baseTime == null || segmentData.words() == null || segmentData.words().isEmpty()) {
+            return null;
+        }
+
+        double offsetSeconds = segmentData.words().get(0).start() / 16000.0;
+        return baseTime.plusNanos((long) (offsetSeconds * 1_000_000_000L));
+    }
+
+    private static void sendToSingleSession(WebSocketSession session, TextMessage textMessage) throws IOException {
+        try {
+            if (session.isOpen()) {
+                session.sendMessage(textMessage);
+            }
+        } catch (Exception e) {
+            log.error("[SegmentService] Error sending single segment via WebSocket for sessionId: {}: {}", session.getId(), textMessage.getPayload(), e);
+        }
+
     }
 } 
