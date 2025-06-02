@@ -6,7 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConfigurationProperties(prefix = "spring.cloud.aws.s3")
+@ConfigurationProperties(prefix = "cloud.aws.s3")
 @Getter
 @Setter
 public class S3Properties {

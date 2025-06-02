@@ -7,6 +7,7 @@ public record MeetingDetailSummary(
         String title,
         String location,
         String scheduledStartTime,
+        int targetTime,
         String status
 ) {
     public static MeetingDetailSummary fromEntity(Meeting meeting) {
@@ -15,6 +16,7 @@ public record MeetingDetailSummary(
                 meeting.getTitle(),
                 meeting.getLocation(),
                 meeting.getScheduledStartTime().toString(),
+                meeting.getTargetTime(),
                 meeting.getMeetingStatus().name());
     }
 }

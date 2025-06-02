@@ -17,6 +17,7 @@ public record MeetingDetailSummaryRes(
                                         detail.title(),
                                         detail.location(),
                                         detail.scheduledStartTime(),
+                                        detail.targetTime(),
                                         detail.status()
                                 ))
                         .toList()
@@ -28,6 +29,7 @@ public record MeetingDetailSummaryRes(
             String title,
             String location,
             String scheduledStartTime,
+            int targetTime,
             String status
     ) {
     }

@@ -72,8 +72,9 @@ public class MeetingService {
                 .orElseThrow(() -> new CustomException(MeetingErrorCode.MEETING_NOT_FOUND));
 
         List<User> participants = userRepository.findByMeetingId(meetingId);
+        boolean isHost = meetingUserRepository.existsByMeetingIdAndUserIdAndIsHost(meetingId, userId, true);
 
-        return MeetingDetailRes.fromEntity(meeting, participants);
+        return MeetingDetailRes.fromEntity(meeting, participants, isHost);
     }
 
     @Transactional(readOnly = true)

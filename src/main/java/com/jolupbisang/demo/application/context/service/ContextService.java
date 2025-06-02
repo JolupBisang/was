@@ -90,16 +90,54 @@ public class ContextService {
 //    public void makeTestTask(MeetingStartingEvent event) {
 //        long meetingId = event.getMeetingId();
 //        long userId = 1L;
-//        Runnable task = () -> {
-//            log.info("This is test");
+//        final int[] orderCounter = {0};
+//        final int[] currentWordStartTime = {16000};
+//
+//        Runnable task1 = () -> {
+//            log.info("This is test - publishing DiarizedEvent with incrementing order");
 //            eventPublisher.publishEvent(new SummaryReceivedEvent(this, meetingId, "Test summary", false));
 //            eventPublisher.publishEvent(new FeedbackReceivedEvent(this, meetingId, userId, "Test feedback"));
 //        };
 //
-//        taskScheduler.scheduleAtFixedRate(
-//                task,
-//                Instant.now().plusSeconds(60),
-//                Duration.ofMinutes(1));
+//        Runnable task2 = () -> {
+//            int currentWordStart = currentWordStartTime[0];
+//            DiarizedResponse.Word testWord = new DiarizedResponse.Word(
+//                    currentWordStart,
+//                    currentWordStart + 1000,
+//                    "test_word",
+//                    "ko"
+//            );
+//            currentWordStartTime[0] = currentWordStart + 16000; // Increment global counter
+//
+//            DiarizedResponse.Segment completedSegment = new DiarizedResponse.Segment(
+//                    orderCounter[0],
+//                    List.of("ko"),
+//                    "그쵸 아마 이 질문의 의도는 제 생각하기에 높은 산곡대기로 가면 어쨌든 그 고도만큼 올라가니까 그렇긴 하겠네요.",
+//                    List.of(testWord),
+//                    1L,
+//                    1L
+//            );
+//            List<DiarizedResponse.Segment> completedList = new ArrayList<>();
+//            completedList.add(completedSegment);
+//
+//            DiarizedResponse.Segment candidateSegment1 = new DiarizedResponse.Segment(
+//                    orderCounter[0]++,
+//                    List.of("ko"),
+//                    "지표면에서에 비해서는 중력을 더 약하게 느끼지 않겠냐 그러면 지구 중력을 벗어나려고 결국에 연료를.",
+//                    List.of(testWord),
+//                    1L,
+//                    1L
+//            );
+//            List<DiarizedResponse.Segment> candidateList = new ArrayList<>();
+//            candidateList.add(candidateSegment1);
+//
+//            DiarizedResponse diarizedResponseForTest = new DiarizedResponse(WhisperResponseType.DIARIZED, meetingId, completedList, candidateList);
+//
+//            eventPublisher.publishEvent(new WhisperDiarizedEvent(diarizedResponseForTest));
+//        };
+//
+//        taskScheduler.scheduleAtFixedRate(task1, Instant.now().plusSeconds(10), Duration.ofMinutes(1));
+//        taskScheduler.scheduleAtFixedRate(task2, Instant.now().plusSeconds(1), Duration.ofSeconds(1));
 //    }
 
 } 

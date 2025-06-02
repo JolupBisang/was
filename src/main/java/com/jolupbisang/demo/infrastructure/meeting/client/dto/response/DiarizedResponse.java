@@ -5,6 +5,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 public record DiarizedResponse(
+        WhisperResponseType flag,
+        @JsonProperty("group_id")
+        long groupId,
         List<Segment> completed,
         List<Segment> candidate
 ) {
@@ -14,9 +17,9 @@ public record DiarizedResponse(
             String text,
             List<Word> words,
             @JsonProperty("user_id")
-            String userId,
+            long userId,
             @JsonProperty("audio_id")
-            String audioUserId
+            long audioUserId
     ) {
     }
 
