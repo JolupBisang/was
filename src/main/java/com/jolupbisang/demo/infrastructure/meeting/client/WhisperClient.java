@@ -3,10 +3,16 @@ package com.jolupbisang.demo.infrastructure.meeting.client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jolupbisang.demo.application.event.whisper.WhisperContextEvent;
 import com.jolupbisang.demo.application.event.whisper.WhisperDiarizedEvent;
+import com.jolupbisang.demo.application.event.whisper.WhisperEmbeddedEvent;
 import com.jolupbisang.demo.global.properties.WhisperProperties;
-import com.jolupbisang.demo.infrastructure.meeting.client.dto.request.*;
+import com.jolupbisang.demo.infrastructure.meeting.client.dto.request.ContextDoneRequest;
+import com.jolupbisang.demo.infrastructure.meeting.client.dto.request.ContextRequest;
+import com.jolupbisang.demo.infrastructure.meeting.client.dto.request.DiarizedRequest;
+import com.jolupbisang.demo.infrastructure.meeting.client.dto.request.EmbeddingRequest;
 import com.jolupbisang.demo.infrastructure.meeting.client.dto.response.ContextResponse;
 import com.jolupbisang.demo.infrastructure.meeting.client.dto.response.DiarizedResponse;
+import com.jolupbisang.demo.infrastructure.meeting.client.dto.response.EmbeddedVectorResponse;
+import com.jolupbisang.demo.infrastructure.meeting.client.dto.response.WhisperResponseType;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -62,10 +68,14 @@ public class WhisperClient extends BinaryWebSocketHandler {
 
             String flag = objectMapper.readTree(jsonResponse).path("flag").asText();
 
-            if (WhisperRequestType.CONTEXT.getValue().equals(flag)) {
+            if (WhisperResponseType.CONTEXT.getValue().equals(flag)) {
                 processContextResponse(jsonResponse);
-            } else if ("completed".equals(flag)) {
+            } else if (WhisperResponseType.DIARIZED.getValue().equals(flag)) {
                 processDiarizedResponse(jsonResponse);
+            } else if (WhisperResponseType.EMBEDDED.getValue().equals(flag)) {
+                byte[] audio = new byte[payload.remaining()];
+                payload.get(audio);
+                processEmbeddedResponse(jsonResponse, audio);
             } else {
                 log.warn("[WhisperClient] Unknown message type received: {}", jsonResponse);
             }
@@ -163,5 +173,10 @@ public class WhisperClient extends BinaryWebSocketHandler {
     private void processDiarizedResponse(String jsonResponse) throws IOException {
         DiarizedResponse diarizedResponse = objectMapper.readValue(jsonResponse, DiarizedResponse.class);
         this.eventPublisher.publishEvent(new WhisperDiarizedEvent(diarizedResponse));
+    }
+
+    private void processEmbeddedResponse(String jsonResponse, byte[] audio) throws IOException {
+        EmbeddedVectorResponse embeddedVectorResponse = objectMapper.readValue(jsonResponse, EmbeddedVectorResponse.class).withAudio(audio);
+        this.eventPublisher.publishEvent(new WhisperEmbeddedEvent(embeddedVectorResponse));
     }
 }

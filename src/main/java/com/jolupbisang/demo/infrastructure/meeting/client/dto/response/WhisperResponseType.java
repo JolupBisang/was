@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public enum WhisperResponseType {
-
+    EMBEDDED("embedded"),
     DIARIZED("diarized"),
     CONTEXT("context");
 
