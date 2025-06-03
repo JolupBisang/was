@@ -9,6 +9,7 @@ import com.jolupbisang.demo.application.common.MeetingAccessValidator;
 import com.jolupbisang.demo.application.common.MeetingSessionManager;
 import com.jolupbisang.demo.application.event.MeetingCompletedEvent;
 import com.jolupbisang.demo.global.exception.CustomException;
+import com.jolupbisang.demo.infrastructure.audio.EmbeddingAudioRepository;
 import com.jolupbisang.demo.infrastructure.aws.sfn.SfnClientUtil;
 import com.jolupbisang.demo.infrastructure.meeting.audio.AudioProgressRepository;
 import com.jolupbisang.demo.infrastructure.meeting.audio.AudioRepository;
@@ -20,6 +21,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketSession;
@@ -38,6 +40,7 @@ public class AudioService {
     private final AudioRepository audioRepository;
     private final AudioProgressRepository audioProgressRepository;
     private final MeetingUserRepository meetingUserRepository;
+    private final EmbeddingAudioRepository embeddingAudioRepository;
 
     private final MeetingAccessValidator meetingAccessValidator;
     private final MeetingSessionManager meetingSessionManager;
@@ -85,6 +88,25 @@ public class AudioService {
         audioProgressRepository.saveLastProcessedChunkId(userId, meetingId, audioMetaResult.chunkId(), audioMetaResult.timestamp());
         whisperClient.sendDiarization(meetingId, userId, null, audioData);
     }
+
+    @Transactional
+    public void embeddingAudio(Long userId, MultipartFile audioFile) {
+        if (audioFile.isEmpty()) {
+            throw new CustomException(AudioErrorCode.INVALID_EMBEDDING_AUDIO);
+        }
+
+        if (!"application/octet-stream".equals(audioFile.getContentType())) {
+            throw new CustomException(AudioErrorCode.INVALID_EMBEDDING_AUDIO_TYPE);
+        }
+
+        try {
+            embeddingAudioRepository.save(userId, audioFile.getBytes());
+            whisperClient.sendEmbeddingAudio(userId, audioFile.getBytes());
+        } catch (IOException e) {
+            throw new CustomException(AudioErrorCode.INVALID_EMBEDDING_AUDIO);
+        }
+    }
+
 
     @EventListener
     public void handleMeetingCompletedEvent(MeetingCompletedEvent event) {

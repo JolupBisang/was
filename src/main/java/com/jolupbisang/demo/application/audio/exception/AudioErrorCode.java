@@ -17,7 +17,9 @@ public enum AudioErrorCode implements ErrorCode {
     METADATA_ENCODING_INVALID(HttpStatus.BAD_REQUEST, "오디오 메타데이터의 'encoding' 필드가 null이거나 비어있습니다."),
     METADATA_TIMESTAMP_NULL(HttpStatus.BAD_REQUEST, "오디오 메타데이터의 'timestamp' 필드가 null이거나 유효한 날짜/시간 형식이 아닙니다."),
     METADATA_INVALID_PAYLOAD_LENGTH(HttpStatus.BAD_REQUEST, "오디오 메타데이터 페이로드 길이가 유효하지 않습니다."),
-    MEETING_USER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 회의의 사용자를 찾을 수 없습니다.");
+    MEETING_USER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 회의의 사용자를 찾을 수 없습니다."),
+    INVALID_EMBEDDING_AUDIO(HttpStatus.BAD_REQUEST, "임베딩 오디오가 비어있거나 잘못된 형식입니다."),
+    INVALID_EMBEDDING_AUDIO_TYPE(HttpStatus.BAD_REQUEST, "잘못된 형식의 임베딩 오디오 입니다.");
 
 
     private final HttpStatus status;
