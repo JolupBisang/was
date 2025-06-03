@@ -8,7 +8,9 @@ import com.jolupbisang.demo.application.audio.exception.AudioErrorCode;
 import com.jolupbisang.demo.application.common.MeetingAccessValidator;
 import com.jolupbisang.demo.application.common.MeetingSessionManager;
 import com.jolupbisang.demo.application.event.MeetingCompletedEvent;
+import com.jolupbisang.demo.application.event.whisper.WhisperEmbeddedEvent;
 import com.jolupbisang.demo.global.exception.CustomException;
+import com.jolupbisang.demo.infrastructure.audio.EmbeddedVectorRepository;
 import com.jolupbisang.demo.infrastructure.audio.EmbeddingAudioRepository;
 import com.jolupbisang.demo.infrastructure.aws.sfn.SfnClientUtil;
 import com.jolupbisang.demo.infrastructure.meeting.audio.AudioProgressRepository;
@@ -41,6 +43,7 @@ public class AudioService {
     private final AudioProgressRepository audioProgressRepository;
     private final MeetingUserRepository meetingUserRepository;
     private final EmbeddingAudioRepository embeddingAudioRepository;
+    private final EmbeddedVectorRepository embeddedVectorRepository;
 
     private final MeetingAccessValidator meetingAccessValidator;
     private final MeetingSessionManager meetingSessionManager;
@@ -119,6 +122,11 @@ public class AudioService {
         } else {
             log.warn("Step Function execution for meetingId: {} returned null output. No record URLs will be updated.", meetingId);
         }
+    }
+
+    @EventListener
+    public void handleWhisperEmbeddedEvent(WhisperEmbeddedEvent event) {
+        embeddingAudioRepository.save(event.getUserId(), event.getAudio());
     }
 
     private void processStepFunctionOutput(Long meetingId, StepFunctionOutput stepFunctionOutput) {

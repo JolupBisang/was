@@ -6,10 +6,12 @@ import org.springframework.context.ApplicationEvent;
 
 @Getter
 public class WhisperEmbeddedEvent extends ApplicationEvent {
-    private final EmbeddedVectorResponse embeddedVectorResponse;
+    private final long userId;
+    private final byte[] audio;
 
     public WhisperEmbeddedEvent(EmbeddedVectorResponse embeddedVectorResponse) {
         super(embeddedVectorResponse);
-        this.embeddedVectorResponse = embeddedVectorResponse;
+        this.userId = embeddedVectorResponse.userId();
+        this.audio = embeddedVectorResponse.audio();
     }
 }
