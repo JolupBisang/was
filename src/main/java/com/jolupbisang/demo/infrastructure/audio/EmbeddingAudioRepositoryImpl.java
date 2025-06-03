@@ -18,7 +18,7 @@ public class EmbeddingAudioRepositoryImpl implements EmbeddingAudioRepository {
 
     public void save(long userId, byte[] audio) {
         String s3Key = generateS3Key(userId);
-        String contentType = "application/octet-stream";
+        String contentType = "audio/mp4";
 
         try (InputStream audioInputStream = new ByteArrayInputStream(audio)) {
             s3ClientUtil.uploadInputStream(s3Key, audioInputStream, audio.length, contentType);
