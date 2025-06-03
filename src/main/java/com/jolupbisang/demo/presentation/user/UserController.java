@@ -2,10 +2,12 @@ package com.jolupbisang.demo.presentation.user;
 
 import com.jolupbisang.demo.application.user.service.UserService;
 import com.jolupbisang.demo.global.response.SuccessResponse;
+import com.jolupbisang.demo.infrastructure.auth.security.CustomUserDetails;
 import com.jolupbisang.demo.presentation.user.api.UserControllerApi;
 import com.jolupbisang.demo.presentation.user.dto.response.UserInfoRes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,5 +25,10 @@ public class UserController implements UserControllerApi {
         UserInfoRes userInfo = UserInfoRes.from(userService.findByEmail(email));
 
         return ResponseEntity.ok(SuccessResponse.of("회원 조회 성공", userInfo));
+    }
+
+    @GetMapping("/my_nickname")
+    public ResponseEntity<?> getMyNickname(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(SuccessResponse.of("본인 이름 조회 성공", userDetails.getNickname()));
     }
 }
