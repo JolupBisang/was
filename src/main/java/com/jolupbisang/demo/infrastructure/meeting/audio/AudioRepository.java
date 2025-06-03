@@ -1,6 +1,6 @@
 package com.jolupbisang.demo.infrastructure.meeting.audio;
 
-import com.jolupbisang.demo.application.meeting.dto.AudioMeta;
+import com.jolupbisang.demo.application.audio.dto.AudioMeta;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;

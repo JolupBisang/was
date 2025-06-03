@@ -1,4 +1,4 @@
-package com.jolupbisang.demo.presentation.meeting.dto.response;
+package com.jolupbisang.demo.presentation.audio.dto.response;
 
 import com.jolupbisang.demo.global.response.ErrorResponse;
 import lombok.Getter;

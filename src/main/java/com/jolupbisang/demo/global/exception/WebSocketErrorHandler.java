@@ -2,7 +2,7 @@ package com.jolupbisang.demo.global.exception;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jolupbisang.demo.global.response.ErrorResponse;
-import com.jolupbisang.demo.presentation.meeting.dto.response.SocketResponse;
+import com.jolupbisang.demo.presentation.audio.dto.response.SocketResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

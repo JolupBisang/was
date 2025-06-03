@@ -1,8 +1,9 @@
-package com.jolupbisang.demo.presentation.meeting.dto.response;
+package com.jolupbisang.demo.presentation.audio.dto.response;
 
 public enum SocketResponseType {
     ERROR,
-    TRANSLATED_TEXT,
+    LAST_PROCESSED_CHUNK_ID,
+    DIARIZED_SEGMENT,
     FEEDBACK,
     PARTICIPATION_RATE,
     SUMMARY,

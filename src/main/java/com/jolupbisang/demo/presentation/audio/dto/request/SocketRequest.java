@@ -1,4 +1,4 @@
-package com.jolupbisang.demo.presentation.meeting.dto.request;
+package com.jolupbisang.demo.presentation.audio.dto.request;
 
 public record SocketRequest(
         SocketRequestType type,

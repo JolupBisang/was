@@ -1,14 +1,15 @@
-package com.jolupbisang.demo.application.meeting.service;
+package com.jolupbisang.demo.application.audio.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jolupbisang.demo.application.audio.dto.AudioMeta;
+import com.jolupbisang.demo.application.audio.dto.StepFunctionOutput;
+import com.jolupbisang.demo.application.audio.exception.AudioErrorCode;
 import com.jolupbisang.demo.application.common.MeetingAccessValidator;
 import com.jolupbisang.demo.application.common.MeetingSessionManager;
 import com.jolupbisang.demo.application.event.MeetingCompletedEvent;
-import com.jolupbisang.demo.application.meeting.dto.AudioMeta;
-import com.jolupbisang.demo.application.meeting.dto.StepFunctionOutput;
-import com.jolupbisang.demo.application.meeting.exception.AudioError;
 import com.jolupbisang.demo.global.exception.CustomException;
+import com.jolupbisang.demo.infrastructure.audio.EmbeddingAudioRepository;
 import com.jolupbisang.demo.infrastructure.aws.sfn.SfnClientUtil;
 import com.jolupbisang.demo.infrastructure.meeting.audio.AudioProgressRepository;
 import com.jolupbisang.demo.infrastructure.meeting.audio.AudioRepository;
@@ -20,6 +21,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketSession;
@@ -38,6 +40,7 @@ public class AudioService {
     private final AudioRepository audioRepository;
     private final AudioProgressRepository audioProgressRepository;
     private final MeetingUserRepository meetingUserRepository;
+    private final EmbeddingAudioRepository embeddingAudioRepository;
 
     private final MeetingAccessValidator meetingAccessValidator;
     private final MeetingSessionManager meetingSessionManager;
@@ -65,10 +68,10 @@ public class AudioService {
     @Transactional
     public void processAndSaveAudioData(WebSocketSession session, BinaryMessage message) throws IOException {
         long userId = meetingSessionManager.getUserIdBySession(session)
-                .orElseThrow(() -> new CustomException(AudioError.SESSION_INFO_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(AudioErrorCode.SESSION_INFO_NOT_FOUND));
 
         long meetingId = meetingSessionManager.getMeetingIdBySession(session)
-                .orElseThrow(() -> new CustomException(AudioError.SESSION_INFO_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(AudioErrorCode.SESSION_INFO_NOT_FOUND));
 
         long expectedChunkId = audioProgressRepository.findLastProcessedChunkId(userId, meetingId)
                 .orElse(-1L) + 1;
@@ -85,6 +88,25 @@ public class AudioService {
         audioProgressRepository.saveLastProcessedChunkId(userId, meetingId, audioMetaResult.chunkId(), audioMetaResult.timestamp());
         whisperClient.sendDiarization(meetingId, userId, null, audioData);
     }
+
+    @Transactional
+    public void embeddingAudio(Long userId, MultipartFile audioFile) {
+        if (audioFile.isEmpty()) {
+            throw new CustomException(AudioErrorCode.INVALID_EMBEDDING_AUDIO);
+        }
+
+        if (!"application/octet-stream".equals(audioFile.getContentType())) {
+            throw new CustomException(AudioErrorCode.INVALID_EMBEDDING_AUDIO_TYPE);
+        }
+
+        try {
+            embeddingAudioRepository.save(userId, audioFile.getBytes());
+            whisperClient.sendEmbeddingAudio(userId, audioFile.getBytes());
+        } catch (IOException e) {
+            throw new CustomException(AudioErrorCode.INVALID_EMBEDDING_AUDIO);
+        }
+    }
+
 
     @EventListener
     public void handleMeetingCompletedEvent(MeetingCompletedEvent event) {
@@ -141,7 +163,7 @@ public class AudioService {
     private AudioDetails extractAudioDetails(ByteBuffer byteBuffer) {
         int metaLength = byteBuffer.getInt();
         if (metaLength <= 0 || metaLength > byteBuffer.remaining()) {
-            throw new CustomException(AudioError.METADATA_INVALID_PAYLOAD_LENGTH);
+            throw new CustomException(AudioErrorCode.METADATA_INVALID_PAYLOAD_LENGTH);
         }
         byte[] metaDataBytes = new byte[metaLength];
         byteBuffer.get(metaDataBytes);
@@ -153,7 +175,7 @@ public class AudioService {
             if (ex.getCause() instanceof CustomException) {
                 throw (CustomException) ex.getCause();
             }
-            throw new CustomException(AudioError.INVALID_META_DATA);
+            throw new CustomException(AudioErrorCode.INVALID_META_DATA);
         }
     }
 
@@ -176,16 +198,16 @@ public class AudioService {
     private record AudioDetails(String type, Long chunkId, String encoding, LocalDateTime timestamp) {
         public AudioDetails {
             if (type == null || type.trim().isEmpty()) {
-                throw new CustomException(AudioError.METADATA_TYPE_INVALID);
+                throw new CustomException(AudioErrorCode.METADATA_TYPE_INVALID);
             }
             if (chunkId == null) {
-                throw new CustomException(AudioError.METADATA_CHUNKID_NULL);
+                throw new CustomException(AudioErrorCode.METADATA_CHUNKID_NULL);
             }
             if (encoding == null || encoding.trim().isEmpty()) {
-                throw new CustomException(AudioError.METADATA_ENCODING_INVALID);
+                throw new CustomException(AudioErrorCode.METADATA_ENCODING_INVALID);
             }
             if (timestamp == null) {
-                throw new CustomException(AudioError.METADATA_TIMESTAMP_NULL);
+                throw new CustomException(AudioErrorCode.METADATA_TIMESTAMP_NULL);
             }
         }
 
