@@ -1,13 +1,10 @@
 package com.jolupbisang.demo.infrastructure.meeting.client;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jolupbisang.demo.application.event.whisper.WhisperContextEvent;
 import com.jolupbisang.demo.application.event.whisper.WhisperDiarizedEvent;
 import com.jolupbisang.demo.global.properties.WhisperProperties;
-import com.jolupbisang.demo.infrastructure.meeting.client.dto.request.ContextDoneRequest;
-import com.jolupbisang.demo.infrastructure.meeting.client.dto.request.ContextRequest;
-import com.jolupbisang.demo.infrastructure.meeting.client.dto.request.DiarizedRequest;
+import com.jolupbisang.demo.infrastructure.meeting.client.dto.request.*;
 import com.jolupbisang.demo.infrastructure.meeting.client.dto.response.ContextResponse;
 import com.jolupbisang.demo.infrastructure.meeting.client.dto.response.DiarizedResponse;
 import jakarta.annotation.PostConstruct;
@@ -65,7 +62,7 @@ public class WhisperClient extends BinaryWebSocketHandler {
 
             String flag = objectMapper.readTree(jsonResponse).path("flag").asText();
 
-            if ("context".equals(flag)) {
+            if (WhisperRequestType.CONTEXT.getValue().equals(flag)) {
                 processContextResponse(jsonResponse);
             } else if ("completed".equals(flag)) {
                 processDiarizedResponse(jsonResponse);
@@ -116,6 +113,19 @@ public class WhisperClient extends BinaryWebSocketHandler {
         }
     }
 
+    public void sendEmbeddingAudio(long userId, byte[] audioData) {
+        try {
+            if (whisperSession != null && whisperSession.isOpen()) {
+                EmbeddingRequest embeddingRequest = EmbeddingRequest.of(userId, audioData);
+                whisperSession.sendMessage(embeddingRequest.toBinaryMessage(objectMapper));
+            } else {
+                log.warn("[WhisperClient] Whisper session is not open. Cannot send embedding audio for user ID: {}", userId);
+            }
+        } catch (IOException e) {
+            log.error("[WhisperClient] Failed to send embedding audio for user ID: {}. Error: {}", userId, e.getMessage(), e);
+        }
+    }
+
     private void connectToWhisperServer() {
         WebSocketClient client = new StandardWebSocketClient();
         try {
@@ -125,7 +135,6 @@ public class WhisperClient extends BinaryWebSocketHandler {
             log.error("[WhisperClient] Failed to connect to Whisper server", e);
         }
     }
-
 
     private int readJsonLength(ByteBuffer payload) {
         if (payload.remaining() < 4) {
