@@ -140,7 +140,7 @@ public class AudioService {
 
     @EventListener
     public void handleWhisperEmbeddedEvent(WhisperEmbeddedEvent event) {
-        embeddingAudioRepository.save(event.getUserId(), event.getAudio());
+        embeddedVectorRepository.save(event.getUserId(), event.getAudio());
     }
 
     private void processStepFunctionOutput(Long meetingId, StepFunctionOutput stepFunctionOutput) {
