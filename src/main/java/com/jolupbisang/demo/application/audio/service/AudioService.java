@@ -65,12 +65,10 @@ public class AudioService {
                 .orElse(-1L);
     }
 
-    @Transactional
     public void unregisterSession(WebSocketSession session) {
         meetingSessionManager.delete(session);
     }
 
-    @Transactional
     public void processAndSaveAudioData(WebSocketSession session, BinaryMessage message) throws IOException {
         long userId = meetingSessionManager.getUserIdBySession(session)
                 .orElseThrow(() -> new CustomException(AudioErrorCode.SESSION_INFO_NOT_FOUND));
