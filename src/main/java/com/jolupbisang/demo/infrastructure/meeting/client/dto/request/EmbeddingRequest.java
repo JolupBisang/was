@@ -15,13 +15,13 @@ public record EmbeddingRequest(
         WhisperRequestType flag,
 
         @JsonProperty("user_id")
-        long userId,
+        String userId,
 
         @JsonIgnore
         byte[] audio
 ) {
     public static EmbeddingRequest of(long userId, byte[] audioData) {
-        return new EmbeddingRequest(WhisperRequestType.EMBEDDING, userId, audioData);
+        return new EmbeddingRequest(WhisperRequestType.EMBEDDING, String.valueOf(userId), audioData);
     }
 
     public BinaryMessage toBinaryMessage(ObjectMapper objectMapper) throws IOException {
