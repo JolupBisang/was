@@ -98,7 +98,7 @@ public class AudioService {
             throw new CustomException(AudioErrorCode.INVALID_EMBEDDING_AUDIO);
         }
 
-        if (!"application/octet-stream".equals(audioFile.getContentType())) {
+        if (!"audio/mp4".equals(audioFile.getContentType())) {
             throw new CustomException(AudioErrorCode.INVALID_EMBEDDING_AUDIO_TYPE);
         }
 
