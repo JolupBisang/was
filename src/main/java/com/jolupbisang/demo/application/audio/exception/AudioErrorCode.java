@@ -1,4 +1,4 @@
-package com.jolupbisang.demo.application.meeting.exception;
+package com.jolupbisang.demo.application.audio.exception;
 
 import com.jolupbisang.demo.global.exception.ErrorCode;
 import lombok.Getter;
@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @RequiredArgsConstructor
-public enum AudioError implements ErrorCode {
+public enum AudioErrorCode implements ErrorCode {
     SESSION_INFO_NOT_FOUND(HttpStatus.UNAUTHORIZED, "세션 정보를 찾을 수 없거나 유효하지 않습니다. 다시 연결해주세요."),
     INVALID_MEETING_ID_FORMAT(HttpStatus.BAD_REQUEST, "미팅 ID 형식이 올바르지 않습니다."),
 

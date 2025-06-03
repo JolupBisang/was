@@ -1,8 +1,8 @@
-package com.jolupbisang.demo.presentation.meeting;
+package com.jolupbisang.demo.presentation.audio;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jolupbisang.demo.application.meeting.service.AudioService;
-import com.jolupbisang.demo.presentation.meeting.dto.request.SocketRequest;
+import com.jolupbisang.demo.application.audio.service.AudioService;
+import com.jolupbisang.demo.presentation.audio.dto.request.SocketRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

@@ -1,6 +1,6 @@
 package com.jolupbisang.demo.infrastructure.meeting.audio;
 
-import com.jolupbisang.demo.application.meeting.dto.AudioMeta;
+import com.jolupbisang.demo.application.audio.dto.AudioMeta;
 import com.jolupbisang.demo.infrastructure.aws.s3.S3ClientUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

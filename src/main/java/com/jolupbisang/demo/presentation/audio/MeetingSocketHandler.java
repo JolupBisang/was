@@ -1,11 +1,11 @@
-package com.jolupbisang.demo.presentation.meeting;
+package com.jolupbisang.demo.presentation.audio;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jolupbisang.demo.application.meeting.service.AudioService;
+import com.jolupbisang.demo.application.audio.service.AudioService;
 import com.jolupbisang.demo.global.exception.WebSocketErrorHandler;
-import com.jolupbisang.demo.global.response.SocketResponse;
-import com.jolupbisang.demo.global.response.SocketResponseType;
 import com.jolupbisang.demo.infrastructure.auth.security.CustomUserDetails;
+import com.jolupbisang.demo.presentation.audio.dto.response.SocketResponse;
+import com.jolupbisang.demo.presentation.audio.dto.response.SocketResponseType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

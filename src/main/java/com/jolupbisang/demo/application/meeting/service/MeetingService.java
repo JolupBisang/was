@@ -21,8 +21,8 @@ import com.jolupbisang.demo.infrastructure.user.UserRepository;
 import com.jolupbisang.demo.presentation.meeting.dto.request.MeetingReq;
 import com.jolupbisang.demo.presentation.meeting.dto.request.MeetingUpdateReq;
 import com.jolupbisang.demo.presentation.meeting.dto.response.MeetingDetailRes;
-import com.jolupbisang.demo.presentation.meeting.dto.response.SocketResponse;
-import com.jolupbisang.demo.presentation.meeting.dto.response.SocketResponseType;
+import com.jolupbisang.demo.presentation.audio.dto.response.SocketResponse;
+import com.jolupbisang.demo.presentation.audio.dto.response.SocketResponseType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -140,7 +140,7 @@ public class MeetingService {
         if (participantEmails != null && !participantEmails.isEmpty()) {
             List<User> participants = userRepository.findByEmailIn(participantEmails);
             List<MeetingUser> meetingUsers = participants.stream()
-                    .map(participant -> new MeetingUser(meeting, participant, false, MeetingUserStatus.WAITING))
+                    .map(participant -> new MeetingUser(meeting, participant, false, MeetingUserStatus.ACCEPTED))
                     .toList();
             meetingUserRepository.saveAll(meetingUsers);
         }

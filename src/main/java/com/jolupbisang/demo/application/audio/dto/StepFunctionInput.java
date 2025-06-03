@@ -1,4 +1,4 @@
-package com.jolupbisang.demo.application.meeting.dto;
+package com.jolupbisang.demo.application.audio.dto;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;

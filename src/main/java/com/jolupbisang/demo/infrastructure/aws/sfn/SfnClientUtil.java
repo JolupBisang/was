@@ -2,8 +2,8 @@ package com.jolupbisang.demo.infrastructure.aws.sfn;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jolupbisang.demo.application.meeting.dto.StepFunctionInput;
-import com.jolupbisang.demo.application.meeting.dto.StepFunctionOutput;
+import com.jolupbisang.demo.application.audio.dto.StepFunctionInput;
+import com.jolupbisang.demo.application.audio.dto.StepFunctionOutput;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

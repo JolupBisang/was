@@ -2,7 +2,7 @@ package com.jolupbisang.demo.global.config;
 
 import com.jolupbisang.demo.global.properties.WebSocketProperties;
 import com.jolupbisang.demo.presentation.auth.interceptor.WebSocketAuthInterceptor;
-import com.jolupbisang.demo.presentation.meeting.MeetingSocketHandler;
+import com.jolupbisang.demo.presentation.audio.MeetingSocketHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

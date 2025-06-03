@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class MeetingUser {
 
     @Id
-    @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "meeting_user_id")
     private Long id;
 
