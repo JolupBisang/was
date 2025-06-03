@@ -8,6 +8,7 @@ import com.jolupbisang.demo.application.audio.exception.AudioErrorCode;
 import com.jolupbisang.demo.application.common.MeetingAccessValidator;
 import com.jolupbisang.demo.application.common.MeetingSessionManager;
 import com.jolupbisang.demo.application.event.MeetingCompletedEvent;
+import com.jolupbisang.demo.application.event.MeetingStartingEvent;
 import com.jolupbisang.demo.application.event.whisper.WhisperEmbeddedEvent;
 import com.jolupbisang.demo.global.exception.CustomException;
 import com.jolupbisang.demo.infrastructure.audio.EmbeddedVectorRepository;
@@ -32,6 +33,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -110,6 +112,20 @@ public class AudioService {
         }
     }
 
+    @EventListener
+    public void handleMeetingStartingEvent(MeetingStartingEvent event) {
+        List<Long> users = meetingUserRepository.findUserIdByMeetingId(event.getMeetingId());
+
+        List<byte[]> totalVectors = new ArrayList<>();
+        List<Integer> counts = new ArrayList<>();
+        for (Long userId : users) {
+            List<byte[]> userVectors = embeddedVectorRepository.findAllByUserId(userId);
+            counts.add(userVectors.size());
+            totalVectors.addAll(userVectors);
+        }
+
+        whisperClient.sendRefenceVector(event.getMeetingId(), users, counts, totalVectors);
+    }
 
     @EventListener
     public void handleMeetingCompletedEvent(MeetingCompletedEvent event) {
