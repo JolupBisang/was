@@ -8,7 +8,10 @@ import com.jolupbisang.demo.application.audio.exception.AudioErrorCode;
 import com.jolupbisang.demo.application.common.MeetingAccessValidator;
 import com.jolupbisang.demo.application.common.MeetingSessionManager;
 import com.jolupbisang.demo.application.event.MeetingCompletedEvent;
+import com.jolupbisang.demo.application.event.MeetingStartingEvent;
+import com.jolupbisang.demo.application.event.whisper.WhisperEmbeddedEvent;
 import com.jolupbisang.demo.global.exception.CustomException;
+import com.jolupbisang.demo.infrastructure.audio.EmbeddedVectorRepository;
 import com.jolupbisang.demo.infrastructure.audio.EmbeddingAudioRepository;
 import com.jolupbisang.demo.infrastructure.aws.sfn.SfnClientUtil;
 import com.jolupbisang.demo.infrastructure.meeting.audio.AudioProgressRepository;
@@ -30,6 +33,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -41,6 +45,7 @@ public class AudioService {
     private final AudioProgressRepository audioProgressRepository;
     private final MeetingUserRepository meetingUserRepository;
     private final EmbeddingAudioRepository embeddingAudioRepository;
+    private final EmbeddedVectorRepository embeddedVectorRepository;
 
     private final MeetingAccessValidator meetingAccessValidator;
     private final MeetingSessionManager meetingSessionManager;
@@ -60,12 +65,10 @@ public class AudioService {
                 .orElse(-1L);
     }
 
-    @Transactional
     public void unregisterSession(WebSocketSession session) {
         meetingSessionManager.delete(session);
     }
 
-    @Transactional
     public void processAndSaveAudioData(WebSocketSession session, BinaryMessage message) throws IOException {
         long userId = meetingSessionManager.getUserIdBySession(session)
                 .orElseThrow(() -> new CustomException(AudioErrorCode.SESSION_INFO_NOT_FOUND));
@@ -107,6 +110,20 @@ public class AudioService {
         }
     }
 
+    @EventListener
+    public void handleMeetingStartingEvent(MeetingStartingEvent event) {
+        List<Long> users = meetingUserRepository.findUserIdByMeetingId(event.getMeetingId());
+
+        List<byte[]> totalVectors = new ArrayList<>();
+        List<Integer> counts = new ArrayList<>();
+        for (Long userId : users) {
+            List<byte[]> userVectors = embeddedVectorRepository.findAllByUserId(userId);
+            counts.add(userVectors.size());
+            totalVectors.addAll(userVectors);
+        }
+
+        whisperClient.sendRefenceVector(event.getMeetingId(), users, counts, totalVectors);
+    }
 
     @EventListener
     public void handleMeetingCompletedEvent(MeetingCompletedEvent event) {
@@ -119,6 +136,11 @@ public class AudioService {
         } else {
             log.warn("Step Function execution for meetingId: {} returned null output. No record URLs will be updated.", meetingId);
         }
+    }
+
+    @EventListener
+    public void handleWhisperEmbeddedEvent(WhisperEmbeddedEvent event) {
+        embeddingAudioRepository.save(event.getUserId(), event.getAudio());
     }
 
     private void processStepFunctionOutput(Long meetingId, StepFunctionOutput stepFunctionOutput) {

@@ -1,7 +1,6 @@
 package com.jolupbisang.demo.infrastructure.meeting.client.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.web.socket.BinaryMessage;
@@ -9,32 +8,43 @@ import org.springframework.web.socket.BinaryMessage;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public record EmbeddingRequest(
+public record ReferenceRequest(
         WhisperRequestType flag,
-
-        @JsonProperty("user_id")
-        String userId,
+        @JsonProperty("group_id")
+        String groupId,
+        @JsonProperty("user_ids")
+        List<String> userIds,
+        List<Integer> counts,
 
         @JsonIgnore
-        byte[] audio
+        List<byte[]> audios
+
 ) {
-    public static EmbeddingRequest of(long userId, byte[] audioData) {
-        return new EmbeddingRequest(WhisperRequestType.EMBEDDING, String.valueOf(userId), audioData);
+
+    public static ReferenceRequest of(long groupId, List<Long> userIds, List<Integer> counts, List<byte[]> audios) {
+        return new ReferenceRequest(
+                WhisperRequestType.REFERENCE,
+                String.valueOf(groupId),
+                userIds.stream().map(String::valueOf).toList(),
+                counts,
+                audios
+        );
     }
 
     public BinaryMessage toBinaryMessage(ObjectMapper objectMapper) throws IOException {
         String metadata = objectMapper.writeValueAsString(this);
         byte[] metadataBytes = metadata.getBytes(StandardCharsets.UTF_8);
         int metadataLength = metadataBytes.length;
+        int totalAudioBytes = Math.toIntExact(audios.stream().mapToLong(audio -> audio.length).sum());
 
-        ByteBuffer buffer = ByteBuffer.allocate(4 + metadataLength + audio.length);
+        ByteBuffer buffer = ByteBuffer.allocate(4 + metadataLength + totalAudioBytes);
         buffer.putInt(metadataLength);
         buffer.put(metadataBytes);
-        buffer.put(audio);
+        audios.forEach(buffer::put);
 
         return new BinaryMessage(buffer.array());
     }
-
 }
+

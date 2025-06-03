@@ -5,10 +5,7 @@ import com.jolupbisang.demo.application.event.whisper.WhisperContextEvent;
 import com.jolupbisang.demo.application.event.whisper.WhisperDiarizedEvent;
 import com.jolupbisang.demo.application.event.whisper.WhisperEmbeddedEvent;
 import com.jolupbisang.demo.global.properties.WhisperProperties;
-import com.jolupbisang.demo.infrastructure.meeting.client.dto.request.ContextDoneRequest;
-import com.jolupbisang.demo.infrastructure.meeting.client.dto.request.ContextRequest;
-import com.jolupbisang.demo.infrastructure.meeting.client.dto.request.DiarizedRequest;
-import com.jolupbisang.demo.infrastructure.meeting.client.dto.request.EmbeddingRequest;
+import com.jolupbisang.demo.infrastructure.meeting.client.dto.request.*;
 import com.jolupbisang.demo.infrastructure.meeting.client.dto.response.ContextResponse;
 import com.jolupbisang.demo.infrastructure.meeting.client.dto.response.DiarizedResponse;
 import com.jolupbisang.demo.infrastructure.meeting.client.dto.response.EmbeddedVectorResponse;
@@ -28,6 +25,7 @@ import org.springframework.web.socket.handler.BinaryWebSocketHandler;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @Slf4j
@@ -133,6 +131,19 @@ public class WhisperClient extends BinaryWebSocketHandler {
             }
         } catch (IOException e) {
             log.error("[WhisperClient] Failed to send embedding audio for user ID: {}. Error: {}", userId, e.getMessage(), e);
+        }
+    }
+
+    public void sendRefenceVector(long groupId, List<Long> userIds, List<Integer> counts, List<byte[]> vectors) {
+        try {
+            if (whisperSession != null && whisperSession.isOpen()) {
+                ReferenceRequest referenceRequest = ReferenceRequest.of(groupId, userIds, counts, vectors);
+                whisperSession.sendMessage(referenceRequest.toBinaryMessage(objectMapper));
+            } else {
+                log.warn("[WhisperClient] Whisper session is not open. Cannot send embedded vector for groupx ID: {}", groupId);
+            }
+        } catch (IOException e) {
+            log.error("[WhisperClient] Failed to send embedding audio for group ID: {}. Error: {}", groupId, e.getMessage(), e);
         }
     }
 

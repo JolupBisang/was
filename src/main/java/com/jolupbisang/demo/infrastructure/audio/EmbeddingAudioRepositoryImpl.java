@@ -16,7 +16,7 @@ public class EmbeddingAudioRepositoryImpl implements EmbeddingAudioRepository {
 
     private final S3ClientUtil s3ClientUtil;
 
-    public void save(long userId, byte[] audio) throws IOException {
+    public void save(long userId, byte[] audio) {
         String s3Key = generateS3Key(userId);
         String contentType = "application/octet-stream";
 
@@ -25,7 +25,6 @@ public class EmbeddingAudioRepositoryImpl implements EmbeddingAudioRepository {
         } catch (IOException e) {
             log.error("Failed to save audio embedding {} to S3 for userId: {}.",
                     s3Key, userId, e);
-            throw e;
         }
     }
 
