@@ -14,11 +14,11 @@ import java.nio.charset.StandardCharsets;
 public record DiarizedRequest(
         WhisperRequestType flag,
 
-        @JsonProperty("user_id")
-        String userId,
-
         @JsonProperty("group_id")
         String groupId,
+
+        @JsonProperty("user_id")
+        String userId,
 
         @JsonProperty("sc_offset")
         String scOffset,
@@ -27,11 +27,11 @@ public record DiarizedRequest(
         byte[] audio
 ) {
 
-    public static DiarizedRequest of(long userId, long groupId, Integer scOffest, byte[] audio) {
+    public static DiarizedRequest of(long groupId, long userId, Integer scOffest, byte[] audio) {
         return new DiarizedRequest(
                 WhisperRequestType.DIARIZATION,
-                String.valueOf(userId),
                 String.valueOf(groupId),
+                String.valueOf(userId),
                 scOffest == null ? null : String.valueOf(scOffest),
                 audio);
     }
