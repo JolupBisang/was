@@ -18,11 +18,11 @@ import com.jolupbisang.demo.infrastructure.agenda.AgendaRepository;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
 import com.jolupbisang.demo.infrastructure.meetingUser.MeetingUserRepository;
 import com.jolupbisang.demo.infrastructure.user.UserRepository;
+import com.jolupbisang.demo.presentation.audio.dto.response.SocketResponse;
+import com.jolupbisang.demo.presentation.audio.dto.response.SocketResponseType;
 import com.jolupbisang.demo.presentation.meeting.dto.request.MeetingReq;
 import com.jolupbisang.demo.presentation.meeting.dto.request.MeetingUpdateReq;
 import com.jolupbisang.demo.presentation.meeting.dto.response.MeetingDetailRes;
-import com.jolupbisang.demo.presentation.audio.dto.response.SocketResponse;
-import com.jolupbisang.demo.presentation.audio.dto.response.SocketResponseType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -120,7 +120,7 @@ public class MeetingService {
         Meeting meeting = meetingRepository.findById(meetingId)
                 .orElseThrow(() -> new CustomException(MeetingErrorCode.MEETING_NOT_FOUND));
 
-        if (meeting.isCompleted() || meeting.isCancelled()) {
+        if (!meeting.isWaiting()) {
             throw new CustomException(MeetingErrorCode.CANNOT_UPDATE_MEETING);
         }
 
