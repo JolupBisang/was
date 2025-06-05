@@ -4,8 +4,10 @@ import com.jolupbisang.demo.application.agenda.service.AgendaService;
 import com.jolupbisang.demo.global.response.SuccessResponse;
 import com.jolupbisang.demo.infrastructure.auth.security.CustomUserDetails;
 import com.jolupbisang.demo.presentation.agenda.api.AgendaControllerApi;
+import com.jolupbisang.demo.presentation.agenda.dto.request.AgendaCreateReq;
 import com.jolupbisang.demo.presentation.agenda.dto.request.AgendaStatusReq;
 import com.jolupbisang.demo.presentation.agenda.dto.response.AgendaChangeStatusRes;
+import com.jolupbisang.demo.presentation.agenda.dto.response.AgendaCreateRes;
 import com.jolupbisang.demo.presentation.agenda.dto.response.AgendaDetailRes;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,12 +18,12 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/agendas")
+@RequestMapping("/api")
 public class AgendaController implements AgendaControllerApi {
     private final AgendaService agendaService;
 
     @Override
-    @PatchMapping("/{agendaId}")
+    @PatchMapping("/agendas/{agendaId}")
     public ResponseEntity<?> changeAgendaStatus(@RequestBody @Valid AgendaStatusReq agendaStatusReq,
                                                 @PathVariable("agendaId") Long agendaId,
                                                 @AuthenticationPrincipal CustomUserDetails customUserDetails) {
@@ -32,12 +34,33 @@ public class AgendaController implements AgendaControllerApi {
     }
 
     @Override
-    @GetMapping("/{meetingId}")
+    @GetMapping("/meetings/{meetingId}/agendas")
     public ResponseEntity<?> getAgendas(@PathVariable("meetingId") Long meetingId,
                                         @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
         AgendaDetailRes agendaDetailRes = AgendaDetailRes.fromDto(agendaService.findByMeetingId(meetingId, customUserDetails.getUserId()));
 
         return ResponseEntity.status(HttpStatus.OK).body(SuccessResponse.of(("회의 안건 조회 성공"), agendaDetailRes));
+    }
+
+    @PostMapping("/meetings/{meetingId}/agendas")
+    public ResponseEntity<?> addAgenda(@PathVariable("meetingId") Long meetingId,
+                                       @RequestBody @Valid AgendaCreateReq agendaCreateReq,
+                                       @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+
+        Long agendaId = agendaService.addAgenda(meetingId, customUserDetails.getUserId(), agendaCreateReq.content());
+
+        AgendaCreateRes response = AgendaCreateRes.of(agendaId);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(SuccessResponse.of("회의 안건 추가 성공", response));
+    }
+
+    @DeleteMapping("/agendas/{agendaId}")
+    public ResponseEntity<?> deleteAgenda(@PathVariable("agendaId") Long agendaId,
+                                          @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+
+        agendaService.deleteAgenda(agendaId, customUserDetails.getUserId());
+
+        return ResponseEntity.status(HttpStatus.OK).body(SuccessResponse.of("회의 안건 삭제 성공", null));
     }
 }

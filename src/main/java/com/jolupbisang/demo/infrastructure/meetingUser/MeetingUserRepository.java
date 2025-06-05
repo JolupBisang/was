@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 import java.util.Optional;
 
-public interface MeetingUserRepository extends JpaRepository<MeetingUser, Long> {
+public interface MeetingUserRepository extends JpaRepository<MeetingUser, Long>, MeetingUserRepositoryCustom {
     boolean existsByMeetingIdAndUserIdAndStatusIn(Long meetingId, Long userId, MeetingUserStatus... statuses);
 
     boolean existsByMeetingIdAndUserIdAndIsHost(Long meetingId, Long userId, boolean isLeader);
