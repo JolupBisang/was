@@ -138,6 +138,7 @@ public class MeetingService {
         meetingUserRepository.save(new MeetingUser(meeting, leader, true, MeetingUserStatus.ACCEPTED));
 
         if (participantEmails != null && !participantEmails.isEmpty()) {
+            participantEmails = participantEmails.stream().distinct().collect(Collectors.toList());
             List<User> participants = userRepository.findByEmailIn(participantEmails);
             List<MeetingUser> meetingUsers = participants.stream()
                     .map(participant -> new MeetingUser(meeting, participant, false, MeetingUserStatus.ACCEPTED))
