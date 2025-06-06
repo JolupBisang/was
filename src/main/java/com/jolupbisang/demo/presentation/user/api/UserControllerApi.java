@@ -65,7 +65,7 @@ public interface UserControllerApi {
                                     """),
                     })
             ),
-            @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음 - 일어나지 않지만 가능성 있음",
+            @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음 - 탈퇴한 회원의 jwt인 경우나 시크릿키 탈취 가능성",
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(name = "조회 실패", value = """
                                         {

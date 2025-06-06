@@ -30,16 +30,10 @@ public class MeetingUser {
     @Enumerated(EnumType.STRING)
     private MeetingUserStatus status;
 
-    private String recordUrl;
-
     public MeetingUser(Meeting meeting, User user, boolean isHost, MeetingUserStatus status) {
         this.meeting = meeting;
         this.user = user;
         this.isHost = isHost;
         this.status = status;
-    }
-
-    public void updateRecordUrl(String recordUrl) {
-        this.recordUrl = recordUrl;
     }
 }

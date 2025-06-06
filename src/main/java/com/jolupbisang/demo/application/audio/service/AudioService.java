@@ -128,47 +128,20 @@ public class AudioService {
     @EventListener
     public void handleMeetingCompletedEvent(MeetingCompletedEvent event) {
         long meetingId = event.getMeetingId();
-        log.info("Received MeetingCompletedEvent for meetingId: {}. Triggering SfnClientUtil with ARN: {}", meetingId, MERGE_AUDIO_STATE_MACHINE_ARN);
         StepFunctionOutput stepFunctionOutput = sfnClientUtil.startMergeAudioStateMachine(MERGE_AUDIO_STATE_MACHINE_ARN, meetingId);
 
         if (stepFunctionOutput != null) {
-            processStepFunctionOutput(meetingId, stepFunctionOutput);
+            if (stepFunctionOutput.statusCode().equals("400")) {
+                log.error("[StepFunction] meetingId:{}, statusCode: {}", event.getMeetingId(), stepFunctionOutput.statusCode());
+            }
         } else {
-            log.warn("Step Function execution for meetingId: {} returned null output. No record URLs will be updated.", meetingId);
+            log.error("[StepFunction] return null");
         }
     }
 
     @EventListener
     public void handleWhisperEmbeddedEvent(WhisperEmbeddedEvent event) {
         embeddedVectorRepository.save(event.getUserId(), event.getAudio());
-    }
-
-    private void processStepFunctionOutput(Long meetingId, StepFunctionOutput stepFunctionOutput) {
-        List<StepFunctionOutput.MergedPath> paths = stepFunctionOutput.paths();
-
-        if (paths == null || paths.isEmpty()) {
-            log.warn("Step Function output for meetingId: {} (Status: {}) has no paths or an empty path list.",
-                    meetingId, stepFunctionOutput.statusCode());
-            return;
-        }
-
-        paths.stream()
-                .filter(mergedPath -> {
-                    boolean isValid = mergedPath.userId() != null && mergedPath.s3Path() != null && !mergedPath.s3Path().isBlank();
-                    if (!isValid) {
-                        log.warn("Invalid MergedPath data for meetingId: {}. Path details: {}. Skipping.", meetingId, mergedPath);
-                    }
-                    return isValid;
-                })
-                .forEach(mergedPath ->
-                        meetingUserRepository.findByMeetingIdAndUserId(meetingId, mergedPath.userId())
-                                .ifPresentOrElse(
-                                        meetingUser -> {
-                                            meetingUser.updateRecordUrl(mergedPath.s3Path());
-                                        },
-                                        () -> log.error("MeetingUser not found for userId: {} in meetingId: {}. Cannot update recordUrl.", mergedPath.userId(), meetingId)
-                                )
-                );
     }
 
     private void registerSessionAndValidateAccess(WebSocketSession session, Long meetingId, Long userId) {
