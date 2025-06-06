@@ -6,6 +6,6 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface SummaryRepository extends JpaRepository<Summary, Long> {
-    
-    Slice<Summary> findByMeetingId(Long meetingId, Pageable pageable);
+
+    Slice<Summary> findByMeetingIdAndIsRecap(Long meetingId, boolean isRecap, Pageable pageable);
 }

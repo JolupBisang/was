@@ -44,9 +44,9 @@ public class SummaryService {
 
     public Slice<SummaryListRes> getSummaries(Long meetingId, Long userId, boolean isRecap, Pageable pageable) {
         meetingAccessValidator.validateUserParticipating(meetingId, userId);
-        
-        Slice<Summary> summaries = summaryRepository.findByMeetingId(meetingId, pageable);
-        
+
+        Slice<Summary> summaries = summaryRepository.findByMeetingIdAndIsRecap(meetingId, isRecap, pageable);
+
         return summaries.map(SummaryListRes::from);
     }
 
