@@ -134,6 +134,12 @@ public class MeetingService {
         );
     }
 
+    public LocalDateTime getMeetingStartTime(long meetingId) {
+        Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(() -> new CustomException(MeetingErrorCode.MEETING_NOT_FOUND));
+        return meeting.getActualStartTime();
+    }
+
     private void saveParticipants(Meeting meeting, User leader, List<String> participantEmails) {
         meetingUserRepository.save(new MeetingUser(meeting, leader, true, MeetingUserStatus.ACCEPTED));
 
