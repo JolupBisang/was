@@ -28,12 +28,12 @@ public class Feedback {
 
     private String comment;
 
-    private LocalDateTime timeStamp;
+    private LocalDateTime timestamp;
 
-    public Feedback(Meeting meeting, User user, String comment, LocalDateTime timeStamp) {
+    public Feedback(Meeting meeting, User user, String comment, LocalDateTime timestamp) {
         this.meeting = meeting;
         this.user = user;
         this.comment = comment;
-        this.timeStamp = timeStamp;
+        this.timestamp = timestamp;
     }
 }

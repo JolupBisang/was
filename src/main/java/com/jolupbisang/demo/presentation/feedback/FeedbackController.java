@@ -33,8 +33,8 @@ public class FeedbackController implements FeedbackControllerApi {
 
     @GetMapping("/{meetingId}")
     public Slice<FeedbackListRes> getFeedbacks(@PathVariable Long meetingId,
-                                             @PageableDefault(size = 30, sort = "timeStamp", direction = Sort.Direction.DESC) Pageable pageable,
-                                             @AuthenticationPrincipal CustomUserDetails userDetails) {
+                                               @PageableDefault(size = 30, sort = "timestamp", direction = Sort.Direction.DESC) Pageable pageable,
+                                               @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         return feedbackService.getFeedbacks(meetingId, userDetails.getUserId(), pageable);
     }

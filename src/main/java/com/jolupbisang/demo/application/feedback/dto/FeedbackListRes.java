@@ -14,7 +14,7 @@ public record FeedbackListRes(
         return new FeedbackListRes(
                 feedback.getId(),
                 feedback.getComment(),
-                feedback.getTimeStamp()
+                feedback.getTimestamp()
         );
     }
 } 
