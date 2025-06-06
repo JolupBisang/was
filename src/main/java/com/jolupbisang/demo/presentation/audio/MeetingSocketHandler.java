@@ -36,7 +36,6 @@ public class MeetingSocketHandler extends AbstractWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
-        log.info("뭐야");
         try {
             long meetingId = extractMeetingId(session);
             long userId = extractUserId(session);
