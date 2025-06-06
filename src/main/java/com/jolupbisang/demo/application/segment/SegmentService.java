@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jolupbisang.demo.application.common.MeetingAccessValidator;
 import com.jolupbisang.demo.application.common.MeetingSessionManager;
 import com.jolupbisang.demo.application.event.whisper.WhisperDiarizedEvent;
+import com.jolupbisang.demo.application.segment.dto.SegmentListRes;
 import com.jolupbisang.demo.application.segment.dto.SocketSegmentRes;
 import com.jolupbisang.demo.domain.meeting.Meeting;
 import com.jolupbisang.demo.domain.segment.Segment;
@@ -18,7 +19,10 @@ import com.jolupbisang.demo.presentation.audio.dto.response.SocketResponseType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -39,6 +43,15 @@ public class SegmentService {
 
     private final MeetingAccessValidator meetingAccessValidator;
     private final AudioProgressRepository audioProgressRepository;
+
+    @Transactional(readOnly = true)
+    public Slice<SegmentListRes> getSegments(Long meetingId, Long userId, Pageable pageable) {
+        meetingAccessValidator.validateUserParticipating(meetingId, userId);
+
+        Slice<Segment> segments = segmentRepository.findByMeetingId(meetingId, pageable);
+
+        return segments.map(SegmentListRes::from);
+    }
 
     @EventListener
     public void handleWhisperDiarizedEvent(WhisperDiarizedEvent event) {
