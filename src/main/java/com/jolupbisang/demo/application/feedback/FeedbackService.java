@@ -2,6 +2,7 @@ package com.jolupbisang.demo.application.feedback;
 
 import com.jolupbisang.demo.application.common.MeetingAccessValidator;
 import com.jolupbisang.demo.application.event.FeedbackReceivedEvent;
+import com.jolupbisang.demo.application.feedback.dto.FeedbackListRes;
 import com.jolupbisang.demo.application.feedback.dto.SseFeedbackRes;
 import com.jolupbisang.demo.application.feedback.exception.FeedbackErrorCode;
 import com.jolupbisang.demo.domain.feedback.Feedback;
@@ -16,6 +17,8 @@ import com.jolupbisang.demo.infrastructure.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -40,6 +43,14 @@ public class FeedbackService {
         meetingAccessValidator.validateMeetingInProgressAndUserParticipating(meetingId, userId);
 
         return meetingSseService.subscribe(String.valueOf(meetingId), String.valueOf(userId), MeetingSseEventType.FEEDBACK);
+    }
+
+    public Slice<FeedbackListRes> getFeedbacks(Long meetingId, Long userId, Pageable pageable) {
+        meetingAccessValidator.validateUserParticipating(meetingId, userId);
+
+        Slice<Feedback> feedbacks = feedbackRepository.findByMeetingId(meetingId, pageable);
+
+        return feedbacks.map(FeedbackListRes::from);
     }
 
     @EventListener

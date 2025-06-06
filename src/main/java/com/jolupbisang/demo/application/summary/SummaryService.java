@@ -3,6 +3,7 @@ package com.jolupbisang.demo.application.summary;
 import com.jolupbisang.demo.application.common.MeetingAccessValidator;
 import com.jolupbisang.demo.application.event.SummaryReceivedEvent;
 import com.jolupbisang.demo.application.summary.dto.SseSummaryRes;
+import com.jolupbisang.demo.application.summary.dto.SummaryListRes;
 import com.jolupbisang.demo.application.summary.exception.SummaryErrorCode;
 import com.jolupbisang.demo.domain.meeting.Meeting;
 import com.jolupbisang.demo.domain.summary.Summary;
@@ -14,6 +15,8 @@ import com.jolupbisang.demo.infrastructure.summary.SummaryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -37,6 +40,14 @@ public class SummaryService {
         meetingAccessValidator.validateMeetingInProgressAndUserParticipating(meetingId, userId);
 
         return meetingSseService.subscribe(String.valueOf(meetingId), String.valueOf(userId), MeetingSseEventType.SUMMARY);
+    }
+
+    public Slice<SummaryListRes> getSummaries(Long meetingId, Long userId, boolean isRecap, Pageable pageable) {
+        meetingAccessValidator.validateUserParticipating(meetingId, userId);
+
+        Slice<Summary> summaries = summaryRepository.findByMeetingIdAndIsRecap(meetingId, isRecap, pageable);
+
+        return summaries.map(SummaryListRes::from);
     }
 
     @EventListener
