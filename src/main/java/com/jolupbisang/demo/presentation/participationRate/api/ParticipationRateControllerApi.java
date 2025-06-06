@@ -58,13 +58,4 @@ public interface ParticipationRateControllerApi {
             @Parameter(description = "회의 ID", required = true, example = "1")
             @PathVariable(value = "meetingId") Long meetingId,
             @AuthenticationPrincipal CustomUserDetails userDetails);
-
-    @Operation(summary = "테스트 참여율 메시지 발송", description = "테스트 목적으로 특정 회의에 참여율 메시지를 발송합니다")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "메시지 발송 성공"),
-            @ApiResponse(responseCode = "404", description = "회의를 찾을 수 없음")
-    })
-    void sendTestSummary(
-            @Parameter(description = "회의 ID", required = true, example = "1")
-            @PathVariable Long meetingId);
 }
