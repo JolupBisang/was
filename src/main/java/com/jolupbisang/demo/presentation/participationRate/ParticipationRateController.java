@@ -1,6 +1,7 @@
 package com.jolupbisang.demo.presentation.participationRate;
 
 import com.jolupbisang.demo.application.participationRate.ParticipationRateService;
+import com.jolupbisang.demo.application.participationRate.dto.ParticipationRateHistoryRes;
 import com.jolupbisang.demo.infrastructure.auth.security.CustomUserDetails;
 import com.jolupbisang.demo.presentation.participationRate.api.ParticipationRateControllerApi;
 import lombok.RequiredArgsConstructor;
@@ -19,10 +20,18 @@ public class ParticipationRateController implements ParticipationRateControllerA
 
     private final ParticipationRateService participationRateService;
 
+    @Override
     @GetMapping(path = "/subscribe/{meetingId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter subscribe(@PathVariable(value = "meetingId") Long meetingId,
                                 @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         return participationRateService.subscribe(meetingId, userDetails.getUserId());
+    }
+
+    @Override
+    @GetMapping("/{meetingId}")
+    public ParticipationRateHistoryRes getParticipationRateHistory(@PathVariable Long meetingId,
+                                                                   @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return participationRateService.getParticipationRateByMeetingId(meetingId, userDetails.getUserId());
     }
 }
