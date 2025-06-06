@@ -20,6 +20,7 @@ public class UserController implements UserControllerApi {
 
     private final UserService userService;
 
+    @Override
     @GetMapping("/{email}")
     public ResponseEntity<?> getUserInfo(@PathVariable("email") String email) {
         UserInfoRes userInfo = UserInfoRes.from(userService.findByEmail(email));
@@ -27,8 +28,12 @@ public class UserController implements UserControllerApi {
         return ResponseEntity.ok(SuccessResponse.of("회원 조회 성공", userInfo));
     }
 
-    @GetMapping("/my_nickname")
-    public ResponseEntity<?> getMyNickname(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(SuccessResponse.of("본인 이름 조회 성공", userDetails.getNickname()));
+    @GetMapping("/my-profile")
+    @Override
+    public ResponseEntity<?> getMyProfile(@AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        UserInfoRes userInfo = UserInfoRes.from(userService.findByEmail(userDetails.getEmail()));
+
+        return ResponseEntity.ok(SuccessResponse.of("회원 조회 성공", userInfo));
     }
 }

@@ -1,6 +1,7 @@
 package com.jolupbisang.demo.application.summary;
 
 import com.jolupbisang.demo.application.common.MeetingAccessValidator;
+import com.jolupbisang.demo.application.event.MeetingCompletedEvent;
 import com.jolupbisang.demo.application.event.SummaryReceivedEvent;
 import com.jolupbisang.demo.application.summary.dto.SseSummaryRes;
 import com.jolupbisang.demo.application.summary.dto.SummaryListRes;
@@ -9,6 +10,7 @@ import com.jolupbisang.demo.domain.meeting.Meeting;
 import com.jolupbisang.demo.domain.summary.Summary;
 import com.jolupbisang.demo.global.exception.CustomException;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
+import com.jolupbisang.demo.infrastructure.meeting.client.WhisperClient;
 import com.jolupbisang.demo.infrastructure.sse.MeetingSseEventType;
 import com.jolupbisang.demo.infrastructure.sse.MeetingSseService;
 import com.jolupbisang.demo.infrastructure.summary.SummaryRepository;
@@ -34,6 +36,7 @@ public class SummaryService {
     private final SummaryRepository summaryRepository;
 
     private final MeetingAccessValidator meetingAccessValidator;
+    private final WhisperClient whisperClient;
 
 
     public SseEmitter subscribe(Long meetingId, Long userId) {
@@ -68,5 +71,10 @@ public class SummaryService {
 
         summaryRepository.save(new Summary(meeting, summary, isRecap, timestamp));
         meetingSseService.sendEventToMeeting(String.valueOf(meetingId), MeetingSseEventType.SUMMARY, SseSummaryRes.of(timestamp, summary));
+    }
+
+    @EventListener
+    public void createWholeSummary(MeetingCompletedEvent event) {
+        whisperClient.sendContextDone(event.getMeetingId());
     }
 }

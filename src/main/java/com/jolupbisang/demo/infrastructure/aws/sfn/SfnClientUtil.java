@@ -36,9 +36,9 @@ public class SfnClientUtil {
                     .input(inputJson)
                     .build();
 
-            log.info("Attempting to start sync execution for ARN: {} with input: {}", stateMachineArn, inputJson);
+            log.debug("Attempting to start sync execution for ARN: {} with input: {}", stateMachineArn, inputJson);
             StartSyncExecutionResponse response = sfnClient.startSyncExecution(executionRequest);
-            log.info("Sync execution response received. Status: {}, Execution ARN: {}", response.status(), response.executionArn());
+            log.debug("Sync execution response received. Status: {}, Execution ARN: {}", response.status(), response.executionArn());
 
             if (response.status() == SyncExecutionStatus.SUCCEEDED) {
                 String outputJson = response.output();
