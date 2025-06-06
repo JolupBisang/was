@@ -123,6 +123,6 @@ public interface FeedbackControllerApi {
             @Parameter(description = "회의 ID", required = true, example = "1")
             @PathVariable Long meetingId,
             @Parameter(description = "페이징 파라미터 (page: 페이지 번호, size: 페이지 크기(최대 40), sort: 정렬 조건)")
-            @PageableDefault(size = 30, sort = "timeStamp") Pageable pageable,
+            @PageableDefault(size = 30, sort = "timestamp") Pageable pageable,
             @AuthenticationPrincipal CustomUserDetails userDetails);
 }
