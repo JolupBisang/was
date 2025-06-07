@@ -14,7 +14,6 @@ import com.jolupbisang.demo.infrastructure.meeting.audio.AudioProgressRepository
 import com.jolupbisang.demo.infrastructure.meeting.client.dto.response.DiarizedResponse;
 import com.jolupbisang.demo.infrastructure.segment.SegmentRepository;
 import com.jolupbisang.demo.infrastructure.user.UserRepository;
-import com.jolupbisang.demo.presentation.audio.dto.response.SocketResponse;
 import com.jolupbisang.demo.presentation.audio.dto.response.SocketResponseType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,10 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.socket.TextMessage;
-import org.springframework.web.socket.WebSocketSession;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -118,25 +114,14 @@ public class SegmentService {
     }
 
     private void sendCandidateSegments(DiarizedResponse.Segment segmentData, long meetingId) {
-        List<WebSocketSession> sessionsInMeeting = meetingSessionManager.findAllByMeetingId(meetingId);
-        if (sessionsInMeeting.isEmpty()) {
-            log.warn("[SegmentService] No active WebSocket sessions found for meetingId: {}. Cannot send candidate segments.", meetingId);
-            return;
-        }
-
-        SocketSegmentRes socketSegmentRes = SocketSegmentRes.of(segmentData, calculateTimestamp(segmentData, meetingId));
-        SocketResponse<SocketSegmentRes> socketResponse = SocketResponse.of(SocketResponseType.DIARIZED_SEGMENT, socketSegmentRes);
-
-        try {
-            String messagePayload = objectMapper.writeValueAsString(socketResponse);
-            TextMessage textMessage = new TextMessage(messagePayload);
-
-            for (WebSocketSession session : sessionsInMeeting) {
-                sendToSingleSession(session, textMessage);
-            }
-        } catch (IOException e) {
-            log.error("[SegmentService] Error sending candidate segment (order: {}) via WebSocket for meetingId: {}: {}", segmentData.order(), meetingId, e.getMessage());
-        }
+        meetingSessionManager.sendTextToParticipants(
+                SocketResponseType.DIARIZED_SEGMENT,
+                meetingId,
+                SocketSegmentRes.of(
+                        segmentData,
+                        calculateTimestamp(segmentData, meetingId)
+                )
+        );
     }
 
     private LocalDateTime calculateTimestamp(DiarizedResponse.Segment segmentData, long meetingId) {
@@ -148,16 +133,5 @@ public class SegmentService {
 
         double offsetSeconds = segmentData.words().get(0).start() / 16000.0;
         return baseTime.plusNanos((long) (offsetSeconds * 1_000_000_000L));
-    }
-
-    private static void sendToSingleSession(WebSocketSession session, TextMessage textMessage) throws IOException {
-        try {
-            if (session.isOpen()) {
-                session.sendMessage(textMessage);
-            }
-        } catch (Exception e) {
-            log.error("[SegmentService] Error sending single segment via WebSocket for sessionId: {}: {}", session.getId(), textMessage.getPayload(), e);
-        }
-
     }
 } 
