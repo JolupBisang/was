@@ -74,6 +74,7 @@ public class MeetingSessionManager {
     @Order(5)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void closeSessionWhenMeetingEnded(MeetingCompletedEvent event) {
+        List<WebSocketSession> sessionsToClose = new ArrayList<>();
         sessions.entrySet().stream().filter(entry -> entry.getValue().meetingId().equals(event.getMeetingId()))
                 .forEach(entry -> {
                     try {
@@ -81,10 +82,10 @@ public class MeetingSessionManager {
                     } catch (IOException e) {
                         log.error("[WebSocketSession] session close error", e);
                     } finally {
-                        sessions.remove(entry.getKey());
+                        sessionsToClose.add(entry.getKey());
                     }
                 });
-
+        sessionsToClose.forEach(sessions::remove);
     }
 
     public void sendTextToParticipants(SocketResponseType type, long meetingId, Object data) {
