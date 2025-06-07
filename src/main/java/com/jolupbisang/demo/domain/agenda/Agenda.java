@@ -32,4 +32,8 @@ public class Agenda {
     public void setIsCompleted(boolean isCompleted) {
         this.isCompleted = isCompleted;
     }
+
+    public void updateContent(String content) {
+        this.content = content;
+    }
 }

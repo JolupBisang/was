@@ -59,6 +59,22 @@ public class AgendaService {
     }
 
     @Transactional
+    public long updateByAgendaId(Long agendaId, Long userId, String content) {
+        Agenda agenda = agendaRepository.findById(agendaId)
+                .orElseThrow(() -> new CustomException(AgendaErrorCode.NOT_FOUND));
+
+        meetingAccessValidator.validateUserIsHost(agenda.getMeeting().getId(), userId);
+
+        if (!agenda.getMeeting().isWaiting()) {
+            throw new CustomException(AgendaErrorCode.CANNOT_UPDATE_AGENDA);
+        }
+
+        agenda.updateContent(content);
+
+        return agenda.getId();
+    }
+
+    @Transactional
     public void deleteAgenda(Long agendaId, Long userId) {
         Agenda agenda = agendaRepository.findById(agendaId)
                 .orElseThrow(() -> new CustomException(AgendaErrorCode.NOT_FOUND));
