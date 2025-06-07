@@ -3,6 +3,7 @@ package com.jolupbisang.demo.domain.user;
 import com.jolupbisang.demo.domain.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -26,6 +27,7 @@ public class User extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private OAuthPlatform platform;
 
+    @Builder
     public User(String email, String nickname, OAuthPlatform platform) {
         this.email = email;
         this.nickname = nickname;
