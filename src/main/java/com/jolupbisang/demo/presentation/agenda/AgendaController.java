@@ -24,7 +24,7 @@ public class AgendaController implements AgendaControllerApi {
     private final AgendaService agendaService;
 
     @Override
-    @PatchMapping("/agendas/status{agendaId}")
+    @PatchMapping("/agendas/status/{agendaId}")
     public ResponseEntity<?> changeAgendaStatus(@RequestBody @Valid AgendaStatusReq agendaStatusReq,
                                                 @PathVariable("agendaId") Long agendaId,
                                                 @AuthenticationPrincipal CustomUserDetails customUserDetails) {
