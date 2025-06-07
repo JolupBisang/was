@@ -19,6 +19,7 @@ import com.jolupbisang.demo.infrastructure.meeting.audio.AudioProgressRepository
 import com.jolupbisang.demo.infrastructure.meeting.audio.AudioRepository;
 import com.jolupbisang.demo.infrastructure.meeting.client.WhisperClient;
 import com.jolupbisang.demo.infrastructure.meetingUser.MeetingUserRepository;
+import com.jolupbisang.demo.presentation.audio.dto.response.SocketResponseType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -161,6 +162,7 @@ public class AudioService {
         } else {
             log.error("[StepFunction] return null");
         }
+        meetingSessionManager.sendTextToParticipants(SocketResponseType.MEETING_NOTE_CREATED, meetingId, "회의록 생성이 완료되었습니다.");
     }
 
     @EventListener
