@@ -9,6 +9,10 @@ import org.springframework.stereotype.Repository;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Duration;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Repository
@@ -41,8 +45,36 @@ public class AudioRepositoryImpl implements AudioRepository {
         return audioURL;
     }
 
+    @Override
+    public String findCompletedURLByMeetingIdAndUserId(long meetingId, long userId, Duration duration) {
+        return s3ClientUtil.generatePresignedUrl(
+                generateS3CompletedURLKey(meetingId, userId),
+                Duration.ofDays(1)
+        );
+    }
+
+    @Override
+    public List<Long> findCompletedUserIdsByMeetingId(long meetingId) {
+        String prefix = String.format("merged-audio/meeting-%d/", meetingId);
+        List<String> objectKeys = s3ClientUtil.listObjectKeysByPrefix(prefix);
+        
+        Pattern userIdPattern = Pattern.compile("merged-audio/meeting-\\d+/user-(\\d+)/");
+        
+        return objectKeys.stream()
+                .map(userIdPattern::matcher)
+                .filter(Matcher::find)
+                .map(matcher -> Long.parseLong(matcher.group(1)))
+                .distinct()
+                .toList();
+    }
+
     private String generateS3ChunkKey(AudioMeta audioMeta) {
         return String.format("pending-chunks/meeting-%d/user-%d/%d.pcm",
                 audioMeta.meetingId(), audioMeta.userId(), audioMeta.chunkId());
+    }
+
+    private String generateS3CompletedURLKey(long meetingId, long userId) {
+        return String.format("merged-audio/meeting-%d/user-%d/merged.opus",
+                meetingId, userId);
     }
 }
