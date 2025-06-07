@@ -2,6 +2,7 @@ package com.jolupbisang.demo.application.audio.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jolupbisang.demo.application.audio.dto.AudioListResponse;
 import com.jolupbisang.demo.application.audio.dto.AudioMeta;
 import com.jolupbisang.demo.application.audio.dto.StepFunctionOutput;
 import com.jolupbisang.demo.application.audio.exception.AudioErrorCode;
@@ -32,6 +33,7 @@ import org.springframework.web.socket.WebSocketSession;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -108,6 +110,24 @@ public class AudioService {
         } catch (IOException e) {
             throw new CustomException(AudioErrorCode.INVALID_EMBEDDING_AUDIO);
         }
+    }
+
+    @Transactional(readOnly = true)
+    public AudioListResponse getCompletedMeetingAudioList(Long meetingId, Long userId) {
+        meetingAccessValidator.validateUserParticipating(meetingId, userId);
+        meetingAccessValidator.validateMeetingIsCompleted(meetingId);
+
+        List<Long> completedUserIds = audioRepository.findCompletedUserIdsByMeetingId(meetingId);
+
+        List<AudioListResponse.AudioInfo> audioInfoList = completedUserIds.stream()
+                .map(completedUserId -> {
+                    String presignedUrl = audioRepository.findCompletedURLByMeetingIdAndUserId(
+                            meetingId, completedUserId, Duration.ofHours(1));
+                    return new AudioListResponse.AudioInfo(completedUserId, presignedUrl);
+                })
+                .toList();
+
+        return new AudioListResponse(audioInfoList);
     }
 
     @EventListener
