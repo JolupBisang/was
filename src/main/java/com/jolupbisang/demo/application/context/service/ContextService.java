@@ -15,6 +15,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -50,7 +52,7 @@ public class ContextService {
     }
 
     @Order(1)
-    @EventListener
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleMeetingCompletion(MeetingCompletedEvent event) {
         Long meetingId = event.getMeetingId();
         ScheduledFuture<?> scheduledFuture = scheduledTasks.get(meetingId);

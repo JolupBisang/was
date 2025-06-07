@@ -21,6 +21,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.time.Instant;
@@ -75,7 +77,7 @@ public class SummaryService {
     }
 
     @Order(3)
-    @EventListener
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void createWholeSummary(MeetingCompletedEvent event) {
         whisperClient.sendContextDone(event.getMeetingId());
     }
