@@ -49,7 +49,7 @@ public class AudioRepositoryImpl implements AudioRepository {
     public String findCompletedURLByMeetingIdAndUserId(long meetingId, long userId, Duration duration) {
         return s3ClientUtil.generatePresignedUrl(
                 generateS3CompletedURLKey(meetingId, userId),
-                Duration.ofDays(1)
+                duration
         );
     }
 
@@ -57,9 +57,9 @@ public class AudioRepositoryImpl implements AudioRepository {
     public List<Long> findCompletedUserIdsByMeetingId(long meetingId) {
         String prefix = String.format("merged-audio/meeting-%d/", meetingId);
         List<String> objectKeys = s3ClientUtil.listObjectKeysByPrefix(prefix);
-        
+
         Pattern userIdPattern = Pattern.compile("merged-audio/meeting-\\d+/user-(\\d+)/");
-        
+
         return objectKeys.stream()
                 .map(userIdPattern::matcher)
                 .filter(Matcher::find)

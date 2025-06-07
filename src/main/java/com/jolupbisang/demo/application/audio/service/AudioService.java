@@ -126,7 +126,7 @@ public class AudioService {
         List<AudioListResponse.AudioInfo> audioInfoList = completedUserIds.stream()
                 .map(completedUserId -> {
                     String presignedUrl = audioRepository.findCompletedURLByMeetingIdAndUserId(
-                            meetingId, completedUserId, Duration.ofHours(1));
+                            meetingId, completedUserId, Duration.ofDays(1));
                     return new AudioListResponse.AudioInfo(completedUserId, presignedUrl);
                 })
                 .toList();
