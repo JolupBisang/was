@@ -9,4 +9,5 @@ public enum SocketResponseType {
     COMPLETION_SCHEDULED,
     MEETING_COMPLETED,
     CONNECTION_ESTABLISHED,
+    AGENDA_UPDATED,
 } 
