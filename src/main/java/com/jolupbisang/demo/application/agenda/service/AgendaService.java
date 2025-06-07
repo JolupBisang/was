@@ -42,7 +42,7 @@ public class AgendaService {
     }
 
     @Transactional
-    public long addAgenda(Long meetingId, Long userId, String content) {
+    public long addByMeetingId(Long meetingId, Long userId, String content) {
         meetingAccessValidator.validateUserIsHost(meetingId, userId);
 
         Meeting meeting = meetingRepository.findById(meetingId)
@@ -75,7 +75,7 @@ public class AgendaService {
     }
 
     @Transactional
-    public void deleteAgenda(Long agendaId, Long userId) {
+    public void deleteById(Long agendaId, Long userId) {
         Agenda agenda = agendaRepository.findById(agendaId)
                 .orElseThrow(() -> new CustomException(AgendaErrorCode.NOT_FOUND));
         Meeting meeting = agenda.getMeeting();

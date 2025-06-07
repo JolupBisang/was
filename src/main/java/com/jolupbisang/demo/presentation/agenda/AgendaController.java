@@ -49,7 +49,7 @@ public class AgendaController implements AgendaControllerApi {
                                        @RequestBody @Valid AgendaCreateReq agendaCreateReq,
                                        @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
-        Long agendaId = agendaService.addAgenda(meetingId, customUserDetails.getUserId(), agendaCreateReq.content());
+        Long agendaId = agendaService.addByMeetingId(meetingId, customUserDetails.getUserId(), agendaCreateReq.content());
 
         AgendaCreateRes response = AgendaCreateRes.of(agendaId);
 
@@ -71,7 +71,7 @@ public class AgendaController implements AgendaControllerApi {
     public ResponseEntity<?> deleteAgenda(@PathVariable("agendaId") Long agendaId,
                                           @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
-        agendaService.deleteAgenda(agendaId, customUserDetails.getUserId());
+        agendaService.deleteById(agendaId, customUserDetails.getUserId());
 
         return ResponseEntity.status(HttpStatus.OK).body(SuccessResponse.of("회의 안건 삭제 성공", null));
     }
