@@ -20,10 +20,13 @@ import com.jolupbisang.demo.infrastructure.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.time.Duration;
@@ -98,8 +101,8 @@ public class ParticipationRateService {
         scheduledTasks.put(meetingId, scheduledFuture);
     }
 
-    @Async
-    @EventListener
+    @Order(2)
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void clearMeetingData(MeetingCompletedEvent event) {
         Long meetingId = event.getMeetingId();
 

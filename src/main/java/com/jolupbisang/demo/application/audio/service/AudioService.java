@@ -2,6 +2,7 @@ package com.jolupbisang.demo.application.audio.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jolupbisang.demo.application.audio.dto.AudioListResponse;
 import com.jolupbisang.demo.application.audio.dto.AudioMeta;
 import com.jolupbisang.demo.application.audio.dto.StepFunctionOutput;
 import com.jolupbisang.demo.application.audio.exception.AudioErrorCode;
@@ -18,12 +19,16 @@ import com.jolupbisang.demo.infrastructure.meeting.audio.AudioProgressRepository
 import com.jolupbisang.demo.infrastructure.meeting.audio.AudioRepository;
 import com.jolupbisang.demo.infrastructure.meeting.client.WhisperClient;
 import com.jolupbisang.demo.infrastructure.meetingUser.MeetingUserRepository;
+import com.jolupbisang.demo.presentation.audio.dto.response.SocketResponseType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.CloseStatus;
@@ -32,6 +37,7 @@ import org.springframework.web.socket.WebSocketSession;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -110,6 +116,24 @@ public class AudioService {
         }
     }
 
+    @Transactional(readOnly = true)
+    public AudioListResponse getCompletedMeetingAudioList(Long meetingId, Long userId) {
+        meetingAccessValidator.validateUserParticipating(meetingId, userId);
+        meetingAccessValidator.validateMeetingIsCompleted(meetingId);
+
+        List<Long> completedUserIds = audioRepository.findCompletedUserIdsByMeetingId(meetingId);
+
+        List<AudioListResponse.AudioInfo> audioInfoList = completedUserIds.stream()
+                .map(completedUserId -> {
+                    String presignedUrl = audioRepository.findCompletedURLByMeetingIdAndUserId(
+                            meetingId, completedUserId, Duration.ofDays(1));
+                    return new AudioListResponse.AudioInfo(completedUserId, presignedUrl);
+                })
+                .toList();
+
+        return new AudioListResponse(audioInfoList);
+    }
+
     @EventListener
     public void handleMeetingStartingEvent(MeetingStartingEvent event) {
         List<Long> users = meetingUserRepository.findUserIdByMeetingId(event.getMeetingId());
@@ -125,7 +149,8 @@ public class AudioService {
         whisperClient.sendRefenceVector(event.getMeetingId(), users, counts, totalVectors);
     }
 
-    @EventListener
+    @Order(4)
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleMeetingCompletedEvent(MeetingCompletedEvent event) {
         long meetingId = event.getMeetingId();
         StepFunctionOutput stepFunctionOutput = sfnClientUtil.startMergeAudioStateMachine(MERGE_AUDIO_STATE_MACHINE_ARN, meetingId);
@@ -137,6 +162,7 @@ public class AudioService {
         } else {
             log.error("[StepFunction] return null");
         }
+        meetingSessionManager.sendTextToParticipants(SocketResponseType.MEETING_NOTE_CREATED, meetingId, "회의록 생성이 완료되었습니다.");
     }
 
     @EventListener

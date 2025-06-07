@@ -10,4 +10,5 @@ public enum SocketResponseType {
     MEETING_COMPLETED,
     CONNECTION_ESTABLISHED,
     AGENDA_UPDATED,
+    MEETING_NOTE_CREATED,
 } 

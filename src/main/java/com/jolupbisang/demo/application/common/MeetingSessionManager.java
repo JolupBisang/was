@@ -1,11 +1,15 @@
 package com.jolupbisang.demo.application.common;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jolupbisang.demo.application.event.MeetingCompletedEvent;
 import com.jolupbisang.demo.presentation.audio.dto.response.SocketResponse;
 import com.jolupbisang.demo.presentation.audio.dto.response.SocketResponseType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -67,11 +71,21 @@ public class MeetingSessionManager {
         sessionsToDelete.forEach(this::delete);
     }
 
-    public List<WebSocketSession> findAllByMeetingId(Long meetingId) {
-        return sessions.entrySet().stream()
-                .filter(entry -> entry.getValue().meetingId().equals(meetingId))
-                .map(Map.Entry::getKey)
-                .toList();
+    @Order(5)
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void closeSessionWhenMeetingEnded(MeetingCompletedEvent event) {
+        List<WebSocketSession> sessionsToClose = new ArrayList<>();
+        sessions.entrySet().stream().filter(entry -> entry.getValue().meetingId().equals(event.getMeetingId()))
+                .forEach(entry -> {
+                    try {
+                        entry.getKey().close();
+                    } catch (IOException e) {
+                        log.error("[WebSocketSession] session close error", e);
+                    } finally {
+                        sessionsToClose.add(entry.getKey());
+                    }
+                });
+        sessionsToClose.forEach(sessions::remove);
     }
 
     public void sendTextToParticipants(SocketResponseType type, long meetingId, Object data) {

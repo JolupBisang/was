@@ -8,6 +8,9 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,12 +22,15 @@ import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 
+import java.time.Duration;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class S3ClientUtil {
 
     private final S3Client s3Client;
+    private final S3Presigner s3Presigner;
     private final S3Properties s3Properties;
 
     public String uploadInputStream(String key, InputStream inputStream, long contentLength, String contentType) throws IOException {
@@ -72,6 +78,26 @@ public class S3ClientUtil {
         } catch (S3Exception e) {
             log.error("Error downloading object {} from S3: {}", key, e.getMessage());
             throw new IOException("Failed to download object from S3", e);
+        }
+    }
+
+    public String generatePresignedUrl(String key, Duration expiration) {
+        try {
+            GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                    .bucket(s3Properties.getBucket())
+                    .key(key)
+                    .build();
+
+            GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
+                    .signatureDuration(expiration)
+                    .getObjectRequest(getObjectRequest)
+                    .build();
+
+            PresignedGetObjectRequest presignedRequest = s3Presigner.presignGetObject(presignRequest);
+            return presignedRequest.url().toString();
+        } catch (S3Exception e) {
+            log.error("Error generating presigned URL for key {}: {}", key, e.getMessage());
+            throw e;
         }
     }
 }

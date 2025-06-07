@@ -8,9 +8,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -44,8 +47,8 @@ public class ContextService {
         scheduledTasks.put(meetingId, scheduledFuture);
     }
 
-    @Async
-    @EventListener
+    @Order(1)
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleMeetingCompletion(MeetingCompletedEvent event) {
         Long meetingId = event.getMeetingId();
         ScheduledFuture<?> scheduledFuture = scheduledTasks.get(meetingId);
