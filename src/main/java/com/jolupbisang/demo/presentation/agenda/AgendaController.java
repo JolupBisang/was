@@ -6,6 +6,7 @@ import com.jolupbisang.demo.infrastructure.auth.security.CustomUserDetails;
 import com.jolupbisang.demo.presentation.agenda.api.AgendaControllerApi;
 import com.jolupbisang.demo.presentation.agenda.dto.request.AgendaCreateReq;
 import com.jolupbisang.demo.presentation.agenda.dto.request.AgendaStatusReq;
+import com.jolupbisang.demo.presentation.agenda.dto.request.AgendaUpdateReq;
 import com.jolupbisang.demo.presentation.agenda.dto.response.AgendaChangeStatusRes;
 import com.jolupbisang.demo.presentation.agenda.dto.response.AgendaCreateRes;
 import com.jolupbisang.demo.presentation.agenda.dto.response.AgendaDetailRes;
@@ -23,7 +24,7 @@ public class AgendaController implements AgendaControllerApi {
     private final AgendaService agendaService;
 
     @Override
-    @PatchMapping("/agendas/{agendaId}")
+    @PatchMapping("/agendas/status/{agendaId}")
     public ResponseEntity<?> changeAgendaStatus(@RequestBody @Valid AgendaStatusReq agendaStatusReq,
                                                 @PathVariable("agendaId") Long agendaId,
                                                 @AuthenticationPrincipal CustomUserDetails customUserDetails) {
@@ -48,18 +49,29 @@ public class AgendaController implements AgendaControllerApi {
                                        @RequestBody @Valid AgendaCreateReq agendaCreateReq,
                                        @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
-        Long agendaId = agendaService.addAgenda(meetingId, customUserDetails.getUserId(), agendaCreateReq.content());
+        Long agendaId = agendaService.addByMeetingId(meetingId, customUserDetails.getUserId(), agendaCreateReq.content());
 
         AgendaCreateRes response = AgendaCreateRes.of(agendaId);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(SuccessResponse.of("회의 안건 추가 성공", response));
     }
 
+    @Override
+    @PatchMapping("/agendas/content/{agendaId}")
+    public ResponseEntity<?> updateAgenda(@PathVariable("agendaId") Long agendaId,
+                                          @RequestBody @Valid AgendaUpdateReq agendaUpdateReq,
+                                          @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+
+        long updatedAgendaId = agendaService.updateByAgendaId(agendaId, customUserDetails.getUserId(), agendaUpdateReq.content());
+
+        return ResponseEntity.status(HttpStatus.OK).body(SuccessResponse.of("회의 안건 수정 성공", updatedAgendaId));
+    }
+
     @DeleteMapping("/agendas/{agendaId}")
     public ResponseEntity<?> deleteAgenda(@PathVariable("agendaId") Long agendaId,
                                           @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
-        agendaService.deleteAgenda(agendaId, customUserDetails.getUserId());
+        agendaService.deleteById(agendaId, customUserDetails.getUserId());
 
         return ResponseEntity.status(HttpStatus.OK).body(SuccessResponse.of("회의 안건 삭제 성공", null));
     }

@@ -1,9 +1,15 @@
 package com.jolupbisang.demo.application.common;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jolupbisang.demo.presentation.audio.dto.response.SocketResponse;
+import com.jolupbisang.demo.presentation.audio.dto.response.SocketResponseType;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -12,9 +18,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class MeetingSessionManager {
 
     private final Map<WebSocketSession, SessionInfo> sessions = new ConcurrentHashMap<>();
+    private final ObjectMapper objectMapper;
 
     private record SessionInfo(Long userId, Long meetingId) {
     }
@@ -64,6 +72,18 @@ public class MeetingSessionManager {
                 .filter(entry -> entry.getValue().meetingId().equals(meetingId))
                 .map(Map.Entry::getKey)
                 .toList();
+    }
+
+    public void sendTextToParticipants(SocketResponseType type, long meetingId, Object data) {
+        sessions.entrySet().stream()
+                .filter(entry -> entry.getValue().meetingId().equals(meetingId))
+                .forEach(entry -> {
+                    try {
+                        entry.getKey().sendMessage(new TextMessage(objectMapper.writeValueAsString(SocketResponse.of(type, data))));
+                    } catch (IOException e) {
+                        log.error("[SessionManager] Failed to send data to userId: {}, meetingId: {}", entry.getValue().meetingId, entry.getValue().userId, e);
+                    }
+                });
     }
 } 
 

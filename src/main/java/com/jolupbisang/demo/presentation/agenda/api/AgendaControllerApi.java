@@ -3,6 +3,7 @@ package com.jolupbisang.demo.presentation.agenda.api;
 import com.jolupbisang.demo.infrastructure.auth.security.CustomUserDetails;
 import com.jolupbisang.demo.presentation.agenda.dto.request.AgendaCreateReq;
 import com.jolupbisang.demo.presentation.agenda.dto.request.AgendaStatusReq;
+import com.jolupbisang.demo.presentation.agenda.dto.request.AgendaUpdateReq;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -144,6 +145,64 @@ public interface AgendaControllerApi {
     ResponseEntity<?> addAgenda(@PathVariable("meetingId") Long meetingId,
                                 @RequestBody @Valid AgendaCreateReq agendaCreateReq,
                                 @AuthenticationPrincipal CustomUserDetails customUserDetails);
+
+    @Operation(summary = "회의 안건 수정", description = "회의 안건의 내용을 수정합니다 (대기 중인 회의에서만 가능)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "안건 수정 성공",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(name = "수정 성공", value = """
+                                        {
+                                            "message": "회의 안건 수정 성공",
+                                            "data": null
+                                        }
+                                    """),
+                    })),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청 (대기 중인 회의가 아님)",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(name = "수정 실패 - 대기 중인 회의가 아님", value = """
+                                        {
+                                            "message": "대기 중인 회의에서만 안건을 수정할 수 있습니다.",
+                                            "errorId": "57c477a2-8201-408d-b4ac-3c664daa08f0",
+                                            "errors": null
+                                        }
+                                    """),
+                    })),
+            @ApiResponse(responseCode = "403", description = "권한 없음 (호스트가 아님)",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(name = "수정 실패 - 권한 없음", value = """
+                                        {
+                                            "message": "해당 작업은 회의 리더만 수행할 수 있습니다.",
+                                            "errorId": "e6a96ddf-4a50-40fe-9c52-07649a1cca9f",
+                                            "errors": null
+                                        }
+                                    """),
+                    })),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 안건",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(name = "수정 실패 - 존재하지 않는 안건", value = """
+                                        {
+                                            "message": "존재하지 않는 안건입니다.",
+                                            "errorId": "816bc13a-a4e8-420c-a70e-2274f2f8fba3",
+                                            "errors": null
+                                        }
+                                    """),
+                    })),
+            @ApiResponse(responseCode = "422", description = "DTO 검증 실패",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(name = "수정 실패 - DTO 검증 실패", value = """
+                                        {
+                                            "message": "잘못된 입력입니다.",
+                                            "errorId": "c8c38050-d2d7-431f-93f9-4280413d9006",
+                                            "errors": {
+                                                "content": "안건 내용은 필수입니다."
+                                            }
+                                        }
+                                    """),
+                    }))
+    })
+    ResponseEntity<?> updateAgenda(@PathVariable("agendaId") Long agendaId,
+                                   @RequestBody @Valid AgendaUpdateReq agendaUpdateReq,
+                                   @AuthenticationPrincipal CustomUserDetails customUserDetails);
 
     @Operation(summary = "회의 안건 삭제", description = "회의 안건을 삭제합니다 (대기 중인 회의에서만 가능)")
     @ApiResponses(value = {
