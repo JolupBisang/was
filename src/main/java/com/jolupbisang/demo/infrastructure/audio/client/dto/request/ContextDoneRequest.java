@@ -1,4 +1,4 @@
-package com.jolupbisang.demo.infrastructure.meeting.client.dto.request;
+package com.jolupbisang.demo.infrastructure.audio.client.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,14 +8,14 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
-public record ContextRequest(
+public record ContextDoneRequest(
         WhisperRequestType flag,
         @JsonProperty("group_id")
         String groupId
 ) {
 
-    public static ContextRequest of(long groupId) {
-        return new ContextRequest(WhisperRequestType.CONTEXT, String.valueOf(groupId));
+    public static ContextDoneRequest of(long groupId) {
+        return new ContextDoneRequest(WhisperRequestType.CONTEXT_DONE, String.valueOf(groupId));
     }
 
     public BinaryMessage toBinaryMessage(ObjectMapper objectMapper) throws IOException {

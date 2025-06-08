@@ -1,4 +1,4 @@
-package com.jolupbisang.demo.infrastructure.meeting.audio;
+package com.jolupbisang.demo.infrastructure.audio;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
