@@ -2,6 +2,7 @@ package com.jolupbisang.demo.application.feedback;
 
 import com.jolupbisang.demo.application.common.MeetingAccessValidator;
 import com.jolupbisang.demo.application.event.FeedbackReceivedEvent;
+import com.jolupbisang.demo.application.event.SseEmitEvent;
 import com.jolupbisang.demo.application.feedback.dto.FeedbackListRes;
 import com.jolupbisang.demo.application.feedback.dto.SseFeedbackRes;
 import com.jolupbisang.demo.application.feedback.exception.FeedbackErrorCode;
@@ -16,6 +17,7 @@ import com.jolupbisang.demo.infrastructure.sse.MeetingSseService;
 import com.jolupbisang.demo.infrastructure.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -35,6 +37,7 @@ public class FeedbackService {
     private final FeedbackRepository feedbackRepository;
     private final MeetingRepository meetingRepository;
     private final UserRepository userRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     private final MeetingAccessValidator meetingAccessValidator;
     private final MeetingSseService meetingSseService;
@@ -75,6 +78,6 @@ public class FeedbackService {
         }
 
         feedbackRepository.save(new Feedback(meeting, user, comment, timestamp));
-        meetingSseService.sendEventToUserOfMeeting(String.valueOf(meetingId), String.valueOf(userId), MeetingSseEventType.FEEDBACK, SseFeedbackRes.of(timestamp, comment));
+        eventPublisher.publishEvent(new SseEmitEvent(String.valueOf(meetingId), MeetingSseEventType.FEEDBACK, SseFeedbackRes.of(timestamp, comment)));
     }
 }

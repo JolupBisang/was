@@ -2,9 +2,12 @@ package com.jolupbisang.demo.infrastructure.sse;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jolupbisang.demo.application.event.SseEmitEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
@@ -33,6 +36,30 @@ public class MeetingSseService {
         return emitter;
     }
 
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void handleSseEmitEvent(SseEmitEvent event) {
+        sendEventToMeeting(event.meetingId(), event.type(), event.data());
+    }
+
+    public void sendEventToUserOfMeeting(String meetingId, String userId, MeetingSseEventType eventType, Object data) {
+        if (!meetingEmitters.containsKey(meetingId) || !meetingEmitters.get(meetingId).containsKey(userId + "_" + eventType)) {
+            log.error("연결된 클라이언트가 없습니다. meetingId: {}", meetingId);
+            return;
+        }
+
+        SseEmitter userEmitter = meetingEmitters.get(meetingId).get(userId + "_" + eventType);
+        try {
+            userEmitter.send(SseEmitter.event()
+                    .name(eventType.toString())
+                    .data(objectMapper.writeValueAsString(data)));
+        } catch (JsonProcessingException e) {
+            log.error("[Whisper Client SSE Error] meetingId: {}, userId: {}, eventType: {}, data: {}", meetingId, userId, eventType, data, e);
+        } catch (IOException e) {
+            userEmitter.completeWithError(e);
+        }
+
+    }
+
     public void sendEventToMeeting(String meetingId, MeetingSseEventType eventType, Object data) {
         if (!meetingEmitters.containsKey(meetingId)) {
             log.error("연결된 클라이언트가 없습니다. meetingId: {}", meetingId);
@@ -53,25 +80,6 @@ public class MeetingSseService {
                 }
             }
         });
-    }
-
-    public void sendEventToUserOfMeeting(String meetingId, String userId, MeetingSseEventType eventType, Object data) {
-        if (!meetingEmitters.containsKey(meetingId) || !meetingEmitters.get(meetingId).containsKey(userId + "_" + eventType)) {
-            log.error("연결된 클라이언트가 없습니다. meetingId: {}", meetingId);
-            return;
-        }
-
-        SseEmitter userEmitter = meetingEmitters.get(meetingId).get(userId + "_" + eventType);
-        try {
-            userEmitter.send(SseEmitter.event()
-                    .name(eventType.toString())
-                    .data(objectMapper.writeValueAsString(data)));
-        } catch (JsonProcessingException e) {
-            log.error("[Whisper Client SSE Error] meetingId: {}, userId: {}, eventType: {}, data: {}", meetingId, userId, eventType, data, e);
-        } catch (IOException e) {
-            userEmitter.completeWithError(e);
-        }
-
     }
 
     private SseEmitter createEmitter(String meetingId, String emitterKey) {

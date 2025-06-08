@@ -2,6 +2,7 @@ package com.jolupbisang.demo.application.summary;
 
 import com.jolupbisang.demo.application.common.MeetingAccessValidator;
 import com.jolupbisang.demo.application.event.MeetingCompletedEvent;
+import com.jolupbisang.demo.application.event.SseEmitEvent;
 import com.jolupbisang.demo.application.event.SummaryReceivedEvent;
 import com.jolupbisang.demo.application.summary.dto.SseSummaryRes;
 import com.jolupbisang.demo.application.summary.dto.SummaryListRes;
@@ -16,11 +17,13 @@ import com.jolupbisang.demo.infrastructure.sse.MeetingSseService;
 import com.jolupbisang.demo.infrastructure.summary.SummaryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -40,6 +43,7 @@ public class SummaryService {
 
     private final MeetingAccessValidator meetingAccessValidator;
     private final WhisperClient whisperClient;
+    private final ApplicationEventPublisher eventPublisher;
 
 
     public SseEmitter subscribe(Long meetingId, Long userId) {
@@ -56,6 +60,7 @@ public class SummaryService {
         return summaries.map(SummaryListRes::from);
     }
 
+    @Transactional
     @EventListener
     public void handleSummaryReceived(SummaryReceivedEvent event) {
         long meetingId = event.getMeetingId();
@@ -73,7 +78,7 @@ public class SummaryService {
         }
 
         summaryRepository.save(new Summary(meeting, summary, isRecap, timestamp));
-        meetingSseService.sendEventToMeeting(String.valueOf(meetingId), MeetingSseEventType.SUMMARY, SseSummaryRes.of(timestamp, summary));
+        eventPublisher.publishEvent(new SseEmitEvent(String.valueOf(meetingId), MeetingSseEventType.SUMMARY, SseSummaryRes.of(timestamp, summary)));
     }
 
     @Order(3)
