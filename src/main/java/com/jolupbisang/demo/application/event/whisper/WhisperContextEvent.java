@@ -1,6 +1,6 @@
 package com.jolupbisang.demo.application.event.whisper;
 
-import com.jolupbisang.demo.infrastructure.meeting.client.dto.response.ContextResponse;
+import com.jolupbisang.demo.infrastructure.audio.client.dto.response.ContextResponse;
 import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
 

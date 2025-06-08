@@ -1,4 +1,4 @@
-package com.jolupbisang.demo.infrastructure.meeting.client.dto.request;
+package com.jolupbisang.demo.infrastructure.audio.client.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;

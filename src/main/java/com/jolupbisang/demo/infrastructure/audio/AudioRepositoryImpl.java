@@ -1,4 +1,4 @@
-package com.jolupbisang.demo.infrastructure.meeting.audio;
+package com.jolupbisang.demo.infrastructure.audio;
 
 import com.jolupbisang.demo.application.audio.dto.AudioMeta;
 import com.jolupbisang.demo.infrastructure.aws.s3.S3ClientUtil;

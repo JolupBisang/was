@@ -1,15 +1,15 @@
-package com.jolupbisang.demo.infrastructure.meeting.client;
+package com.jolupbisang.demo.infrastructure.audio.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jolupbisang.demo.application.event.whisper.WhisperContextEvent;
 import com.jolupbisang.demo.application.event.whisper.WhisperDiarizedEvent;
 import com.jolupbisang.demo.application.event.whisper.WhisperEmbeddedEvent;
 import com.jolupbisang.demo.global.properties.WhisperProperties;
-import com.jolupbisang.demo.infrastructure.meeting.client.dto.request.*;
-import com.jolupbisang.demo.infrastructure.meeting.client.dto.response.ContextResponse;
-import com.jolupbisang.demo.infrastructure.meeting.client.dto.response.DiarizedResponse;
-import com.jolupbisang.demo.infrastructure.meeting.client.dto.response.EmbeddedVectorResponse;
-import com.jolupbisang.demo.infrastructure.meeting.client.dto.response.WhisperResponseType;
+import com.jolupbisang.demo.infrastructure.audio.client.dto.request.*;
+import com.jolupbisang.demo.infrastructure.audio.client.dto.response.ContextResponse;
+import com.jolupbisang.demo.infrastructure.audio.client.dto.response.DiarizedResponse;
+import com.jolupbisang.demo.infrastructure.audio.client.dto.response.EmbeddedVectorResponse;
+import com.jolupbisang.demo.infrastructure.audio.client.dto.response.WhisperResponseType;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

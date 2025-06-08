@@ -2,8 +2,8 @@ package com.jolupbisang.demo.application.context.service;
 
 import com.jolupbisang.demo.application.event.*;
 import com.jolupbisang.demo.application.event.whisper.WhisperContextEvent;
-import com.jolupbisang.demo.infrastructure.meeting.client.WhisperClient;
-import com.jolupbisang.demo.infrastructure.meeting.client.dto.response.ContextResponse;
+import com.jolupbisang.demo.infrastructure.audio.client.WhisperClient;
+import com.jolupbisang.demo.infrastructure.audio.client.dto.response.ContextResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
