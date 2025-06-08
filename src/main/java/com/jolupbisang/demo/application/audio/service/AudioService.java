@@ -63,7 +63,6 @@ public class AudioService {
     @Value("${cloud.aws.sfn.merge-audio-state-machine-arn}")
     private String MERGE_AUDIO_STATE_MACHINE_ARN;
 
-    @Transactional
     public long processSessionStartAndGetLastProcessedChunkId(WebSocketSession session, Long userId, Long meetingId) {
         registerSessionAndValidateAccess(session, meetingId, userId);
 
