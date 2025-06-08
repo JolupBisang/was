@@ -12,7 +12,7 @@ public record ContextResponse(
         boolean isRecap,
         String context,
         List<Integer> agenda,
-        FeedbackRes feedback
+        List<FeedbackRes> feedback
 ) {
     public record FeedbackRes(
             @JsonProperty("user_id")

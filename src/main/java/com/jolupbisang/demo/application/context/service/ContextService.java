@@ -77,9 +77,11 @@ public class ContextService {
             eventPublisher.publishEvent(new AgendaReceivedEvent(source, meetingId, agenda));
         }
 
-        ContextResponse.FeedbackRes feedbackRes = contextResponse.feedback();
-        if (feedbackRes != null && feedbackRes.userId() != null && feedbackRes.comment() != null && !feedbackRes.comment().isEmpty()) {
-            eventPublisher.publishEvent(new FeedbackReceivedEvent(source, meetingId, feedbackRes.userId(), feedbackRes.comment()));
+        List<ContextResponse.FeedbackRes> feedbackResList = contextResponse.feedback();
+        for (ContextResponse.FeedbackRes feedbackRes : feedbackResList) {
+            if (feedbackRes != null && feedbackRes.userId() != null && feedbackRes.comment() != null && !feedbackRes.comment().isEmpty()) {
+                eventPublisher.publishEvent(new FeedbackReceivedEvent(source, meetingId, feedbackRes.userId(), feedbackRes.comment()));
+            }
         }
     }
 
