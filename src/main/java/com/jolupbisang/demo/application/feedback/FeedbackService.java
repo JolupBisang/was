@@ -51,7 +51,7 @@ public class FeedbackService {
     public Slice<FeedbackListRes> getFeedbacks(Long meetingId, Long userId, Pageable pageable) {
         meetingAccessValidator.validateUserParticipating(meetingId, userId);
 
-        Slice<Feedback> feedbacks = feedbackRepository.findByMeetingId(meetingId, pageable);
+        Slice<Feedback> feedbacks = feedbackRepository.findByMeetingIdAndUserId(meetingId, userId, pageable);
 
         return feedbacks.map(FeedbackListRes::from);
     }
