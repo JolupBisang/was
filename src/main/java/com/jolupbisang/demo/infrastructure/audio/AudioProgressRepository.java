@@ -11,4 +11,10 @@ public interface AudioProgressRepository {
     void deleteAudioProgress(Long userId, Long meetingId);
 
     Optional<LocalDateTime> findFirstProcessedTime(Long meetingId);
-} 
+
+    void setFirstChunkFlag(long meetingId, long userId);
+
+    void deleteFirstChunkFlag(long meetingId, long userId);
+
+    boolean existFirstChunkFlag(long meetingId, long userId);
+}

@@ -73,6 +73,16 @@ public class AudioService {
     }
 
     public void unregisterSession(WebSocketSession session) {
+        Long userId = meetingSessionManager.getUserIdBySession(session)
+                .orElse(null);
+
+        Long meetingId = meetingSessionManager.getMeetingIdBySession(session)
+                .orElse(null);
+
+        if (userId != null && meetingId != null) {
+            audioProgressRepository.deleteFirstChunkFlag(meetingId, userId);
+        }
+
         meetingSessionManager.delete(session);
     }
 
@@ -96,12 +106,19 @@ public class AudioService {
 
         audioRepository.save(audioMetaResult, audioData);
         audioProgressRepository.saveLastProcessedChunkId(userId, meetingId, audioMetaResult.chunkId(), audioMetaResult.timestamp());
-        LocalDateTime firstProcessedTime = audioProgressRepository.findFirstProcessedTime(meetingId).orElse(null);
-        if (firstProcessedTime == null) {
-            log.error("[session: {}]First processed time is null.", session.getId());
+
+        LocalDateTime firstProcessedTime = null;
+        if (!audioProgressRepository.existFirstChunkFlag(meetingId, userId)) {
+            audioProgressRepository.setFirstChunkFlag(meetingId, userId);
+            firstProcessedTime = audioProgressRepository.findFirstProcessedTime(meetingId).orElse(null);
         }
 
-        whisperClient.sendDiarization(meetingId, userId, calculateOffset(firstProcessedTime, audioMetaResult.timestamp()), audioData);
+        whisperClient.sendDiarization(
+                meetingId,
+                userId,
+                firstProcessedTime == null ? null : calculateOffset(firstProcessedTime, audioMetaResult.timestamp()),
+                audioData
+        );
     }
 
     @Transactional
