@@ -14,11 +14,13 @@ import com.jolupbisang.demo.global.exception.CustomException;
 import com.jolupbisang.demo.infrastructure.audio.client.dto.response.DiarizedResponse;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
 import com.jolupbisang.demo.infrastructure.participationRate.ParticipationRateRepository;
+import com.jolupbisang.demo.infrastructure.participationRate.RealTimeParticipationRepository;
 import com.jolupbisang.demo.infrastructure.sse.MeetingSseEventType;
 import com.jolupbisang.demo.infrastructure.sse.MeetingSseService;
 import com.jolupbisang.demo.infrastructure.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.TaskScheduler;
@@ -49,11 +51,11 @@ public class ParticipationRateService {
     private final ParticipationRateRepository participationRateRepository;
     private final MeetingRepository meetingRepository;
     private final UserRepository userRepository;
-
-    private final Map<Long, Map<Long, Long>> meetingParticipationData = new ConcurrentHashMap<>();
+    private final RealTimeParticipationRepository realTimeParticipationRepository;
     private final Map<Long, ScheduledFuture<?>> scheduledTasks = new ConcurrentHashMap<>();
 
-    private static final int PARTICIPATION_RATE_SEND_INTERVAL_SECONDS = 30;
+    @Value("${schedule.participation-rate}")
+    private long PARTICIPATION_RATE_SEND_INTERVAL_SECONDS;
 
     public SseEmitter subscribe(Long meetingId, Long userId) {
         meetingAccessValidator.validateMeetingInProgressAndUserParticipating(meetingId, userId);
@@ -109,7 +111,7 @@ public class ParticipationRateService {
         }
 
         saveParticipationRates(meetingId);
-        meetingParticipationData.remove(meetingId);
+        realTimeParticipationRepository.remove(meetingId);
     }
 
     private void processSegment(long meetingId, DiarizedResponse.Segment segment) {
@@ -121,13 +123,11 @@ public class ParticipationRateService {
         DiarizedResponse.Word lastWord = segment.words().get(segment.words().size() - 1);
 
         long participationDuration = firstWord.end() - lastWord.start();
-        meetingParticipationData
-                .computeIfAbsent(meetingId, k -> new ConcurrentHashMap<>())
-                .merge(segment.userId(), participationDuration, Long::sum);
+        realTimeParticipationRepository.increaseParticipation(meetingId, segment.userId(), participationDuration);
     }
 
     private void sendParticipationRateUpdate(long meetingId) {
-        Map<Long, Long> userParticipationTimes = meetingParticipationData.get(meetingId);
+        Map<Long, Long> userParticipationTimes = realTimeParticipationRepository.findByMeetingId(meetingId);
 
         if (userParticipationTimes == null || userParticipationTimes.isEmpty()) {
             log.info("참여율 데이터가 없어 전송하지 않습니다 - meetingId: {}", meetingId);
@@ -158,7 +158,7 @@ public class ParticipationRateService {
     }
 
     private void saveParticipationRates(Long meetingId) {
-        Map<Long, Long> userParticipationTimes = meetingParticipationData.get(meetingId);
+        Map<Long, Long> userParticipationTimes = realTimeParticipationRepository.findByMeetingId(meetingId);
 
         if (userParticipationTimes == null || userParticipationTimes.isEmpty()) {
             log.debug("저장할 참여율 데이터가 없습니다 - meetingId: {}", meetingId);
