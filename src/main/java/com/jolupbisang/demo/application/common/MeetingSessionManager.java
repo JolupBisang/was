@@ -92,10 +92,13 @@ public class MeetingSessionManager {
         sessions.entrySet().stream()
                 .filter(entry -> entry.getValue().meetingId().equals(meetingId))
                 .forEach(entry -> {
-                    try {
-                        entry.getKey().sendMessage(new TextMessage(objectMapper.writeValueAsString(SocketResponse.of(type, data))));
-                    } catch (IOException e) {
-                        log.error("[SessionManager] Failed to send data to userId: {}, meetingId: {}", entry.getValue().meetingId, entry.getValue().userId, e);
+                    WebSocketSession session = entry.getKey();
+                    synchronized (session) {
+                        try {
+                            entry.getKey().sendMessage(new TextMessage(objectMapper.writeValueAsString(SocketResponse.of(type, data))));
+                        } catch (IOException e) {
+                            log.error("[SessionManager] Failed to send data to userId: {}, meetingId: {}", entry.getValue().meetingId, entry.getValue().userId, e);
+                        }
                     }
                 });
     }
