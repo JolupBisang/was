@@ -35,8 +35,7 @@ public class Segment {
     @Column(nullable = false)
     private LocalDateTime timestamp;
 
-    @Lob
-    @Column(nullable = false)
+    @Column(nullable = false, length = 500)
     private String text;
 
     @Column(length = 10, nullable = false)
