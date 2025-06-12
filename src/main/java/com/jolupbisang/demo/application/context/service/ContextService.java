@@ -6,6 +6,7 @@ import com.jolupbisang.demo.infrastructure.audio.client.WhisperClient;
 import com.jolupbisang.demo.infrastructure.audio.client.dto.response.ContextResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
@@ -32,7 +33,8 @@ public class ContextService {
     private final ApplicationEventPublisher eventPublisher;
     private final Map<Long, ScheduledFuture<?>> scheduledTasks = new ConcurrentHashMap<>();
 
-    private static final int CONTEXT_SEND_INTERVAL_MINUTES = 5;
+    @Value("${schedule.context}")
+    private long CONTEXT_SEND_INTERVAL_MINUTES;
 
     @Async("AsyncTaskExecutor")
     @EventListener
