@@ -21,7 +21,7 @@ public record DiarizedRequest(
         String userId,
 
         @JsonProperty("sc_offset")
-        String scOffset,
+        int scOffset,
 
         @JsonIgnore
         byte[] audio
@@ -32,7 +32,7 @@ public record DiarizedRequest(
                 WhisperRequestType.DIARIZATION,
                 String.valueOf(groupId),
                 String.valueOf(userId),
-                scOffest == null ? null : String.valueOf(scOffest),
+                scOffest,
                 audio);
     }
 
