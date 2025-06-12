@@ -21,7 +21,7 @@ public record DiarizedRequest(
         String userId,
 
         @JsonProperty("sc_offset")
-        int scOffset,
+        Integer scOffset,
 
         @JsonIgnore
         byte[] audio
