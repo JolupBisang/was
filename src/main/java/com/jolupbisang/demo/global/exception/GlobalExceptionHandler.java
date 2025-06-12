@@ -1,12 +1,14 @@
 package com.jolupbisang.demo.global.exception;
 
 import com.jolupbisang.demo.global.response.ErrorResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,6 +30,11 @@ public class GlobalExceptionHandler {
             errors.put(fieldError.getField(), fieldError.getDefaultMessage());
         }
         return buildErrorResponse(e, GlobalErrorCode.INVALID_INPUT, errors);
+    }
+
+    @ExceptionHandler(AsyncRequestTimeoutException.class)
+    public void handleAsyncRequestTimeoutException(AsyncRequestTimeoutException ex, HttpServletRequest request) {
+        log.warn("Async request timed out for URI: {}", request.getRequestURI());
     }
 
     @ExceptionHandler(Exception.class)
