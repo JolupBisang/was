@@ -1,6 +1,8 @@
 package com.jolupbisang.demo.global.config;
 
 import org.springframework.amqp.core.*;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -59,5 +61,10 @@ public class RabbitMQConfig {
                 .to(deadLetterExchange)
                 .with(DEAD_LETTER_ROUTING_KEY)
                 .noargs();
+    }
+
+    @Bean
+    public MessageConverter messageConverter() {
+        return new Jackson2JsonMessageConverter();
     }
 }
