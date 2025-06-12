@@ -76,7 +76,7 @@ public class SegmentService {
                         return message;
                     }
             );
-            else sendCandidateSegments(segmentData, meetingId);
+            sendCandidateSegments(segmentData, meetingId);
         }
     }
 
