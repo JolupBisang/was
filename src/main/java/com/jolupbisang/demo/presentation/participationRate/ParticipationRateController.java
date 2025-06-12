@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/participation_rate")
+@RequestMapping("/api/participation-rate")
 public class ParticipationRateController implements ParticipationRateControllerApi {
 
     private final ParticipationRateService participationRateService;
