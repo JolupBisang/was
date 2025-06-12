@@ -67,11 +67,6 @@ public class SegmentService {
         }
 
         for (DiarizedResponse.Segment segmentData : segments) {
-            if (segmentData.userId() != segmentData.audioUserId()) {
-                log.warn("[SegmentService] User ID ({}) and Audio User ID ({}) do not match. Skipping segment for meetingId: {}.", segmentData.userId(), segmentData.audioUserId(), meetingId);
-                continue;
-            }
-
             if (isCompleted) rabbitTemplate.convertAndSend(
                     RabbitMQConfig.SEGMENT_EXCHANGE,
                     RabbitMQConfig.SEGMENT_ROUTING_KEY,
@@ -88,7 +83,7 @@ public class SegmentService {
     @Transactional
     public void saveCompletedSegment(SegmentMessage message) {
         long userId = message.segmentData().userId();
-        long meetingId = message.segmentData().audioUserId();
+        long meetingId = message.meetingId();
         DiarizedResponse.Segment segmentData = message.segmentData();
         LocalDateTime timestamp = calculateTimestamp(segmentData, meetingId);
 

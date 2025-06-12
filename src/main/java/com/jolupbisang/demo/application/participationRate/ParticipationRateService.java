@@ -79,9 +79,7 @@ public class ParticipationRateService {
         long groupId = diarizedResponse.groupId();
 
         for (DiarizedResponse.Segment segment : diarizedResponse.completed()) {
-            if (segment.userId() == segment.audioUserId()) {
-                processSegment(groupId, segment);
-            }
+            processSegment(groupId, segment);
         }
     }
 
