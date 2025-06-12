@@ -60,6 +60,8 @@ public class AudioService {
 
     private final ObjectMapper objectMapper;
 
+    private static final Integer AUDIO_SAMPLE_RATE = 16000;
+
     @Value("${cloud.aws.sfn.merge-audio-state-machine-arn}")
     private String MERGE_AUDIO_STATE_MACHINE_ARN;
 
@@ -94,7 +96,12 @@ public class AudioService {
 
         audioRepository.save(audioMetaResult, audioData);
         audioProgressRepository.saveLastProcessedChunkId(userId, meetingId, audioMetaResult.chunkId(), audioMetaResult.timestamp());
-        whisperClient.sendDiarization(meetingId, userId, null, audioData);
+        LocalDateTime firstProcessedTime = audioProgressRepository.findFirstProcessedTime(meetingId).orElse(null);
+        if (firstProcessedTime == null) {
+            log.error("[session: {}]First processed time is null.", session.getId());
+        }
+
+        whisperClient.sendDiarization(meetingId, userId, calculateOffset(firstProcessedTime, audioMetaResult.timestamp()), audioData);
     }
 
     @Transactional
@@ -213,6 +220,18 @@ public class AudioService {
             log.error("Error closing existing WebSocket session {} for user {}: {}", existingSession.getId(), userId, e.getMessage());
         }
         meetingSessionManager.deleteByUserId(userId);
+    }
+
+    private Integer calculateOffset(LocalDateTime firstProcessedTime, LocalDateTime timestamp) {
+        long secondsDifference = Duration.between(firstProcessedTime, timestamp).getSeconds();
+
+        Integer intSecondsDifference = null;
+        try {
+            intSecondsDifference = Math.toIntExact(secondsDifference);
+        } catch (ArithmeticException e) {
+            log.error("[session: {}]Seconds difference is bigger than int.", secondsDifference);
+        }
+        return intSecondsDifference == null ? null : intSecondsDifference * AUDIO_SAMPLE_RATE;
     }
 
     private record AudioDetails(String type, Long chunkId, String encoding, LocalDateTime timestamp) {
