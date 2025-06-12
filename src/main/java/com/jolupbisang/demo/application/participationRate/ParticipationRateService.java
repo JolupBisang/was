@@ -52,6 +52,9 @@ public class ParticipationRateService {
     private final MeetingRepository meetingRepository;
     private final UserRepository userRepository;
     private final RealTimeParticipationRepository realTimeParticipationRepository;
+
+    private final ParticipationRateSaver participationRateSaver;
+
     private final Map<Long, ScheduledFuture<?>> scheduledTasks = new ConcurrentHashMap<>();
 
     @Value("${schedule.participation-rate}")
@@ -122,7 +125,7 @@ public class ParticipationRateService {
         DiarizedResponse.Word firstWord = segment.words().get(0);
         DiarizedResponse.Word lastWord = segment.words().get(segment.words().size() - 1);
 
-        long participationDuration = firstWord.end() - lastWord.start();
+        long participationDuration = lastWord.end() - firstWord.start();
         realTimeParticipationRepository.increaseParticipation(meetingId, segment.userId(), participationDuration);
     }
 
@@ -199,7 +202,8 @@ public class ParticipationRateService {
 
     private void saveParticipationRateEntities(List<ParticipationRate> participationRateEntities, Long meetingId, int totalUserCount) {
         if (!participationRateEntities.isEmpty()) {
-            participationRateRepository.saveAll(participationRateEntities);
+            participationRateSaver.saveAll(participationRateEntities);
+            log.info("{}", participationRateEntities.get(0).getRate());
             log.info("참여율 데이터 저장 완료 - meetingId: {}, 저장된 사용자 수: {}/{}",
                     meetingId, participationRateEntities.size(), totalUserCount);
         } else {
