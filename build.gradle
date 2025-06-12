@@ -58,6 +58,10 @@ dependencies {
     implementation 'software.amazon.awssdk:s3'
     implementation 'software.amazon.awssdk:sfn'
     implementation 'software.amazon.awssdk:apache-client'
+
+    //Messaging
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+    
 }
 
 tasks.named('test') {

@@ -1,14 +1,15 @@
 package com.jolupbisang.demo.application.segment;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jolupbisang.demo.application.common.MeetingAccessValidator;
 import com.jolupbisang.demo.application.common.MeetingSessionManager;
 import com.jolupbisang.demo.application.event.whisper.WhisperDiarizedEvent;
 import com.jolupbisang.demo.application.segment.dto.SegmentListRes;
+import com.jolupbisang.demo.application.segment.dto.SegmentMessage;
 import com.jolupbisang.demo.application.segment.dto.SocketSegmentRes;
 import com.jolupbisang.demo.domain.meeting.Meeting;
 import com.jolupbisang.demo.domain.segment.Segment;
 import com.jolupbisang.demo.domain.user.User;
+import com.jolupbisang.demo.global.config.RabbitMQConfig;
 import com.jolupbisang.demo.infrastructure.audio.AudioProgressRepository;
 import com.jolupbisang.demo.infrastructure.audio.client.dto.response.DiarizedResponse;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
@@ -17,6 +18,8 @@ import com.jolupbisang.demo.infrastructure.user.UserRepository;
 import com.jolupbisang.demo.presentation.audio.dto.response.SocketResponseType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.core.MessageDeliveryMode;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -33,12 +36,12 @@ public class SegmentService {
 
     private final SegmentRepository segmentRepository;
     private final MeetingSessionManager meetingSessionManager;
-    private final ObjectMapper objectMapper;
     private final MeetingRepository meetingRepository;
     private final UserRepository userRepository;
 
     private final MeetingAccessValidator meetingAccessValidator;
     private final AudioProgressRepository audioProgressRepository;
+    private final RabbitTemplate rabbitTemplate;
 
     @Transactional(readOnly = true)
     public Slice<SegmentListRes> getSegments(Long meetingId, Long userId, Pageable pageable) {
@@ -69,21 +72,25 @@ public class SegmentService {
                 continue;
             }
 
-            if (isCompleted) saveCompletedSegment(segmentData, meetingId);
+            if (isCompleted) rabbitTemplate.convertAndSend(
+                    RabbitMQConfig.SEGMENT_EXCHANGE,
+                    RabbitMQConfig.SEGMENT_ROUTING_KEY,
+                    SegmentMessage.of(segmentData, meetingId),
+                    message -> {
+                        message.getMessageProperties().setDeliveryMode(MessageDeliveryMode.PERSISTENT);
+                        return message;
+                    }
+            );
             else sendCandidateSegments(segmentData, meetingId);
         }
     }
 
-    private void saveCompletedSegment(DiarizedResponse.Segment segmentData, long meetingId) {
-        long userId = segmentData.userId();
+    @Transactional
+    public void saveCompletedSegment(SegmentMessage message) {
+        long userId = message.segmentData().userId();
+        long meetingId = message.segmentData().audioUserId();
+        DiarizedResponse.Segment segmentData = message.segmentData();
         LocalDateTime timestamp = calculateTimestamp(segmentData, meetingId);
-
-        try {
-            meetingAccessValidator.validateMeetingInProgressAndUserParticipating(meetingId, userId);
-        } catch (Exception e) {
-            log.warn("[SegmentService] Validation failed for meetingId: {}, userId: {}. Error: {}", meetingId, userId, e.getMessage());
-            return;
-        }
 
         Meeting meeting = meetingRepository.findById(meetingId).orElse(null);
         User user = userRepository.findById(userId).orElse(null);
