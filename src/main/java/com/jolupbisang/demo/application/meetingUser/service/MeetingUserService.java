@@ -6,7 +6,7 @@ import com.jolupbisang.demo.domain.meeting.Meeting;
 import com.jolupbisang.demo.domain.meetingUser.MeetingUser;
 import com.jolupbisang.demo.domain.meetingUser.MeetingUserStatus;
 import com.jolupbisang.demo.domain.user.User;
-import com.jolupbisang.demo.global.exception.CustomException;
+import com.jolupbisang.demo.global.exception.ServiceLogicException;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
 import com.jolupbisang.demo.infrastructure.meetingUser.MeetingUserRepository;
 import com.jolupbisang.demo.infrastructure.user.UserRepository;
@@ -32,9 +32,9 @@ public class MeetingUserService {
     @Transactional
     public void addParticipants(Long meetingId, Long hostUserId, List<String> participantEmails) {
         meetingAccessValidator.validateUserIsHost(meetingId, hostUserId);
-        
+
         Meeting meeting = validateMeetingForAdd(meetingId);
-        
+
         Set<String> existingEmails = meetingUserRepository.findParticipantsByMeetingId(meetingId)
                 .stream()
                 .map(User::getEmail)
@@ -59,14 +59,14 @@ public class MeetingUserService {
     @Transactional
     public void removeParticipant(Long meetingId, Long hostUserId, Long participantUserId) {
         meetingAccessValidator.validateUserIsHost(meetingId, hostUserId);
-        
+
         validateMeetingForRemove(meetingId);
 
         MeetingUser meetingUser = meetingUserRepository.findByMeetingIdAndUserId(meetingId, participantUserId)
-                .orElseThrow(() -> new CustomException(MeetingUserErrorCode.USER_NOT_PARTICIPANT));
+                .orElseThrow(() -> new ServiceLogicException(MeetingUserErrorCode.USER_NOT_PARTICIPANT));
 
         if (meetingUser.isHost()) {
-            throw new CustomException(MeetingUserErrorCode.CANNOT_REMOVE_HOST);
+            throw new ServiceLogicException(MeetingUserErrorCode.CANNOT_REMOVE_HOST);
         }
 
         meetingUserRepository.delete(meetingUser);
@@ -74,21 +74,21 @@ public class MeetingUserService {
 
     private Meeting validateMeetingForAdd(Long meetingId) {
         Meeting meeting = meetingRepository.findById(meetingId)
-                .orElseThrow(() -> new CustomException(MeetingUserErrorCode.MEETING_NOT_FOUND));
-        
+                .orElseThrow(() -> new ServiceLogicException(MeetingUserErrorCode.MEETING_NOT_FOUND));
+
         if (meeting.isCompleted() || meeting.isCancelled()) {
-            throw new CustomException(MeetingUserErrorCode.CANNOT_ADD_TO_COMPLETED_MEETING);
+            throw new ServiceLogicException(MeetingUserErrorCode.CANNOT_ADD_TO_COMPLETED_MEETING);
         }
-        
+
         return meeting;
     }
 
     private void validateMeetingForRemove(Long meetingId) {
         Meeting meeting = meetingRepository.findById(meetingId)
-                .orElseThrow(() -> new CustomException(MeetingUserErrorCode.MEETING_NOT_FOUND));
-        
+                .orElseThrow(() -> new ServiceLogicException(MeetingUserErrorCode.MEETING_NOT_FOUND));
+
         if (!meeting.isWaiting()) {
-            throw new CustomException(MeetingUserErrorCode.CANNOT_REMOVE_FROM_NON_WAITING_MEETING);
+            throw new ServiceLogicException(MeetingUserErrorCode.CANNOT_REMOVE_FROM_NON_WAITING_MEETING);
         }
     }
 } 

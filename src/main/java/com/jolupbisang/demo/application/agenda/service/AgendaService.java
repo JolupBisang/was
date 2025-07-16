@@ -7,7 +7,7 @@ import com.jolupbisang.demo.application.common.MeetingSessionManager;
 import com.jolupbisang.demo.application.event.AgendaChangedEvent;
 import com.jolupbisang.demo.domain.agenda.Agenda;
 import com.jolupbisang.demo.domain.meeting.Meeting;
-import com.jolupbisang.demo.global.exception.CustomException;
+import com.jolupbisang.demo.global.exception.ServiceLogicException;
 import com.jolupbisang.demo.infrastructure.agenda.AgendaRepository;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
 import com.jolupbisang.demo.presentation.audio.dto.response.SocketResponseType;
@@ -33,7 +33,7 @@ public class AgendaService {
     @Transactional
     public boolean changeAgendaStatus(Long agendaId, Long userId, boolean isCompleted) {
         Agenda agenda = agendaRepository.findByAgendaIdAndUserId(agendaId, userId)
-                .orElseThrow(() -> new CustomException(AgendaErrorCode.UNAUTHORIZED));
+                .orElseThrow(() -> new ServiceLogicException(AgendaErrorCode.UNAUTHORIZED));
 
         agenda.setIsCompleted(isCompleted);
         eventPublisher.publishEvent(new AgendaChangedEvent(agenda, agenda.getMeeting()));
@@ -56,10 +56,10 @@ public class AgendaService {
         meetingAccessValidator.validateUserIsHost(meetingId, userId);
 
         Meeting meeting = meetingRepository.findById(meetingId)
-                .orElseThrow(() -> new CustomException(AgendaErrorCode.MEETING_NOT_FOUND));
+                .orElseThrow(() -> new ServiceLogicException(AgendaErrorCode.MEETING_NOT_FOUND));
 
         if (meeting.isCompleted() || meeting.isCancelled()) {
-            throw new CustomException(AgendaErrorCode.CANNOT_ADD_AGENDA);
+            throw new ServiceLogicException(AgendaErrorCode.CANNOT_ADD_AGENDA);
         }
 
         Agenda agenda = new Agenda(meeting, content);
@@ -71,12 +71,12 @@ public class AgendaService {
     @Transactional
     public long updateByAgendaId(Long agendaId, Long userId, String content) {
         Agenda agenda = agendaRepository.findById(agendaId)
-                .orElseThrow(() -> new CustomException(AgendaErrorCode.NOT_FOUND));
+                .orElseThrow(() -> new ServiceLogicException(AgendaErrorCode.NOT_FOUND));
 
         meetingAccessValidator.validateUserIsHost(agenda.getMeeting().getId(), userId);
 
         if (!agenda.getMeeting().isWaiting()) {
-            throw new CustomException(AgendaErrorCode.CANNOT_UPDATE_AGENDA);
+            throw new ServiceLogicException(AgendaErrorCode.CANNOT_UPDATE_AGENDA);
         }
 
         agenda.updateContent(content);
@@ -87,13 +87,13 @@ public class AgendaService {
     @Transactional
     public void deleteById(Long agendaId, Long userId) {
         Agenda agenda = agendaRepository.findById(agendaId)
-                .orElseThrow(() -> new CustomException(AgendaErrorCode.NOT_FOUND));
+                .orElseThrow(() -> new ServiceLogicException(AgendaErrorCode.NOT_FOUND));
         Meeting meeting = agenda.getMeeting();
 
         meetingAccessValidator.validateUserIsHost(meeting.getId(), userId);
 
         if (!meeting.isWaiting()) {
-            throw new CustomException(AgendaErrorCode.CANNOT_DELETE_AGENDA);
+            throw new ServiceLogicException(AgendaErrorCode.CANNOT_DELETE_AGENDA);
         }
 
         agendaRepository.delete(agenda);

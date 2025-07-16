@@ -1,7 +1,7 @@
 package com.jolupbisang.demo.presentation.auth.filter;
 
-import com.jolupbisang.demo.global.exception.CustomException;
 import com.jolupbisang.demo.global.exception.GlobalErrorCode;
+import com.jolupbisang.demo.global.exception.ServiceLogicException;
 import com.jolupbisang.demo.infrastructure.auth.JwtProvider;
 import com.jolupbisang.demo.infrastructure.auth.security.CustomUserDetails;
 import jakarta.servlet.FilterChain;
@@ -48,7 +48,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String accessToken = authToken.substring(TOKEN_TYPE.length()).trim();
 
         if (jwtProvider.isExpired(accessToken)) {
-            throw new CustomException(GlobalErrorCode.EXPIRED_JWT);
+            throw new ServiceLogicException(GlobalErrorCode.EXPIRED_JWT);
         }
 
         return accessToken;

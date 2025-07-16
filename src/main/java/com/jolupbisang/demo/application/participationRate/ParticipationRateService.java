@@ -10,7 +10,7 @@ import com.jolupbisang.demo.application.participationRate.exception.Participatio
 import com.jolupbisang.demo.domain.meeting.Meeting;
 import com.jolupbisang.demo.domain.participationRate.ParticipationRate;
 import com.jolupbisang.demo.domain.user.User;
-import com.jolupbisang.demo.global.exception.CustomException;
+import com.jolupbisang.demo.global.exception.ServiceLogicException;
 import com.jolupbisang.demo.infrastructure.audio.client.dto.response.DiarizedResponse;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
 import com.jolupbisang.demo.infrastructure.participationRate.ParticipationRateRepository;
@@ -72,7 +72,7 @@ public class ParticipationRateService {
 
         List<ParticipationRate> participationRates = participationRateRepository.findByMeetingId(meetingId);
         if (participationRates.isEmpty()) {
-            throw new CustomException(ParticipationRateErrorCode.PARTICIPATION_RATE_NOT_FOUND);
+            throw new ServiceLogicException(ParticipationRateErrorCode.PARTICIPATION_RATE_NOT_FOUND);
         }
 
         return ParticipationRateHistoryRes.of(participationRates);
@@ -170,7 +170,7 @@ public class ParticipationRateService {
 
         try {
             Meeting meeting = meetingRepository.findById(meetingId)
-                    .orElseThrow(() -> new CustomException(ParticipationRateErrorCode.MEETING_NOT_FOUND));
+                    .orElseThrow(() -> new ServiceLogicException(ParticipationRateErrorCode.MEETING_NOT_FOUND));
             Map<Long, Double> participationRates = calculateParticipationRate(userParticipationTimes);
 
             List<ParticipationRate> participationRateEntities = participationRates.entrySet().stream()

@@ -18,8 +18,8 @@ import java.util.UUID;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(CustomException.class)
-    protected ResponseEntity<?> handleCustomException(CustomException ex) {
+    @ExceptionHandler(ServiceLogicException.class)
+    protected ResponseEntity<?> handleCustomException(ServiceLogicException ex) {
         return buildErrorResponse(ex, ex.getErrorCode());
     }
 

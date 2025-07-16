@@ -9,7 +9,7 @@ import com.jolupbisang.demo.application.feedback.exception.FeedbackErrorCode;
 import com.jolupbisang.demo.domain.feedback.Feedback;
 import com.jolupbisang.demo.domain.meeting.Meeting;
 import com.jolupbisang.demo.domain.user.User;
-import com.jolupbisang.demo.global.exception.CustomException;
+import com.jolupbisang.demo.global.exception.ServiceLogicException;
 import com.jolupbisang.demo.infrastructure.feedback.FeedbackRepository;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
 import com.jolupbisang.demo.infrastructure.sse.MeetingSseEventType;
@@ -69,10 +69,10 @@ public class FeedbackService {
         try {
             meetingAccessValidator.validateMeetingInProgressAndUserParticipating(meetingId, userId);
             meeting = meetingRepository.findById(meetingId)
-                    .orElseThrow(() -> new CustomException(FeedbackErrorCode.MEETING_NOT_FOUND));
+                    .orElseThrow(() -> new ServiceLogicException(FeedbackErrorCode.MEETING_NOT_FOUND));
             user = userRepository.findById(userId)
-                    .orElseThrow(() -> new CustomException(FeedbackErrorCode.USER_NOT_FOUND));
-        } catch (CustomException e) {
+                    .orElseThrow(() -> new ServiceLogicException(FeedbackErrorCode.USER_NOT_FOUND));
+        } catch (ServiceLogicException e) {
             log.error("[Whisper Feedback Error] {}", e.getErrorCode().getMessage(), e);
             return;
         }

@@ -4,7 +4,7 @@ import com.jolupbisang.demo.application.common.exception.MeetingAccessErrorCode;
 import com.jolupbisang.demo.domain.meeting.Meeting;
 import com.jolupbisang.demo.domain.meeting.MeetingStatus;
 import com.jolupbisang.demo.domain.meetingUser.MeetingUserStatus;
-import com.jolupbisang.demo.global.exception.CustomException;
+import com.jolupbisang.demo.global.exception.ServiceLogicException;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
 import com.jolupbisang.demo.infrastructure.meetingUser.MeetingUserRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,10 +21,10 @@ public class MeetingAccessValidator {
     @Cacheable(value = "meetingInProgressAndUserParticipating", key = "{#meetingId, #userId}")
     public void validateMeetingInProgressAndUserParticipating(Long meetingId, Long userId) {
         Meeting meeting = meetingRepository.findById(meetingId)
-                .orElseThrow(() -> new CustomException(MeetingAccessErrorCode.NOT_FOUND));
+                .orElseThrow(() -> new ServiceLogicException(MeetingAccessErrorCode.NOT_FOUND));
 
         if (!meeting.getMeetingStatus().equals(MeetingStatus.IN_PROGRESS)) {
-            throw new CustomException(MeetingAccessErrorCode.NOT_IN_PROGRESS);
+            throw new ServiceLogicException(MeetingAccessErrorCode.NOT_IN_PROGRESS);
         }
 
         validateUserParticipating(meetingId, userId);
@@ -35,7 +35,7 @@ public class MeetingAccessValidator {
         boolean isParticipant = meetingUserRepository.existsByMeetingIdAndUserIdAndStatusIn(meetingId, userId, MeetingUserStatus.ACCEPTED);
 
         if (!isParticipant) {
-            throw new CustomException(MeetingAccessErrorCode.NOT_PARTICIPANT);
+            throw new ServiceLogicException(MeetingAccessErrorCode.NOT_PARTICIPANT);
         }
     }
 
@@ -44,36 +44,36 @@ public class MeetingAccessValidator {
         boolean isHost = meetingUserRepository.existsByMeetingIdAndUserIdAndIsHost(meetingId, userId, true);
 
         if (!isHost) {
-            throw new CustomException(MeetingAccessErrorCode.NOT_LEADER);
+            throw new ServiceLogicException(MeetingAccessErrorCode.NOT_LEADER);
         }
     }
 
     @Cacheable(value = "meetingIsInProgress", key = "#meetingId")
     public void validateMeetingIsInProgress(Long meetingId) {
         Meeting meeting = meetingRepository.findById(meetingId)
-                .orElseThrow(() -> new CustomException(MeetingAccessErrorCode.NOT_FOUND));
+                .orElseThrow(() -> new ServiceLogicException(MeetingAccessErrorCode.NOT_FOUND));
 
         if (!meeting.isInProgress()) {
-            throw new CustomException(MeetingAccessErrorCode.NOT_IN_PROGRESS);
+            throw new ServiceLogicException(MeetingAccessErrorCode.NOT_IN_PROGRESS);
         }
     }
 
     @Cacheable(value = "meetingIsWaiting", key = "#meetingId")
     public void validateMeetingIsWaiting(Long meetingId) {
         Meeting meeting = meetingRepository.findById(meetingId)
-                .orElseThrow(() -> new CustomException(MeetingAccessErrorCode.NOT_FOUND));
+                .orElseThrow(() -> new ServiceLogicException(MeetingAccessErrorCode.NOT_FOUND));
 
         if (!meeting.isWaiting()) {
-            throw new CustomException(MeetingAccessErrorCode.NOT_WAITING);
+            throw new ServiceLogicException(MeetingAccessErrorCode.NOT_WAITING);
         }
     }
 
     public void validateMeetingIsCompleted(Long meetingId) {
         Meeting meeting = meetingRepository.findById(meetingId)
-                .orElseThrow(() -> new CustomException(MeetingAccessErrorCode.NOT_FOUND));
+                .orElseThrow(() -> new ServiceLogicException(MeetingAccessErrorCode.NOT_FOUND));
 
         if (!meeting.isCompleted()) {
-            throw new CustomException(MeetingAccessErrorCode.NOT_COMPLETED);
+            throw new ServiceLogicException(MeetingAccessErrorCode.NOT_COMPLETED);
         }
     }
 }

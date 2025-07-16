@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jolupbisang.demo.application.auth.dto.OAuthUserInfoDto;
 import com.jolupbisang.demo.application.auth.exception.AuthErrorCode;
 import com.jolupbisang.demo.application.auth.service.ClientPlatform;
-import com.jolupbisang.demo.global.exception.CustomException;
+import com.jolupbisang.demo.global.exception.ServiceLogicException;
 import com.jolupbisang.demo.global.properties.OAuthProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
@@ -34,7 +34,7 @@ public abstract class OAuthClient {
             JsonNode rootNode = objectMapper.readTree(response.getBody());
             return rootNode.path("access_token").asText();
         } catch (Exception e) {
-            throw new CustomException(AuthErrorCode.PLATFORM_ERROR);
+            throw new ServiceLogicException(AuthErrorCode.PLATFORM_ERROR);
         }
     }
 
@@ -54,7 +54,7 @@ public abstract class OAuthClient {
             );
             return parseUserInfo(objectMapper.readTree(response.getBody()));
         } catch (Exception e) {
-            throw new CustomException(AuthErrorCode.PLATFORM_ERROR);
+            throw new ServiceLogicException(AuthErrorCode.PLATFORM_ERROR);
         }
     }
 
@@ -77,7 +77,7 @@ public abstract class OAuthClient {
             case WEB:
                 return oAuthProperties.getRedirectUris().getWeb();
             default:
-                throw new CustomException(AuthErrorCode.INVALID_CLIENT_PLATFORM);
+                throw new ServiceLogicException(AuthErrorCode.INVALID_CLIENT_PLATFORM);
         }
     }
 }

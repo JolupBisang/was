@@ -9,7 +9,7 @@ import com.jolupbisang.demo.application.summary.dto.SummaryListRes;
 import com.jolupbisang.demo.application.summary.exception.SummaryErrorCode;
 import com.jolupbisang.demo.domain.meeting.Meeting;
 import com.jolupbisang.demo.domain.summary.Summary;
-import com.jolupbisang.demo.global.exception.CustomException;
+import com.jolupbisang.demo.global.exception.ServiceLogicException;
 import com.jolupbisang.demo.infrastructure.audio.client.WhisperClient;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
 import com.jolupbisang.demo.infrastructure.sse.MeetingSseEventType;
@@ -72,8 +72,8 @@ public class SummaryService {
         Meeting meeting;
         try {
             meeting = meetingRepository.findById(meetingId)
-                    .orElseThrow(() -> new CustomException(SummaryErrorCode.MEETING_NOT_FOUND));
-        } catch (CustomException e) {
+                    .orElseThrow(() -> new ServiceLogicException(SummaryErrorCode.MEETING_NOT_FOUND));
+        } catch (ServiceLogicException e) {
             log.error("[Whisper Feedback Error] {}", e.getErrorCode().getMessage(), e);
             return;
         }

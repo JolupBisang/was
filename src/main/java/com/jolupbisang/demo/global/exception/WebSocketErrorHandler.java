@@ -23,7 +23,7 @@ public class WebSocketErrorHandler {
         String errorId = UUID.randomUUID().toString();
         ErrorCode errorCode = resolveErrorCode(exception);
         String clientMessage = errorCode.getMessage();
-        
+
         log.error("[WebSocket Error - ErrorId: {}, Session: {}] ResolvedMessage: {}",
                 errorId, session.getId(), clientMessage, exception);
 
@@ -33,13 +33,13 @@ public class WebSocketErrorHandler {
                 session.sendMessage(new TextMessage(objectMapper.writeValueAsString(socketErrorResponse)));
             } catch (Exception e) {
                 log.error("[WebSocket Send Fail - ErrorId: {}, Session: {}] Failed to send error response to client, SendExMsg: {}",
-                    errorId, session.getId(), exception.getMessage(), e);
+                        errorId, session.getId(), exception.getMessage(), e);
             }
         }
     }
 
     private ErrorCode resolveErrorCode(Throwable exception) {
-        if (exception instanceof CustomException customEx) {
+        if (exception instanceof ServiceLogicException customEx) {
             return customEx.getErrorCode();
         } else if (exception instanceof IOException) {
             return GlobalErrorCode.INTERNAL_SERVER_ERROR;
