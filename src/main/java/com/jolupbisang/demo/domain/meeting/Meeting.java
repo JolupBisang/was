@@ -51,39 +51,39 @@ public class Meeting extends BaseTimeEntity {
         if (!isWaiting()) {
             throw new MeetingNotWaitingStatusException();
         }
-        this.meetingStatus = MeetingStatus.IN_PROGRESS;
-        this.actualProgressTime = new ActualProgressTime(LocalDateTime.now(), null);
+        meetingStatus = MeetingStatus.IN_PROGRESS;
+        actualProgressTime = new ActualProgressTime(LocalDateTime.now(), null);
     }
 
     public void end() {
         if (!isInProgress()) {
             throw new NotProgressingStatusException();
         }
-        this.meetingStatus = MeetingStatus.COMPLETED;
-        this.actualProgressTime = new ActualProgressTime(this.actualProgressTime.getActualStartTime(), LocalDateTime.now());
+        meetingStatus = MeetingStatus.COMPLETED;
+        actualProgressTime = new ActualProgressTime(actualProgressTime.getActualStartTime(), LocalDateTime.now());
     }
 
     public void cancel() {
         if (!isWaiting()) {
             throw new MeetingNotWaitingStatusException();
         }
-        this.meetingStatus = MeetingStatus.CANCELLED;
+        meetingStatus = MeetingStatus.CANCELLED;
     }
 
     public boolean isWaiting() {
-        return this.meetingStatus == MeetingStatus.WAITING;
+        return meetingStatus == MeetingStatus.WAITING;
     }
 
     public boolean isInProgress() {
-        return this.meetingStatus == MeetingStatus.IN_PROGRESS;
+        return meetingStatus == MeetingStatus.IN_PROGRESS;
     }
 
     public boolean isCompleted() {
-        return this.meetingStatus == MeetingStatus.COMPLETED;
+        return meetingStatus == MeetingStatus.COMPLETED;
     }
 
     public boolean isCancelled() {
-        return this.meetingStatus == MeetingStatus.CANCELLED;
+        return meetingStatus == MeetingStatus.CANCELLED;
     }
 
     public void updateMeetingDetails(String title, String location, LocalDateTime scheduledStartTime, int targetTime, int restInterval, int restDuration) {
