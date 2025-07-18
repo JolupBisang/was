@@ -1,8 +1,8 @@
 package com.jolupbisang.demo.application.common;
 
 import com.jolupbisang.demo.application.common.exception.MeetingAccessErrorCode;
-import com.jolupbisang.demo.domain.meeting.Meeting;
-import com.jolupbisang.demo.domain.meeting.MeetingStatus;
+import com.jolupbisang.demo.domain.meeting.entity.Meeting;
+import com.jolupbisang.demo.domain.meeting.entity.MeetingStatus;
 import com.jolupbisang.demo.domain.meetingUser.MeetingUserStatus;
 import com.jolupbisang.demo.global.exception.ServiceLogicException;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;

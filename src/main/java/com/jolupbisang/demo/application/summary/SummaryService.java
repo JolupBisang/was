@@ -7,7 +7,7 @@ import com.jolupbisang.demo.application.event.SummaryReceivedEvent;
 import com.jolupbisang.demo.application.summary.dto.SseSummaryRes;
 import com.jolupbisang.demo.application.summary.dto.SummaryListRes;
 import com.jolupbisang.demo.application.summary.exception.SummaryErrorCode;
-import com.jolupbisang.demo.domain.meeting.Meeting;
+import com.jolupbisang.demo.domain.meeting.entity.Meeting;
 import com.jolupbisang.demo.domain.summary.Summary;
 import com.jolupbisang.demo.global.exception.ServiceLogicException;
 import com.jolupbisang.demo.infrastructure.audio.client.WhisperClient;

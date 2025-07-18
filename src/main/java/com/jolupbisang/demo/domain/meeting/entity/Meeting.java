@@ -1,4 +1,4 @@
-package com.jolupbisang.demo.domain.meeting;
+package com.jolupbisang.demo.domain.meeting.entity;
 
 import com.jolupbisang.demo.domain.common.BaseTimeEntity;
 import com.jolupbisang.demo.domain.meeting.exception.MeetingNotWaitingStatusException;

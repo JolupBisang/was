@@ -1,16 +1,15 @@
-package com.jolupbisang.demo.domain.meeting;
-
-import java.time.LocalDateTime;
-import java.util.List;
+package com.jolupbisang.demo.domain.meeting.entity;
 
 import com.jolupbisang.demo.domain.meeting.exception.ActualProgressTimeOrderException;
 import com.jolupbisang.demo.domain.meeting.exception.EmptyActualStartTimeException;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Embeddable
 @Getter

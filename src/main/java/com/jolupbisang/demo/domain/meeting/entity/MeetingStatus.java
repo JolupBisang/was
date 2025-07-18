@@ -1,4 +1,4 @@
-package com.jolupbisang.demo.domain.meeting;
+package com.jolupbisang.demo.domain.meeting.entity;
 
 import lombok.RequiredArgsConstructor;
 

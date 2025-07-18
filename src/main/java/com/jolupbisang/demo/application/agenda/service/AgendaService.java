@@ -6,7 +6,7 @@ import com.jolupbisang.demo.application.common.MeetingAccessValidator;
 import com.jolupbisang.demo.application.common.MeetingSessionManager;
 import com.jolupbisang.demo.application.event.AgendaChangedEvent;
 import com.jolupbisang.demo.domain.agenda.Agenda;
-import com.jolupbisang.demo.domain.meeting.Meeting;
+import com.jolupbisang.demo.domain.meeting.entity.Meeting;
 import com.jolupbisang.demo.global.exception.ServiceLogicException;
 import com.jolupbisang.demo.infrastructure.agenda.AgendaRepository;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;

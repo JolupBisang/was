@@ -1,6 +1,6 @@
 package com.jolupbisang.demo.presentation.meeting.dto.request;
 
-import com.jolupbisang.demo.domain.meeting.Meeting;
+import com.jolupbisang.demo.domain.meeting.entity.Meeting;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Min;

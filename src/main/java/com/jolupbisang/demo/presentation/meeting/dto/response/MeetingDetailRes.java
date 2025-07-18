@@ -1,6 +1,6 @@
 package com.jolupbisang.demo.presentation.meeting.dto.response;
 
-import com.jolupbisang.demo.domain.meeting.Meeting;
+import com.jolupbisang.demo.domain.meeting.entity.Meeting;
 import com.jolupbisang.demo.domain.user.User;
 
 import java.time.LocalDateTime;

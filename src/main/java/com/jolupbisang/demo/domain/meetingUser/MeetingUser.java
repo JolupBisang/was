@@ -1,6 +1,6 @@
 package com.jolupbisang.demo.domain.meetingUser;
 
-import com.jolupbisang.demo.domain.meeting.Meeting;
+import com.jolupbisang.demo.domain.meeting.entity.Meeting;
 import com.jolupbisang.demo.domain.user.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;

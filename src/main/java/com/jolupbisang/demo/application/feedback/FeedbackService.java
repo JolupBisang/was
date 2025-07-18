@@ -7,7 +7,7 @@ import com.jolupbisang.demo.application.feedback.dto.FeedbackListRes;
 import com.jolupbisang.demo.application.feedback.dto.SseFeedbackRes;
 import com.jolupbisang.demo.application.feedback.exception.FeedbackErrorCode;
 import com.jolupbisang.demo.domain.feedback.Feedback;
-import com.jolupbisang.demo.domain.meeting.Meeting;
+import com.jolupbisang.demo.domain.meeting.entity.Meeting;
 import com.jolupbisang.demo.domain.user.User;
 import com.jolupbisang.demo.global.exception.ServiceLogicException;
 import com.jolupbisang.demo.infrastructure.feedback.FeedbackRepository;

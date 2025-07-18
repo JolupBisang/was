@@ -1,6 +1,6 @@
 package com.jolupbisang.demo.domain.agenda;
 
-import com.jolupbisang.demo.domain.meeting.Meeting;
+import com.jolupbisang.demo.domain.meeting.entity.Meeting;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;

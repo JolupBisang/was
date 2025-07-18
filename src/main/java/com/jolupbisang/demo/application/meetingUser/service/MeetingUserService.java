@@ -2,7 +2,7 @@ package com.jolupbisang.demo.application.meetingUser.service;
 
 import com.jolupbisang.demo.application.common.MeetingAccessValidator;
 import com.jolupbisang.demo.application.meetingUser.exception.MeetingUserErrorCode;
-import com.jolupbisang.demo.domain.meeting.Meeting;
+import com.jolupbisang.demo.domain.meeting.entity.Meeting;
 import com.jolupbisang.demo.domain.meetingUser.MeetingUser;
 import com.jolupbisang.demo.domain.meetingUser.MeetingUserStatus;
 import com.jolupbisang.demo.domain.user.User;

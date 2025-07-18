@@ -7,7 +7,7 @@ import com.jolupbisang.demo.application.event.whisper.WhisperDiarizedEvent;
 import com.jolupbisang.demo.application.participationRate.dto.ParticipationRateHistoryRes;
 import com.jolupbisang.demo.application.participationRate.dto.ParticipationRateRes;
 import com.jolupbisang.demo.application.participationRate.exception.ParticipationRateErrorCode;
-import com.jolupbisang.demo.domain.meeting.Meeting;
+import com.jolupbisang.demo.domain.meeting.entity.Meeting;
 import com.jolupbisang.demo.domain.participationRate.ParticipationRate;
 import com.jolupbisang.demo.domain.user.User;
 import com.jolupbisang.demo.global.exception.ServiceLogicException;

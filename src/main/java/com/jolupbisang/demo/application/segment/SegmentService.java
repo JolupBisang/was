@@ -6,7 +6,7 @@ import com.jolupbisang.demo.application.event.whisper.WhisperDiarizedEvent;
 import com.jolupbisang.demo.application.segment.dto.SegmentListRes;
 import com.jolupbisang.demo.application.segment.dto.SegmentMessage;
 import com.jolupbisang.demo.application.segment.dto.SocketSegmentRes;
-import com.jolupbisang.demo.domain.meeting.Meeting;
+import com.jolupbisang.demo.domain.meeting.entity.Meeting;
 import com.jolupbisang.demo.domain.segment.Segment;
 import com.jolupbisang.demo.domain.user.User;
 import com.jolupbisang.demo.global.config.RabbitMQConfig;
