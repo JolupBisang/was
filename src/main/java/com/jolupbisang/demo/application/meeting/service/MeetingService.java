@@ -134,7 +134,7 @@ public class MeetingService {
     public LocalDateTime getMeetingStartTime(long meetingId) {
         Meeting meeting = meetingRepository.findById(meetingId)
                 .orElseThrow(() -> new ServiceLogicException(MeetingErrorCode.MEETING_NOT_FOUND));
-        return meeting.getActualStartTime();
+        return meeting.getScheduledTime().getScheduledStartTime();
     }
 
     private void saveParticipants(Meeting meeting, User leader, List<String> participantEmails) {

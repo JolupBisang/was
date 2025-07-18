@@ -24,46 +24,35 @@ public class Meeting extends BaseTimeEntity {
     @Column(nullable = false)
     private String location;
 
-    @Column(nullable = false)
-    private LocalDateTime scheduledStartTime;
+    @Embedded
+    private ScheduledTime scheduledTime;
 
-    @Column(nullable = false)
-    private int targetTime;
+    @Embedded
+    private ActualProgressTime actualProgressTime;
 
-    @Column(nullable = false)
-    private int restInterval;
-
-    @Column(nullable = false)
-    private int restDuration;
+    @Embedded
+    private RestTime restTime;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private MeetingStatus meetingStatus;
 
-    private LocalDateTime actualStartTime;
-
-    private LocalDateTime actualEndTime;
-
-    private String recordUrl;
-
     public Meeting(String title, String location, LocalDateTime scheduledStartTime, int targetTime, int restInterval, int restDuration) {
         this.title = title;
         this.location = location;
-        this.scheduledStartTime = scheduledStartTime;
-        this.targetTime = targetTime;
-        this.restInterval = restInterval;
-        this.restDuration = restDuration;
+        this.scheduledTime = new ScheduledTime(scheduledStartTime, scheduledStartTime.plusMinutes(targetTime));
+        this.restTime = new RestTime(restInterval, restDuration);
         this.meetingStatus = MeetingStatus.WAITING;
     }
 
     public void startMeeting() {
         this.meetingStatus = MeetingStatus.IN_PROGRESS;
-        this.actualStartTime = LocalDateTime.now();
+        this.actualProgressTime = new ActualProgressTime(LocalDateTime.now(), null);
     }
 
     public void endMeeting() {
         this.meetingStatus = MeetingStatus.COMPLETED;
-        this.actualEndTime = LocalDateTime.now();
+        this.actualProgressTime = new ActualProgressTime(this.actualProgressTime.getActualStartTime(), LocalDateTime.now());
     }
 
     public void cancelMeeting() {
@@ -89,9 +78,7 @@ public class Meeting extends BaseTimeEntity {
     public void updateMeetingDetails(String title, String location, LocalDateTime scheduledStartTime, int targetTime, int restInterval, int restDuration) {
         this.title = title;
         this.location = location;
-        this.scheduledStartTime = scheduledStartTime;
-        this.targetTime = targetTime;
-        this.restInterval = restInterval;
-        this.restDuration = restDuration;
+        this.scheduledTime = new ScheduledTime(scheduledStartTime, scheduledStartTime.plusMinutes(targetTime));
+        this.restTime = new RestTime(restInterval, restDuration);
     }
 }

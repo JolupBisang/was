@@ -15,8 +15,9 @@ public record MeetingDetailSummary(
                 meeting.getId(),
                 meeting.getTitle(),
                 meeting.getLocation(),
-                meeting.getScheduledStartTime().toString(),
-                meeting.getTargetTime(),
-                meeting.getMeetingStatus().name());
+                meeting.getScheduledTime().getScheduledStartTime().toString(),
+                meeting.getScheduledTime().getTargetTime(),
+                meeting.getMeetingStatus().name()
+        );
     }
 }

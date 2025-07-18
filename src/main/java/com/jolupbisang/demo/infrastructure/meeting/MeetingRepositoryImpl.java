@@ -25,7 +25,7 @@ public class MeetingRepositoryImpl implements MeetingRepositoryCustom {
                                         .from(meetingUser)
                                         .where(meetingUser.user.id.eq(userId)
                                                 .and(meetingUser.status.eq(MeetingUserStatus.ACCEPTED))))
-                        .and(meeting.scheduledStartTime.between(startOfMonth, endOfMonth)))
+                        .and(meeting.scheduledTime.scheduledStartTime.between(startOfMonth, endOfMonth)))
                 .fetch();
     }
 }
