@@ -1,6 +1,8 @@
 package com.jolupbisang.demo.domain.meeting;
 
 import com.jolupbisang.demo.domain.common.BaseTimeEntity;
+import com.jolupbisang.demo.domain.meeting.exception.MeetingNotWaitingStatusException;
+import com.jolupbisang.demo.domain.meeting.exception.NotProgressingStatusException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -45,17 +47,26 @@ public class Meeting extends BaseTimeEntity {
         this.meetingStatus = MeetingStatus.WAITING;
     }
 
-    public void startMeeting() {
+    public void start() {
+        if (!isWaiting()) {
+            throw new MeetingNotWaitingStatusException();
+        }
         this.meetingStatus = MeetingStatus.IN_PROGRESS;
         this.actualProgressTime = new ActualProgressTime(LocalDateTime.now(), null);
     }
 
-    public void endMeeting() {
+    public void end() {
+        if (!isInProgress()) {
+            throw new NotProgressingStatusException();
+        }
         this.meetingStatus = MeetingStatus.COMPLETED;
         this.actualProgressTime = new ActualProgressTime(this.actualProgressTime.getActualStartTime(), LocalDateTime.now());
     }
 
-    public void cancelMeeting() {
+    public void cancel() {
+        if (!isWaiting()) {
+            throw new MeetingNotWaitingStatusException();
+        }
         this.meetingStatus = MeetingStatus.CANCELLED;
     }
 

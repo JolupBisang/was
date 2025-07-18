@@ -161,16 +161,13 @@ public class MeetingService {
 
     private void startMeeting(Meeting meeting, Long meetingId, Long userId) {
         meetingAccessValidator.validateUserIsHost(meetingId, userId);
-        meetingAccessValidator.validateMeetingIsWaiting(meetingId);
-        meeting.startMeeting();
+        meeting.start();
         eventPublisher.publishEvent(new MeetingStartingEvent(this, meetingId));
     }
 
     private void completeMeeting(Meeting meeting, Long meetingId, Long userId) {
         meetingAccessValidator.validateUserIsHost(meetingId, userId);
-        meetingAccessValidator.validateMeetingIsInProgress(meetingId);
-
-        meeting.endMeeting();
+        meeting.end();
         meetingSessionManager.sendTextToParticipants(SocketResponseType.MEETING_COMPLETED, meetingId, "회의가 종료되었습니다.");
 
         eventPublisher.publishEvent(new MeetingCompletedEvent(this, meetingId));
@@ -181,6 +178,6 @@ public class MeetingService {
         if (meeting.getMeetingStatus() != MeetingStatus.WAITING) {
             throw new ServiceLogicException(MeetingErrorCode.MEETING_NOT_WAITING);
         }
-        meeting.cancelMeeting();
+        meeting.cancel();
     }
 }
