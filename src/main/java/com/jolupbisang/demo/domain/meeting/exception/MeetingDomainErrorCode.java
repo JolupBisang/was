@@ -16,7 +16,15 @@ public enum MeetingDomainErrorCode implements ErrorCode {
     ACTUAL_PROGRESS_TIME_ORDER_EXCEPTION("MD-0006", HttpStatus.BAD_REQUEST, "시작시간은 종료시간보다 빨라야합니다."),
     EMPTY_ACTUAL_START_TIME("MD-0007", HttpStatus.BAD_REQUEST, "시작되지 않은 회의 입니다."),
     NOT_WAITING_STATUS("MD-0008", HttpStatus.BAD_REQUEST, "대기상태의 회의가 아닙니다."),
-    NOT_PROGRESSING_STATUS("MD-0009", HttpStatus.BAD_REQUEST, "진행중인 회의가 아닙니다.");
+    NOT_PROGRESSING_STATUS("MD-0009", HttpStatus.BAD_REQUEST, "진행중인 회의가 아닙니다."),
+    EMPTY_TITLE("MD-0010", HttpStatus.BAD_REQUEST, "회의 이름은 필수입니다."),
+    EMPTY_LOCATION("MD-0011", HttpStatus.BAD_REQUEST, "회의 장소는 필수입니다."),
+    NULL_SCHEDULED_TIME("MD-0012", HttpStatus.BAD_REQUEST, "회의 시간은 필수입니다."),
+    NULL_ACTUAL_PROGRESS_TIME("MD-0013", HttpStatus.BAD_REQUEST, "실제 회의 시간 정보는 필수입니다."),
+    NULL_REST_TIME("MD-0014", HttpStatus.BAD_REQUEST, "회의 시는시간 정보는 필수이빈다."),
+    NULL_PARTICIPANTS_LIST("MD-0016", HttpStatus.BAD_REQUEST, "참여자 목록은 필수입니다."),
+    EMPTY_PARTICIPANT_ID("MD-0017", HttpStatus.BAD_REQUEST, "참여자의 정보는 필수입니다."),
+    ;
 
     private final String code;
     private final HttpStatus status;
