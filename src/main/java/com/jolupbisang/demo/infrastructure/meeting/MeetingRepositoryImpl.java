@@ -1,7 +1,7 @@
 package com.jolupbisang.demo.infrastructure.meeting;
 
 import com.jolupbisang.demo.domain.meeting.entity.Meeting;
-import com.jolupbisang.demo.domain.meetingUser.MeetingUserStatus;
+import com.jolupbisang.demo.domain.meeting.entity.MeetingUserStatus;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
