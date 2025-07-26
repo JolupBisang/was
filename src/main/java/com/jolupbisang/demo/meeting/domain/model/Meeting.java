@@ -49,16 +49,16 @@ public class Meeting extends BaseTimeEntity {
     @OneToMany(mappedBy = "meeting", fetch = FetchType.LAZY)
     private List<Agenda> agendas = new ArrayList<>();
 
-    private static final long MEETING_HOST_COUNT = 1L;
+    private static final long MAX_MEETING_HOST_COUNT = 1L;
 
-    public Meeting(String title, String location, ScheduledTime scheduledTime, ActualProgressTime actualProgressTime, RestTime restTime, List<Participant> participants, List<Agenda> agendas) {
+    public Meeting(String title, String location, ScheduledTime scheduledTime, ActualProgressTime actualProgressTime, RestTime restTime, List<ParticipantDetail> participantDetails, List<AgendaDetail> agendaDetails) {
         setTitle(title);
         setLocation(location);
         setScheduledTime(scheduledTime);
         setActualProgressTime(actualProgressTime);
         setRestTime(restTime);
-        setParticipants(participants);
-        setAgenda(agendas);
+        addParticipants(participantDetails);
+        addAgendas(agendaDetails);
         initiateStatus();
     }
 
@@ -108,6 +108,37 @@ public class Meeting extends BaseTimeEntity {
         this.restTime = new RestTime(restInterval, restDuration);
     }
 
+    public void addParticipants(List<ParticipantDetail> participantDetails) {
+        if (participantDetails == null) {
+            throw new NullParticipantsException();
+        }
+
+        List<Participant> originalParticipants = new ArrayList<>(participants);
+
+        try {
+            for (ParticipantDetail detail : participantDetails) {
+                participants.removeIf(p -> p.getUserId().equals(detail.getUserId()));
+                participants.add(new Participant(this, detail.getUserId(), detail.getMeetingRole()));
+            }
+
+            validateHostCount();
+        } catch (TooManyHostException e) {
+            participants.clear();
+            participants.addAll(originalParticipants);
+            throw e;
+        }
+    }
+
+    public void addAgendas(List<AgendaDetail> agendaDetails) {
+        if (agendaDetails == null) {
+            throw new NullAgendaException();
+        }
+        for (AgendaDetail detail : agendaDetails) {
+            Agenda newAgenda = new Agenda(this, detail.getContent());
+            this.agendas.add(newAgenda);
+        }
+    }
+
     private void setTitle(String title) {
         if (title == null || title.isBlank()) {
             throw new EmptyTitleException();
@@ -143,30 +174,18 @@ public class Meeting extends BaseTimeEntity {
         this.restTime = restTime;
     }
 
-    private void setParticipants(List<Participant> participants) {
-        if (participants == null) {
-            throw new NullParticipantsException();
-        }
-
-        long hostCount = participants.stream()
-                .filter(p -> p.getRole() == MeetingRole.HOST)
-                .count();
-
-        if (hostCount != MEETING_HOST_COUNT) {
-            throw new InvalidHostCountException();
-        }
-
-        this.participants.addAll(participants);
-    }
-
     private void initiateStatus() {
         meetingStatus = MeetingStatus.WAITING;
     }
 
-    private void setAgenda(List<Agenda> agendas) {
-        if (agendas == null) {
-            throw new NullAgendaException();
+    private void validateHostCount() {
+        long hostCount = participants.stream()
+                .filter(p -> p.getRole() == MeetingRole.HOST)
+                .count();
+
+        if (hostCount > MAX_MEETING_HOST_COUNT) {
+            throw new TooManyHostException();
         }
-        this.agendas.addAll(agendas);
     }
+
 }
