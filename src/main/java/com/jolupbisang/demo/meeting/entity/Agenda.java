@@ -1,17 +1,14 @@
-package com.jolupbisang.demo.domain.summary;
+package com.jolupbisang.demo.meeting.entity;
 
-import com.jolupbisang.demo.meeting.entity.Meeting;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Summary {
+public class Agenda {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,14 +20,19 @@ public class Summary {
 
     private String content;
 
-    private boolean isRecap;
+    private Boolean isCompleted;
 
-    private LocalDateTime timestamp;
-
-    public Summary(Meeting meeting, String content, boolean isRecap, LocalDateTime timestamp) {
+    public Agenda(Meeting meeting, String content) {
         this.meeting = meeting;
         this.content = content;
-        this.isRecap = isRecap;
-        this.timestamp = timestamp;
+        this.isCompleted = false;
+    }
+
+    public void setIsCompleted(boolean isCompleted) {
+        this.isCompleted = isCompleted;
+    }
+
+    public void updateContent(String content) {
+        this.content = content;
     }
 }

@@ -7,19 +7,15 @@ import com.jolupbisang.demo.application.event.MeetingCompletedEvent;
 import com.jolupbisang.demo.application.event.MeetingStartingEvent;
 import com.jolupbisang.demo.application.meeting.dto.MeetingDetailSummary;
 import com.jolupbisang.demo.application.meeting.exception.MeetingErrorCode;
-import com.jolupbisang.demo.domain.agenda.Agenda;
-import com.jolupbisang.demo.domain.meeting.entity.Meeting;
-import com.jolupbisang.demo.domain.meeting.entity.MeetingStatus;
-import com.jolupbisang.demo.domain.meeting.entity.MeetingUser;
-import com.jolupbisang.demo.domain.meeting.entity.MeetingUserStatus;
 import com.jolupbisang.demo.domain.user.User;
 import com.jolupbisang.demo.global.exception.ServiceLogicException;
 import com.jolupbisang.demo.infrastructure.agenda.AgendaRepository;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
 import com.jolupbisang.demo.infrastructure.meetingUser.MeetingUserRepository;
 import com.jolupbisang.demo.infrastructure.user.UserRepository;
+import com.jolupbisang.demo.meeting.entity.Meeting;
+import com.jolupbisang.demo.meeting.entity.MeetingStatus;
 import com.jolupbisang.demo.presentation.audio.dto.response.SocketResponseType;
-import com.jolupbisang.demo.presentation.meeting.dto.request.MeetingReq;
 import com.jolupbisang.demo.presentation.meeting.dto.request.MeetingUpdateReq;
 import com.jolupbisang.demo.presentation.meeting.dto.response.MeetingDetailRes;
 import lombok.RequiredArgsConstructor;
@@ -46,20 +42,6 @@ public class MeetingService {
 
     private final ObjectMapper objectMapper;
     private final ApplicationEventPublisher eventPublisher;
-
-    @Transactional
-    public Long createMeeting(MeetingReq meetingReq, Long userId) {
-        User leader = userRepository.findById(userId)
-                .orElseThrow(() -> new ServiceLogicException(MeetingErrorCode.USER_NOT_FOUND));
-
-        Meeting meeting = meetingReq.toEntity();
-        meetingRepository.save(meeting);
-
-        saveParticipants(meeting, leader, meetingReq.participants());
-        saveAgendas(meeting, meetingReq.agendas());
-
-        return meeting.getId();
-    }
 
     @Transactional(readOnly = true)
     public MeetingDetailRes getMeetingDetail(Long meetingId, Long userId) {
@@ -135,28 +117,6 @@ public class MeetingService {
         Meeting meeting = meetingRepository.findById(meetingId)
                 .orElseThrow(() -> new ServiceLogicException(MeetingErrorCode.MEETING_NOT_FOUND));
         return meeting.getScheduledTime().getScheduledStartTime();
-    }
-
-    private void saveParticipants(Meeting meeting, User leader, List<String> participantEmails) {
-        meetingUserRepository.save(new MeetingUser(meeting, leader, true, MeetingUserStatus.ACCEPTED));
-
-        if (participantEmails != null && !participantEmails.isEmpty()) {
-            participantEmails = participantEmails.stream().distinct().collect(Collectors.toList());
-            List<User> participants = userRepository.findByEmailIn(participantEmails);
-            List<MeetingUser> meetingUsers = participants.stream()
-                    .map(participant -> new MeetingUser(meeting, participant, false, MeetingUserStatus.ACCEPTED))
-                    .toList();
-            meetingUserRepository.saveAll(meetingUsers);
-        }
-    }
-
-    private void saveAgendas(Meeting meeting, List<String> agendaContents) {
-        if (agendaContents != null && !agendaContents.isEmpty()) {
-            List<Agenda> agendas = agendaContents.stream()
-                    .map(content -> new Agenda(meeting, content))
-                    .toList();
-            agendaRepository.saveAll(agendas);
-        }
     }
 
     private void startMeeting(Meeting meeting, Long meetingId, Long userId) {

@@ -1,7 +1,7 @@
 package com.jolupbisang.demo.infrastructure.meetingUser;
 
-import com.jolupbisang.demo.domain.meeting.entity.MeetingUser;
-import com.jolupbisang.demo.domain.meeting.entity.MeetingUserStatus;
+import com.jolupbisang.demo.meeting.entity.MeetingUser;
+import com.jolupbisang.demo.meeting.entity.ParticipantStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface MeetingUserRepository extends JpaRepository<MeetingUser, Long>, MeetingUserRepositoryCustom {
-    boolean existsByMeetingIdAndUserIdAndStatusIn(Long meetingId, Long userId, MeetingUserStatus... statuses);
+    boolean existsByMeetingIdAndUserIdAndStatusIn(Long meetingId, Long userId, ParticipantStatus... statuses);
 
     boolean existsByMeetingIdAndUserIdAndIsHost(Long meetingId, Long userId, boolean isLeader);
 

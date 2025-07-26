@@ -7,7 +7,6 @@ import com.jolupbisang.demo.application.event.whisper.WhisperDiarizedEvent;
 import com.jolupbisang.demo.application.participationRate.dto.ParticipationRateHistoryRes;
 import com.jolupbisang.demo.application.participationRate.dto.ParticipationRateRes;
 import com.jolupbisang.demo.application.participationRate.exception.ParticipationRateErrorCode;
-import com.jolupbisang.demo.domain.meeting.entity.Meeting;
 import com.jolupbisang.demo.domain.participationRate.ParticipationRate;
 import com.jolupbisang.demo.domain.user.User;
 import com.jolupbisang.demo.global.exception.ServiceLogicException;
@@ -18,6 +17,7 @@ import com.jolupbisang.demo.infrastructure.participationRate.RealTimeParticipati
 import com.jolupbisang.demo.infrastructure.sse.MeetingSseEventType;
 import com.jolupbisang.demo.infrastructure.sse.MeetingSseService;
 import com.jolupbisang.demo.infrastructure.user.UserRepository;
+import com.jolupbisang.demo.meeting.entity.Meeting;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

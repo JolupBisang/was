@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-import static com.jolupbisang.demo.domain.meetingUser.QMeetingUser.meetingUser;
+import static com.jolupbisang.demo.domain.meeting.entity.QMeetingUser.meetingUser;
 import static com.jolupbisang.demo.domain.user.QUser.user;
 
 @Repository

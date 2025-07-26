@@ -1,12 +1,12 @@
 package com.jolupbisang.demo.application.common;
 
 import com.jolupbisang.demo.application.common.exception.MeetingAccessErrorCode;
-import com.jolupbisang.demo.domain.meeting.entity.Meeting;
-import com.jolupbisang.demo.domain.meeting.entity.MeetingStatus;
-import com.jolupbisang.demo.domain.meeting.entity.MeetingUserStatus;
 import com.jolupbisang.demo.global.exception.ServiceLogicException;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
 import com.jolupbisang.demo.infrastructure.meetingUser.MeetingUserRepository;
+import com.jolupbisang.demo.meeting.entity.Meeting;
+import com.jolupbisang.demo.meeting.entity.MeetingStatus;
+import com.jolupbisang.demo.meeting.entity.ParticipantStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
@@ -32,7 +32,7 @@ public class MeetingAccessValidator {
 
     @Cacheable(value = "userParticipating", key = "{#meetingId, #userId}")
     public void validateUserParticipating(Long meetingId, Long userId) {
-        boolean isParticipant = meetingUserRepository.existsByMeetingIdAndUserIdAndStatusIn(meetingId, userId, MeetingUserStatus.ACCEPTED);
+        boolean isParticipant = meetingUserRepository.existsByMeetingIdAndUserIdAndStatusIn(meetingId, userId, ParticipantStatus.ACCEPTED);
 
         if (!isParticipant) {
             throw new ServiceLogicException(MeetingAccessErrorCode.NOT_PARTICIPANT);

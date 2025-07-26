@@ -2,14 +2,14 @@ package com.jolupbisang.demo.application.meetingUser.service;
 
 import com.jolupbisang.demo.application.common.MeetingAccessValidator;
 import com.jolupbisang.demo.application.meetingUser.exception.MeetingUserErrorCode;
-import com.jolupbisang.demo.domain.meeting.entity.Meeting;
-import com.jolupbisang.demo.domain.meeting.entity.MeetingUser;
-import com.jolupbisang.demo.domain.meeting.entity.MeetingUserStatus;
 import com.jolupbisang.demo.domain.user.User;
 import com.jolupbisang.demo.global.exception.ServiceLogicException;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
 import com.jolupbisang.demo.infrastructure.meetingUser.MeetingUserRepository;
 import com.jolupbisang.demo.infrastructure.user.UserRepository;
+import com.jolupbisang.demo.meeting.entity.Meeting;
+import com.jolupbisang.demo.meeting.entity.MeetingUser;
+import com.jolupbisang.demo.meeting.entity.ParticipantStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -50,7 +50,7 @@ public class MeetingUserService {
 
         List<MeetingUser> newMeetingUsers = userRepository.findByEmailIn(newEmails)
                 .stream()
-                .map(user -> new MeetingUser(meeting, user, false, MeetingUserStatus.ACCEPTED))
+                .map(user -> new MeetingUser(meeting, user, false, ParticipantStatus.ACCEPTED))
                 .toList();
 
         meetingUserRepository.saveAll(newMeetingUsers);

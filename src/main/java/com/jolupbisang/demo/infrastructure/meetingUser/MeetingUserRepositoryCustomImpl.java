@@ -6,8 +6,8 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
-import static com.jolupbisang.demo.domain.meetingUser.QMeetingUser.*;
-import static com.jolupbisang.demo.domain.user.QUser.*;
+import static com.jolupbisang.demo.domain.meeting.entity.QMeetingUser.meetingUser;
+import static com.jolupbisang.demo.domain.user.QUser.user;
 
 @RequiredArgsConstructor
 public class MeetingUserRepositoryCustomImpl implements MeetingUserRepositoryCustom {
@@ -17,9 +17,9 @@ public class MeetingUserRepositoryCustomImpl implements MeetingUserRepositoryCus
     @Override
     public List<User> findParticipantsByMeetingId(Long meetingId) {
         return jpaQueryFactory.select(user)
-            .from(meetingUser)
-            .innerJoin(meetingUser.user, user)
-            .where(meetingUser.meeting.id.eq(meetingId))
-            .fetch();
+                .from(meetingUser)
+                .innerJoin(meetingUser.user, user)
+                .where(meetingUser.meeting.id.eq(meetingId))
+                .fetch();
     }
 }

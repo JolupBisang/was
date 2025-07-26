@@ -1,7 +1,7 @@
 package com.jolupbisang.demo.infrastructure.meeting;
 
-import com.jolupbisang.demo.domain.meeting.entity.Meeting;
-import com.jolupbisang.demo.domain.meeting.entity.MeetingUserStatus;
+import com.jolupbisang.demo.meeting.entity.Meeting;
+import com.jolupbisang.demo.meeting.entity.ParticipantStatus;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -9,8 +9,9 @@ import lombok.RequiredArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static com.jolupbisang.demo.domain.meeting.QMeeting.meeting;
-import static com.jolupbisang.demo.domain.meetingUser.QMeetingUser.meetingUser;
+import static com.jolupbisang.demo.domain.meeting.entity.QMeeting.meeting;
+import static com.jolupbisang.demo.domain.meeting.entity.QMeetingUser.meetingUser;
+
 
 @RequiredArgsConstructor
 public class MeetingRepositoryImpl implements MeetingRepositoryCustom {
@@ -24,7 +25,7 @@ public class MeetingRepositoryImpl implements MeetingRepositoryCustom {
                                 JPAExpressions.select(meetingUser.meeting.id)
                                         .from(meetingUser)
                                         .where(meetingUser.user.id.eq(userId)
-                                                .and(meetingUser.status.eq(MeetingUserStatus.ACCEPTED))))
+                                                .and(meetingUser.status.eq(ParticipantStatus.ACCEPTED))))
                         .and(meeting.scheduledTime.scheduledStartTime.between(startOfMonth, endOfMonth)))
                 .fetch();
     }

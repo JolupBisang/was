@@ -1,6 +1,6 @@
 package com.jolupbisang.demo.infrastructure.agenda;
 
-import com.jolupbisang.demo.domain.agenda.Agenda;
+import com.jolupbisang.demo.meeting.entity.Agenda;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.Optional;
 
 import static com.jolupbisang.demo.domain.agenda.QAgenda.agenda;
-import static com.jolupbisang.demo.domain.meetingUser.QMeetingUser.meetingUser;
+import static com.jolupbisang.demo.domain.meeting.entity.QMeetingUser.meetingUser;
 
 @RequiredArgsConstructor
 public class AgendaRepositoryImpl implements AgendaRepositoryCustom {

@@ -27,7 +27,8 @@ public class MeetingController implements MeetingControllerApi {
     @PostMapping
     public ResponseEntity<?> createMeeting(@Valid @RequestBody MeetingReq meetingReq,
                                            @AuthenticationPrincipal CustomUserDetails userDetails) {
-        MeetingCreationRes response = MeetingCreationRes.of(meetingService.createMeeting(meetingReq, userDetails.getUserId()));
+//        MeetingCreationRes response = MeetingCreationRes.of(meetingService.createMeeting(meetingReq, userDetails.getUserId()));
+        MeetingCreationRes response = null;
 
         return ResponseEntity.status(HttpStatus.CREATED).body(SuccessResponse.of("회의 생성 성공", response));
     }
