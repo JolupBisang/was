@@ -1,4 +1,4 @@
-package com.jolupbisang.demo.meeting.entity;
+package com.jolupbisang.demo.meeting.domain.model;
 
 import com.jolupbisang.demo.domain.user.User;
 import jakarta.persistence.*;

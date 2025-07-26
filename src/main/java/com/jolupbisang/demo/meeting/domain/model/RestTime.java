@@ -1,7 +1,7 @@
-package com.jolupbisang.demo.meeting.entity;
+package com.jolupbisang.demo.meeting.domain.model;
 
-import com.jolupbisang.demo.meeting.exception.MinimumRestDurationException;
-import com.jolupbisang.demo.meeting.exception.MinimumRestIntervalException;
+import com.jolupbisang.demo.meeting.domain.exception.MinimumRestDurationException;
+import com.jolupbisang.demo.meeting.domain.exception.MinimumRestIntervalException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;

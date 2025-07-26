@@ -14,7 +14,7 @@ import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
 import com.jolupbisang.demo.infrastructure.sse.MeetingSseEventType;
 import com.jolupbisang.demo.infrastructure.sse.MeetingSseService;
 import com.jolupbisang.demo.infrastructure.summary.SummaryRepository;
-import com.jolupbisang.demo.meeting.entity.Meeting;
+import com.jolupbisang.demo.meeting.domain.model.Meeting;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;

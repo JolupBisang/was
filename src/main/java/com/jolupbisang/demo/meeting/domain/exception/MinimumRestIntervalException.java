@@ -1,4 +1,4 @@
-package com.jolupbisang.demo.meeting.exception;
+package com.jolupbisang.demo.meeting.domain.exception;
 
 import com.jolupbisang.demo.global.exception.BusinessException;
 

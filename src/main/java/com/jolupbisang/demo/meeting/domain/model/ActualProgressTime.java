@@ -1,7 +1,7 @@
-package com.jolupbisang.demo.meeting.entity;
+package com.jolupbisang.demo.meeting.domain.model;
 
-import com.jolupbisang.demo.meeting.exception.ActualProgressTimeOrderException;
-import com.jolupbisang.demo.meeting.exception.EmptyActualStartTimeException;
+import com.jolupbisang.demo.meeting.domain.exception.ActualProgressTimeOrderException;
+import com.jolupbisang.demo.meeting.domain.exception.EmptyActualStartTimeException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.Getter;

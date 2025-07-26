@@ -1,6 +1,6 @@
 package com.jolupbisang.demo.infrastructure.agenda;
 
-import com.jolupbisang.demo.meeting.entity.Agenda;
+import com.jolupbisang.demo.meeting.domain.model.Agenda;
 
 import java.util.Optional;
 

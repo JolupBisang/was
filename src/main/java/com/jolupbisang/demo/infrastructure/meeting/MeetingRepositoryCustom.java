@@ -1,6 +1,6 @@
 package com.jolupbisang.demo.infrastructure.meeting;
 
-import com.jolupbisang.demo.meeting.entity.Meeting;
+import com.jolupbisang.demo.meeting.domain.model.Meeting;
 
 import java.time.LocalDateTime;
 import java.util.List;

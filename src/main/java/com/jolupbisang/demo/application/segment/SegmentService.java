@@ -14,7 +14,7 @@ import com.jolupbisang.demo.infrastructure.audio.client.dto.response.DiarizedRes
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
 import com.jolupbisang.demo.infrastructure.segment.SegmentRepository;
 import com.jolupbisang.demo.infrastructure.user.UserRepository;
-import com.jolupbisang.demo.meeting.entity.Meeting;
+import com.jolupbisang.demo.meeting.domain.model.Meeting;
 import com.jolupbisang.demo.presentation.audio.dto.response.SocketResponseType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

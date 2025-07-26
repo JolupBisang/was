@@ -1,8 +1,8 @@
-package com.jolupbisang.demo.meeting.entity;
+package com.jolupbisang.demo.meeting.domain.model;
 
-import com.jolupbisang.demo.meeting.exception.EmptyEndTimeException;
-import com.jolupbisang.demo.meeting.exception.EndTimeBeforeStartTimeException;
-import com.jolupbisang.demo.meeting.exception.StartTimeNullException;
+import com.jolupbisang.demo.meeting.domain.exception.EmptyEndTimeException;
+import com.jolupbisang.demo.meeting.domain.exception.EndTimeBeforeStartTimeException;
+import com.jolupbisang.demo.meeting.domain.exception.StartTimeNullException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;

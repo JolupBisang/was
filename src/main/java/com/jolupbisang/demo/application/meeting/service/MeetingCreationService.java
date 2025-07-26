@@ -1,7 +1,7 @@
 package com.jolupbisang.demo.application.meeting.service;
 
 import com.jolupbisang.demo.application.meeting.exception.MeetingErrorCode;
-import com.jolupbisang.demo.meeting.entity.*;
+import com.jolupbisang.demo.meeting.domain.model.*;
 import com.jolupbisang.demo.domain.user.User;
 import com.jolupbisang.demo.global.exception.ServiceLogicException;
 import com.jolupbisang.demo.infrastructure.agenda.AgendaRepository;

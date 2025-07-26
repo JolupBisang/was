@@ -1,7 +1,7 @@
 package com.jolupbisang.demo.domain.feedback;
 
 import com.jolupbisang.demo.domain.user.User;
-import com.jolupbisang.demo.meeting.entity.Meeting;
+import com.jolupbisang.demo.meeting.domain.model.Meeting;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;

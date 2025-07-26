@@ -1,6 +1,6 @@
-package com.jolupbisang.demo.meeting.entity;
+package com.jolupbisang.demo.meeting.domain.model;
 
-import com.jolupbisang.demo.meeting.exception.EmptyParticipantIdException;
+import com.jolupbisang.demo.meeting.domain.exception.EmptyParticipantIdException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;

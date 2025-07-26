@@ -17,7 +17,7 @@ import com.jolupbisang.demo.infrastructure.participationRate.RealTimeParticipati
 import com.jolupbisang.demo.infrastructure.sse.MeetingSseEventType;
 import com.jolupbisang.demo.infrastructure.sse.MeetingSseService;
 import com.jolupbisang.demo.infrastructure.user.UserRepository;
-import com.jolupbisang.demo.meeting.entity.Meeting;
+import com.jolupbisang.demo.meeting.domain.model.Meeting;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

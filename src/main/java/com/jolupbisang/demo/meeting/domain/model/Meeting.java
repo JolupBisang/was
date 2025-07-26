@@ -1,7 +1,7 @@
-package com.jolupbisang.demo.meeting.entity;
+package com.jolupbisang.demo.meeting.domain.model;
 
 import com.jolupbisang.demo.domain.common.BaseTimeEntity;
-import com.jolupbisang.demo.meeting.exception.*;
+import com.jolupbisang.demo.meeting.domain.exception.*;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
