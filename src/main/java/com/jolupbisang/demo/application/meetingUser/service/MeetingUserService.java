@@ -2,14 +2,14 @@ package com.jolupbisang.demo.application.meetingUser.service;
 
 import com.jolupbisang.demo.application.common.MeetingAccessValidator;
 import com.jolupbisang.demo.application.meetingUser.exception.MeetingUserErrorCode;
+import com.jolupbisang.demo.domain.meeting.model.Meeting;
+import com.jolupbisang.demo.domain.meeting.model.MeetingUser;
+import com.jolupbisang.demo.domain.meeting.model.ParticipantStatus;
 import com.jolupbisang.demo.domain.user.User;
 import com.jolupbisang.demo.global.exception.ServiceLogicException;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
 import com.jolupbisang.demo.infrastructure.meetingUser.MeetingUserRepository;
 import com.jolupbisang.demo.infrastructure.user.UserRepository;
-import com.jolupbisang.demo.meeting.domain.model.Meeting;
-import com.jolupbisang.demo.meeting.domain.model.MeetingUser;
-import com.jolupbisang.demo.meeting.domain.model.ParticipantStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

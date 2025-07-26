@@ -1,21 +1,19 @@
-package com.jolupbisang.demo.domain.feedback;
+package com.jolupbisang.demo.domain.meeting.model;
 
-import com.jolupbisang.demo.domain.meeting.model.Meeting;
 import com.jolupbisang.demo.domain.user.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Entity
-@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Feedback {
+@Getter
+public class MeetingUser {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "meeting_user_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -26,14 +24,15 @@ public class Feedback {
     @JoinColumn(name = "user_id")
     private User user;
 
-    private String comment;
+    private boolean isHost;
 
-    private LocalDateTime timestamp;
+    @Enumerated(EnumType.STRING)
+    private ParticipantStatus status;
 
-    public Feedback(Meeting meeting, User user, String comment, LocalDateTime timestamp) {
+    public MeetingUser(Meeting meeting, User user, boolean isHost, ParticipantStatus status) {
         this.meeting = meeting;
         this.user = user;
-        this.comment = comment;
-        this.timestamp = timestamp;
+        this.isHost = isHost;
+        this.status = status;
     }
 }

@@ -1,6 +1,6 @@
 package com.jolupbisang.demo.infrastructure.agenda;
 
-import com.jolupbisang.demo.meeting.domain.model.Agenda;
+import com.jolupbisang.demo.domain.meeting.model.Agenda;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

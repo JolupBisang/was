@@ -1,6 +1,6 @@
 package com.jolupbisang.demo.application.agenda.dto;
 
-import com.jolupbisang.demo.meeting.domain.model.Agenda;
+import com.jolupbisang.demo.domain.meeting.model.Agenda;
 
 public record AgendaDetail(
         Long agendaId,

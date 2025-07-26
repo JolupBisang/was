@@ -1,12 +1,12 @@
 package com.jolupbisang.demo.application.common;
 
 import com.jolupbisang.demo.application.common.exception.MeetingAccessErrorCode;
+import com.jolupbisang.demo.domain.meeting.model.Meeting;
+import com.jolupbisang.demo.domain.meeting.model.MeetingStatus;
+import com.jolupbisang.demo.domain.meeting.model.ParticipantStatus;
 import com.jolupbisang.demo.global.exception.ServiceLogicException;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
 import com.jolupbisang.demo.infrastructure.meetingUser.MeetingUserRepository;
-import com.jolupbisang.demo.meeting.domain.model.Meeting;
-import com.jolupbisang.demo.meeting.domain.model.MeetingStatus;
-import com.jolupbisang.demo.meeting.domain.model.ParticipantStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;

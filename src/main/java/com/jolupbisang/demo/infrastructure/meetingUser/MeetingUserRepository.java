@@ -1,7 +1,7 @@
 package com.jolupbisang.demo.infrastructure.meetingUser;
 
-import com.jolupbisang.demo.meeting.domain.model.MeetingUser;
-import com.jolupbisang.demo.meeting.domain.model.ParticipantStatus;
+import com.jolupbisang.demo.domain.meeting.model.MeetingUser;
+import com.jolupbisang.demo.domain.meeting.model.ParticipantStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

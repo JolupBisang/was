@@ -6,6 +6,7 @@ import com.jolupbisang.demo.application.event.whisper.WhisperDiarizedEvent;
 import com.jolupbisang.demo.application.segment.dto.SegmentListRes;
 import com.jolupbisang.demo.application.segment.dto.SegmentMessage;
 import com.jolupbisang.demo.application.segment.dto.SocketSegmentRes;
+import com.jolupbisang.demo.domain.meeting.model.Meeting;
 import com.jolupbisang.demo.domain.segment.Segment;
 import com.jolupbisang.demo.domain.user.User;
 import com.jolupbisang.demo.global.config.RabbitMQConfig;
@@ -14,7 +15,6 @@ import com.jolupbisang.demo.infrastructure.audio.client.dto.response.DiarizedRes
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
 import com.jolupbisang.demo.infrastructure.segment.SegmentRepository;
 import com.jolupbisang.demo.infrastructure.user.UserRepository;
-import com.jolupbisang.demo.meeting.domain.model.Meeting;
 import com.jolupbisang.demo.presentation.audio.dto.response.SocketResponseType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

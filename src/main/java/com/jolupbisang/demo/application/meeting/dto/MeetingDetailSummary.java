@@ -1,6 +1,6 @@
 package com.jolupbisang.demo.application.meeting.dto;
 
-import com.jolupbisang.demo.meeting.domain.model.Meeting;
+import com.jolupbisang.demo.domain.meeting.model.Meeting;
 
 public record MeetingDetailSummary(
         Long id,
