@@ -18,12 +18,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Meeting extends BaseTimeEntity {
-    /**
-     * 회원초대 -> 초대디비에 반영 -> 초대 이메일보내
-     * meeting.addPArticipant
-     * email.sendInivitation
-     * application -> repository -> meeting -> validator(meeting) repository.save(meetingUSer)
-     */
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "meeting_id")
@@ -53,6 +48,8 @@ public class Meeting extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "meeting", fetch = FetchType.LAZY)
     private List<Agenda> agendas = new ArrayList<>();
+
+    private static final long MEETING_HOST_COUNT = 1L;
 
     public Meeting(String title, String location, ScheduledTime scheduledTime, ActualProgressTime actualProgressTime, RestTime restTime, List<Participant> participants, List<Agenda> agendas) {
         setTitle(title);
@@ -150,6 +147,15 @@ public class Meeting extends BaseTimeEntity {
         if (participants == null) {
             throw new NullParticipantsException();
         }
+
+        long hostCount = participants.stream()
+                .filter(p -> p.getRole() == MeetingRole.HOST)
+                .count();
+
+        if (hostCount != MEETING_HOST_COUNT) {
+            throw new InvalidHostCountException();
+        }
+
         this.participants.addAll(participants);
     }
 

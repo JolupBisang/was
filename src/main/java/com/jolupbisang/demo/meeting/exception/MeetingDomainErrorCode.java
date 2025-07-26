@@ -24,7 +24,8 @@ public enum MeetingDomainErrorCode implements ErrorCode {
     NULL_REST_TIME("MD-0014", HttpStatus.BAD_REQUEST, "회의 시는시간 정보는 필수이빈다."),
     NULL_PARTICIPANTS_LIST("MD-0016", HttpStatus.BAD_REQUEST, "참여자 목록은 필수입니다."),
     EMPTY_PARTICIPANT_ID("MD-0017", HttpStatus.BAD_REQUEST, "참여자의 정보는 필수입니다."),
-    NULL_AGENDA_LIST("MD-0018", HttpStatus.BAD_REQUEST, "아젠다 목록은 필수입니다.");
+    NULL_AGENDA_LIST("MD-0018", HttpStatus.BAD_REQUEST, "아젠다 목록은 필수입니다."),
+    INVALID_HOST_COUNT("MD-0019", HttpStatus.BAD_REQUEST, "회의 메인 호스트는 한명이어야 합니다.");
 
     private final String code;
     private final HttpStatus status;
