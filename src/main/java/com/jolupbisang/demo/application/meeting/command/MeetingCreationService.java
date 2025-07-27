@@ -1,6 +1,7 @@
 package com.jolupbisang.demo.application.meeting.command;
 
 import com.jolupbisang.demo.application.meeting.command.dto.MeetingCreationReq;
+import com.jolupbisang.demo.application.meeting.command.dto.MeetingCreationRes;
 import com.jolupbisang.demo.application.user.exception.UserNotFoundException;
 import com.jolupbisang.demo.domain.meeting.model.*;
 import com.jolupbisang.demo.domain.user.User;
@@ -22,7 +23,7 @@ public class MeetingCreationService {
     private final UserRepository userRepository;
 
     @Transactional
-    public long create(MeetingCreationReq meetingCreationReq, long hostId) {
+    public MeetingCreationRes create(MeetingCreationReq meetingCreationReq, long hostId) {
         User host = userRepository.findById(hostId)
                 .orElseThrow(() -> new UserNotFoundException(List.of(hostId)));
 
@@ -30,7 +31,7 @@ public class MeetingCreationService {
         Meeting meeting = createMeeting(host, participants, meetingCreationReq);
         meetingRepository.save(meeting);
 
-        return meeting.getId();
+        return MeetingCreationRes.of(meeting.getId());
 
     }
 
