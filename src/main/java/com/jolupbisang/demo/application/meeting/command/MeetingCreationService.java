@@ -1,4 +1,4 @@
-package com.jolupbisang.demo.application.meeting.command.service;
+package com.jolupbisang.demo.application.meeting.command;
 
 import com.jolupbisang.demo.application.meeting.command.dto.MeetingCreationReq;
 import com.jolupbisang.demo.application.user.exception.UserNotFoundException;

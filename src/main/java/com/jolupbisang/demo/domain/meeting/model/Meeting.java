@@ -139,6 +139,11 @@ public class Meeting extends BaseTimeEntity {
         }
     }
 
+    public boolean isParticipant(long userId) {
+        return participants.stream()
+                .anyMatch(p -> p.getUserId().equals(userId));
+    }
+
     private void setTitle(String title) {
         if (title == null || title.isBlank()) {
             throw new EmptyTitleException();
@@ -188,4 +193,8 @@ public class Meeting extends BaseTimeEntity {
         }
     }
 
+    public boolean isHost(long userId) {
+        return participants.stream()
+                .anyMatch(p -> p.getUserId().equals(userId) && p.getRole() == MeetingRole.HOST);
+    }
 }

@@ -3,12 +3,10 @@ package com.jolupbisang.demo.presentation.meeting;
 import com.jolupbisang.demo.application.meeting.service.MeetingService;
 import com.jolupbisang.demo.global.response.SuccessResponse;
 import com.jolupbisang.demo.infrastructure.auth.security.CustomUserDetails;
-import com.jolupbisang.demo.presentation.meeting.api.MeetingControllerApi;
 import com.jolupbisang.demo.presentation.meeting.dto.request.MeetingReq;
 import com.jolupbisang.demo.presentation.meeting.dto.request.MeetingStatusUpdateReq;
 import com.jolupbisang.demo.presentation.meeting.dto.request.MeetingUpdateReq;
 import com.jolupbisang.demo.presentation.meeting.dto.response.MeetingCreationRes;
-import com.jolupbisang.demo.presentation.meeting.dto.response.MeetingDetailRes;
 import com.jolupbisang.demo.presentation.meeting.dto.response.MeetingDetailSummaryRes;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/meetings")
-public class MeetingController implements MeetingControllerApi {
+public class MeetingController {
 
     private final MeetingService meetingService;
 
@@ -33,14 +31,6 @@ public class MeetingController implements MeetingControllerApi {
         return ResponseEntity.status(HttpStatus.CREATED).body(SuccessResponse.of("회의 생성 성공", response));
     }
 
-    @GetMapping("/{meetingId}")
-    public ResponseEntity<?> getMeetingDetail(@PathVariable Long meetingId,
-                                              @AuthenticationPrincipal CustomUserDetails userDetails) {
-
-        MeetingDetailRes meetingDetail = meetingService.getMeetingDetail(meetingId, userDetails.getUserId());
-
-        return ResponseEntity.ok(SuccessResponse.of("회의 조회 성공", meetingDetail));
-    }
 
     @GetMapping
     public ResponseEntity<?> getMeetings(@RequestParam("year") Integer year,

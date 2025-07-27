@@ -1,11 +1,9 @@
-package com.jolupbisang.demo.presentation.meeting.dto.response;
+package com.jolupbisang.demo.application.meeting.query.dto;
 
 import com.jolupbisang.demo.domain.meeting.model.Meeting;
-import com.jolupbisang.demo.domain.user.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public record MeetingDetailRes(
         Long meetingId,
@@ -16,11 +14,11 @@ public record MeetingDetailRes(
         Integer restInterval,
         Integer restDuration,
         String meetingStatus,
-        List<Participant> participants,
+        List<ParticipantInfoRes> participants,
         boolean isHost
 ) {
 
-    public static MeetingDetailRes fromEntity(Meeting meeting, List<User> participants, boolean isHost) {
+    public static MeetingDetailRes from(Meeting meeting, List<ParticipantInfoRes> participantInfos, boolean isHost) {
         return new MeetingDetailRes(
                 meeting.getId(),
                 meeting.getTitle(),
@@ -30,17 +28,8 @@ public record MeetingDetailRes(
                 meeting.getRestTime().getRestInterval(),
                 meeting.getRestTime().getRestDuration(),
                 meeting.getMeetingStatus().name(),
-                participants.stream().map(Participant::fromEntity).collect(Collectors.toList()),
+                participantInfos,
                 isHost
         );
-    }
-
-    public record Participant(
-            Long userId,
-            String email
-    ) {
-        public static Participant fromEntity(User user) {
-            return new Participant(user.getId(), user.getEmail());
-        }
     }
 }
