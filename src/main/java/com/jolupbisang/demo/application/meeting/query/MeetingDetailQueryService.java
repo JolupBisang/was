@@ -1,7 +1,6 @@
 package com.jolupbisang.demo.application.meeting.query;
 
 import com.jolupbisang.demo.application.meeting.exception.MeetingNotFoundException;
-import com.jolupbisang.demo.application.meeting.exception.NotParticipantException;
 import com.jolupbisang.demo.application.meeting.query.dto.MeetingDetailRes;
 import com.jolupbisang.demo.application.meeting.query.dto.ParticipantInfoRes;
 import com.jolupbisang.demo.domain.meeting.model.Meeting;
@@ -31,9 +30,7 @@ public class MeetingDetailQueryService {
         Meeting meeting = meetingRepository.findByIdWithParticipant(meetingId)
                 .orElseThrow(() -> new MeetingNotFoundException(Map.of("meetingId", meetingId)));
 
-        if (!meeting.isParticipant(accessUserId)) {
-            throw new NotParticipantException();
-        }
+        meeting.validateViewAuthority(accessUserId);
 
         List<ParticipantInfoRes> participantInfos = getParticipantInfoRes(meeting);
         boolean isHost = meeting.isHost(accessUserId);

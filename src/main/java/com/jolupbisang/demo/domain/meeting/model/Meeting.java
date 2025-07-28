@@ -139,6 +139,17 @@ public class Meeting extends BaseTimeEntity {
         }
     }
 
+    public void validateViewAuthority(long accessUserId) {
+        if (!isParticipant(accessUserId)) {
+            throw new NotParticipantException();
+        }
+    }
+
+    public boolean isHost(long userId) {
+        return participants.stream()
+                .anyMatch(p -> p.getUserId().equals(userId) && p.getRole() == MeetingRole.HOST);
+    }
+
     public boolean isParticipant(long userId) {
         return participants.stream()
                 .anyMatch(p -> p.getUserId().equals(userId));
@@ -191,10 +202,5 @@ public class Meeting extends BaseTimeEntity {
         if (hostCount > MAX_MEETING_HOST_COUNT) {
             throw new TooManyHostException();
         }
-    }
-
-    public boolean isHost(long userId) {
-        return participants.stream()
-                .anyMatch(p -> p.getUserId().equals(userId) && p.getRole() == MeetingRole.HOST);
     }
 }

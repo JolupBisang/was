@@ -1,5 +1,6 @@
-package com.jolupbisang.demo.application.meeting.exception;
+package com.jolupbisang.demo.domain.meeting.exception;
 
+import com.jolupbisang.demo.application.meeting.exception.MeetingApplicationErrorCode;
 import com.jolupbisang.demo.global.exception.BusinessException;
 
 import java.util.Map;
