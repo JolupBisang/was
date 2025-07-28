@@ -11,7 +11,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 
 @Embeddable
@@ -53,7 +52,7 @@ public class ScheduledTime {
 
     private void validateTimeOrder(LocalDateTime startTime, LocalDateTime endTime) {
         if (startTime.isAfter(endTime) || startTime.isEqual(endTime)) {
-            throw new EndTimeBeforeStartTimeException(List.of(startTime, endTime));
+            throw new EndTimeBeforeStartTimeException(Map.of("startTime", startTime, "endTime", endTime));
         }
     }
 }
