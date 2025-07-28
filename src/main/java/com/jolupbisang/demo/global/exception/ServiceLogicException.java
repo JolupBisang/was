@@ -3,16 +3,16 @@ package com.jolupbisang.demo.global.exception;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import java.util.List;
+import java.util.Map;
 
 @Getter
 @RequiredArgsConstructor
 public class ServiceLogicException extends RuntimeException {
     private final ErrorCode errorCode;
-    private final List<Object> values;
+    private final Map<String, Object> values;
 
     public ServiceLogicException(ErrorCode errorCode) {
-        this(errorCode, List.of());
+        this(errorCode, Map.of());
     }
 }
 

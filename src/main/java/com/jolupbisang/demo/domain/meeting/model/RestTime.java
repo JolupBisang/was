@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.util.Map;
 
 @Embeddable
 @Getter
@@ -32,7 +32,7 @@ public class RestTime {
 
     private void setRestInterval(int restInterval) {
         if (restInterval < MIN_REST_INTERVAL) {
-            throw new MinimumRestIntervalException(List.of(restInterval));
+            throw new MinimumRestIntervalException(Map.of("restInterval", restInterval));
         }
 
         this.restInterval = restInterval;
@@ -40,7 +40,7 @@ public class RestTime {
 
     private void setRestDuration(int restDuration) {
         if (restDuration < MIN_REST_DURATION) {
-            throw new MinimumRestDurationException(List.of(restDuration));
+            throw new MinimumRestDurationException(Map.of("restDuration", restDuration));
         }
 
         this.restDuration = restDuration;

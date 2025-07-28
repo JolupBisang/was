@@ -1,10 +1,10 @@
 package com.jolupbisang.demo.global.exception;
 
-import java.util.List;
+import java.util.Map;
 
 public class BusinessException extends ServiceLogicException {
 
-    public BusinessException(ErrorCode errorCode, List<Object> values) {
+    public BusinessException(ErrorCode errorCode, Map<String, Object> values) {
         super(errorCode, values);
     }
 

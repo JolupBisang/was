@@ -2,11 +2,11 @@ package com.jolupbisang.demo.application.meeting.exception;
 
 import com.jolupbisang.demo.global.exception.BusinessException;
 
-import java.util.List;
+import java.util.Map;
 
 public class NotParticipantException extends BusinessException {
 
-    public NotParticipantException(List<Object> values) {
+    public NotParticipantException(Map<String, Object> values) {
         super(MeetingApplicationErrorCode.NOT_PARTICIPANT, values);
     }
 

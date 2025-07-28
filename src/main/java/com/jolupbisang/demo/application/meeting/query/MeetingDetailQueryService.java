@@ -29,7 +29,7 @@ public class MeetingDetailQueryService {
     @Transactional(readOnly = true)
     public MeetingDetailRes getMeetingDetail(long meetingId, long accessUserId) {
         Meeting meeting = meetingRepository.findByIdWithParticipant(meetingId)
-                .orElseThrow(() -> new MeetingNotFoundException(List.of(meetingId)));
+                .orElseThrow(() -> new MeetingNotFoundException(Map.of("meetingId", meetingId)));
 
         if (!meeting.isParticipant(accessUserId)) {
             throw new NotParticipantException();

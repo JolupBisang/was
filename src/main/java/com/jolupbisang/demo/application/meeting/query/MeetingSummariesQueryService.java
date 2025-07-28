@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,7 +30,7 @@ public class MeetingSummariesQueryService {
     @Transactional(readOnly = true)
     public List<MeetingDetailSummary> getMeetingDetailSummary(int year, int month, long userId) {
         if (year < MIN_YEAR || month < MIN_MONTH || month > MAX_MONTH) {
-            throw new InvalidDateException(List.of(year, month));
+            throw new InvalidDateException(Map.of("year", year, "month", month));
         }
 
         LocalDateTime startDayOfMonth = LocalDateTime.of(year, month, START_DAY_OF_MONTH, START_HOUR_OF_DAY, START_MINUTE_OF_HOUR, START_SECOND_OF_MINUTE);

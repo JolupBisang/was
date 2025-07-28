@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Embeddable
 @Getter
@@ -31,7 +32,7 @@ public class ActualProgressTime {
             throw new EmptyActualStartTimeException(List.of(actualEndTime));
         }
         if (actualStartTime != null && actualStartTime.isAfter(actualEndTime)) {
-            throw new ActualProgressTimeOrderException(List.of(actualStartTime, actualEndTime));
+            throw new ActualProgressTimeOrderException(Map.of("actualStartTime", actualStartTime, "actualEndTime", actualEndTime));
         }
     }
 }

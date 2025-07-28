@@ -2,10 +2,10 @@ package com.jolupbisang.demo.domain.meeting.exception;
 
 import com.jolupbisang.demo.global.exception.DomainException;
 
-import java.util.List;
+import java.util.Map;
 
 public class NullAgendaException extends DomainException {
-    public NullAgendaException(List<Object> values) {
+    public NullAgendaException(Map<String, Object> values) {
         super(MeetingDomainErrorCode.NULL_AGENDA_LIST, values);
     }
 

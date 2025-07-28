@@ -2,11 +2,11 @@ package com.jolupbisang.demo.domain.meeting.exception;
 
 import com.jolupbisang.demo.global.exception.DomainException;
 
-import java.util.List;
+import java.util.Map;
 
 public class EmptyTitleException extends DomainException {
 
-    public EmptyTitleException(List<Object> values) {
+    public EmptyTitleException(Map<String, Object> values) {
         super(MeetingDomainErrorCode.EMPTY_TITLE, values);
     }
 

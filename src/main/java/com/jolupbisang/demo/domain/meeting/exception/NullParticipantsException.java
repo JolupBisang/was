@@ -2,11 +2,11 @@ package com.jolupbisang.demo.domain.meeting.exception;
 
 import com.jolupbisang.demo.global.exception.DomainException;
 
-import java.util.List;
+import java.util.Map;
 
 public class NullParticipantsException extends DomainException {
 
-    public NullParticipantsException(List<Object> values) {
+    public NullParticipantsException(Map<String, Object> values) {
         super(MeetingDomainErrorCode.NULL_PARTICIPANTS_LIST, values);
     }
 

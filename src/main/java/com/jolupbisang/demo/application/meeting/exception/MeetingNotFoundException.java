@@ -2,10 +2,10 @@ package com.jolupbisang.demo.application.meeting.exception;
 
 import com.jolupbisang.demo.application.common.NotFoundException;
 
-import java.util.List;
+import java.util.Map;
 
 public class MeetingNotFoundException extends NotFoundException {
-    public MeetingNotFoundException(List<Object> values) {
+    public MeetingNotFoundException(Map<String, Object> values) {
         super(MeetingApplicationErrorCode.NOT_FOUND_MEETING, values);
     }
 

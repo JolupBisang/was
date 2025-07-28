@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Embeddable
 @Getter
@@ -44,7 +45,7 @@ public class ScheduledTime {
 
     private void setScheduledEndTime(LocalDateTime scheduledEndTime) {
         if (scheduledEndTime == null) {
-            throw new EmptyEndTimeException(List.of(scheduledEndTime));
+            throw new EmptyEndTimeException(Map.of("scheduledTime", scheduledEndTime));
         }
         this.scheduledEndTime = scheduledEndTime;
     }

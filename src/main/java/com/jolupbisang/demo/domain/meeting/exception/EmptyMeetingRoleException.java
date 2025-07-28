@@ -2,10 +2,10 @@ package com.jolupbisang.demo.domain.meeting.exception;
 
 import com.jolupbisang.demo.global.exception.DomainException;
 
-import java.util.List;
+import java.util.Map;
 
 public class EmptyMeetingRoleException extends DomainException {
-    public EmptyMeetingRoleException(List<Object> values) {
+    public EmptyMeetingRoleException(Map<String, Object> values) {
         super(MeetingDomainErrorCode.EMPTY_MEETING_ROLE, values);
     }
 
