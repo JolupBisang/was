@@ -26,7 +26,7 @@ public class MeetingDetailQueryService {
 
     private static final String NOT_FOUND_USER_EMAIL = "알 수 없음";
 
-    @Transactional
+    @Transactional(readOnly = true)
     public MeetingDetailRes getMeetingDetail(long meetingId, long accessUserId) {
         Meeting meeting = meetingRepository.findByIdWithParticipant(meetingId)
                 .orElseThrow(() -> new MeetingNotFoundException(List.of(meetingId)));

@@ -3,6 +3,7 @@ package com.jolupbisang.demo.infrastructure.meeting;
 import com.jolupbisang.demo.domain.meeting.model.Meeting;
 import com.jolupbisang.demo.domain.meeting.model.ParticipantStatus;
 import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
@@ -24,13 +25,16 @@ public class MeetingRepositoryImpl implements MeetingRepositoryCustom {
     public List<Meeting> findByUserIdAndStartTimeBetween(Long userId, LocalDateTime startOfMonth, LocalDateTime endOfMonth) {
         return queryFactory
                 .selectFrom(meeting)
-                .where(meeting.id.in(
-                                JPAExpressions.select(meetingUser.meeting.id)
-                                        .from(meetingUser)
-                                        .where(meetingUser.user.id.eq(userId)
-                                                .and(meetingUser.status.eq(ParticipantStatus.ACCEPTED))))
+                .where(meeting.id.in(findAcceptedMeetingByUserId(userId))
                         .and(meeting.scheduledTime.scheduledStartTime.between(startOfMonth, endOfMonth)))
                 .fetch();
+    }
+
+    private static JPQLQuery<Long> findAcceptedMeetingByUserId(Long userId) {
+        return JPAExpressions.select(meetingUser.meeting.id)
+                .from(meetingUser)
+                .where(meetingUser.user.id.eq(userId)
+                        .and(meetingUser.status.eq(ParticipantStatus.ACCEPTED)));
     }
 
     @Override
