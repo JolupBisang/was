@@ -1,7 +1,7 @@
 package com.jolupbisang.demo.application.meeting.query;
 
-import com.jolupbisang.demo.application.meeting.dto.MeetingDetailSummary;
 import com.jolupbisang.demo.application.meeting.exception.InvalidDateException;
+import com.jolupbisang.demo.application.meeting.query.dto.MeetingDetailSummary;
 import com.jolupbisang.demo.domain.meeting.model.Meeting;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
 import lombok.RequiredArgsConstructor;

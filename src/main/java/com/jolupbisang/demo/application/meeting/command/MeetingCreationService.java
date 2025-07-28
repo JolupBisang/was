@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,7 +26,7 @@ public class MeetingCreationService {
     @Transactional
     public MeetingCreationRes create(MeetingCreationReq meetingCreationReq, long hostId) {
         User host = userRepository.findById(hostId)
-                .orElseThrow(() -> new UserNotFoundException(List.of(hostId)));
+                .orElseThrow(() -> new UserNotFoundException(Map.of("hostId", hostId)));
 
         List<User> participants = userRepository.findByEmailIn(meetingCreationReq.participants());
         Meeting meeting = createMeeting(host, participants, meetingCreationReq);

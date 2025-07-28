@@ -1,6 +1,6 @@
 package com.jolupbisang.demo.presentation.meeting.dto.response;
 
-import com.jolupbisang.demo.application.meeting.dto.MeetingDetailSummary;
+import com.jolupbisang.demo.application.meeting.query.dto.MeetingDetailSummary;
 
 import java.util.List;
 
