@@ -31,6 +31,10 @@ public class ScheduledTime {
         validateTimeOrder(scheduledStartTime, scheduledEndTime);
     }
 
+    public ScheduledTime(LocalDateTime scheduledStartTime, int targetMinutes) {
+        this(scheduledStartTime, scheduledStartTime.plusMinutes(targetMinutes));
+    }
+
     public int getTargetTime() {
         return (int) scheduledEndTime.toLocalTime().toSecondOfDay() - (int) scheduledStartTime.toLocalTime().toSecondOfDay();
     }

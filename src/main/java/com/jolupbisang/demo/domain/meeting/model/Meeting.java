@@ -1,6 +1,7 @@
 package com.jolupbisang.demo.domain.meeting.model;
 
 import com.jolupbisang.demo.domain.common.BaseTimeEntity;
+import com.jolupbisang.demo.domain.meeting.dto.MeetingDetailUpdateDto;
 import com.jolupbisang.demo.domain.meeting.event.MeetingCompletedEvent;
 import com.jolupbisang.demo.domain.meeting.event.MeetingStartedEvent;
 import com.jolupbisang.demo.domain.meeting.exception.*;
@@ -165,6 +166,19 @@ public class Meeting extends BaseTimeEntity {
     public boolean isParticipant(long userId) {
         return participants.stream()
                 .anyMatch(p -> p.getUserId().equals(userId));
+    }
+
+    public void updateDetails(MeetingDetailUpdateDto updateDto, long accessUserId) {
+        validateHostAuthority(accessUserId);
+
+        if (!isWaiting()) {
+            throw new MeetingNotWaitingStatusException();
+        }
+
+        setTitle(updateDto.title());
+        setLocation(updateDto.location());
+        setScheduledTime(updateDto.scheduledTime());
+        setRestTime(updateDto.RestTime());
     }
 
     private void setTitle(String title) {
