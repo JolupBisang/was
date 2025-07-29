@@ -1,7 +1,7 @@
 package com.jolupbisang.demo.application.common;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jolupbisang.demo.application.event.MeetingCompletedEvent;
+import com.jolupbisang.demo.domain.meeting.event.MeetingCompletedEvent;
 import com.jolupbisang.demo.presentation.audio.dto.response.SocketResponse;
 import com.jolupbisang.demo.presentation.audio.dto.response.SocketResponseType;
 import lombok.RequiredArgsConstructor;
@@ -75,7 +75,7 @@ public class MeetingSessionManager {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void closeSessionWhenMeetingEnded(MeetingCompletedEvent event) {
         List<WebSocketSession> sessionsToClose = new ArrayList<>();
-        sessions.entrySet().stream().filter(entry -> entry.getValue().meetingId().equals(event.getMeetingId()))
+        sessions.entrySet().stream().filter(entry -> entry.getValue().meetingId().equals(event.meetingId()))
                 .forEach(entry -> {
                     try {
                         entry.getKey().close();

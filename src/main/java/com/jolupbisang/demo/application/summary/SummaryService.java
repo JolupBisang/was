@@ -1,12 +1,12 @@
 package com.jolupbisang.demo.application.summary;
 
 import com.jolupbisang.demo.application.common.MeetingAccessValidator;
-import com.jolupbisang.demo.application.event.MeetingCompletedEvent;
 import com.jolupbisang.demo.application.event.SseEmitEvent;
 import com.jolupbisang.demo.application.event.SummaryReceivedEvent;
 import com.jolupbisang.demo.application.summary.dto.SseSummaryRes;
 import com.jolupbisang.demo.application.summary.dto.SummaryListRes;
 import com.jolupbisang.demo.application.summary.exception.SummaryErrorCode;
+import com.jolupbisang.demo.domain.meeting.event.MeetingCompletedEvent;
 import com.jolupbisang.demo.domain.meeting.model.Meeting;
 import com.jolupbisang.demo.domain.summary.Summary;
 import com.jolupbisang.demo.global.exception.ServiceLogicException;
@@ -86,6 +86,6 @@ public class SummaryService {
     @Async("AsyncTaskExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void createWholeSummary(MeetingCompletedEvent event) {
-        whisperClient.sendContextDone(event.getMeetingId());
+        whisperClient.sendContextDone(event.meetingId());
     }
 }

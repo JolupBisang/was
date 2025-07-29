@@ -1,12 +1,12 @@
 package com.jolupbisang.demo.application.participationRate;
 
 import com.jolupbisang.demo.application.common.MeetingAccessValidator;
-import com.jolupbisang.demo.application.event.MeetingCompletedEvent;
-import com.jolupbisang.demo.application.event.MeetingStartingEvent;
 import com.jolupbisang.demo.application.event.whisper.WhisperDiarizedEvent;
 import com.jolupbisang.demo.application.participationRate.dto.ParticipationRateHistoryRes;
 import com.jolupbisang.demo.application.participationRate.dto.ParticipationRateRes;
 import com.jolupbisang.demo.application.participationRate.exception.ParticipationRateErrorCode;
+import com.jolupbisang.demo.domain.meeting.event.MeetingCompletedEvent;
+import com.jolupbisang.demo.domain.meeting.event.MeetingStartedEvent;
 import com.jolupbisang.demo.domain.meeting.model.Meeting;
 import com.jolupbisang.demo.domain.participationRate.ParticipationRate;
 import com.jolupbisang.demo.domain.user.User;
@@ -89,8 +89,8 @@ public class ParticipationRateService {
     }
 
     @EventListener
-    public void handleMeetingStart(MeetingStartingEvent event) {
-        long meetingId = event.getMeetingId();
+    public void handleMeetingStart(MeetingStartedEvent event) {
+        long meetingId = event.meetingId();
 
         Runnable task = () -> sendParticipationRateUpdate(meetingId);
 
@@ -105,7 +105,7 @@ public class ParticipationRateService {
     @Order(2)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void clearMeetingData(MeetingCompletedEvent event) {
-        Long meetingId = event.getMeetingId();
+        Long meetingId = event.meetingId();
 
         ScheduledFuture<?> scheduledFuture = scheduledTasks.get(meetingId);
         if (scheduledFuture != null) {

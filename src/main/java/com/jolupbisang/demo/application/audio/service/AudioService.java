@@ -8,9 +8,9 @@ import com.jolupbisang.demo.application.audio.dto.StepFunctionOutput;
 import com.jolupbisang.demo.application.audio.exception.AudioErrorCode;
 import com.jolupbisang.demo.application.common.MeetingAccessValidator;
 import com.jolupbisang.demo.application.common.MeetingSessionManager;
-import com.jolupbisang.demo.application.event.MeetingCompletedEvent;
-import com.jolupbisang.demo.application.event.MeetingStartingEvent;
 import com.jolupbisang.demo.application.event.whisper.WhisperEmbeddedEvent;
+import com.jolupbisang.demo.domain.meeting.event.MeetingCompletedEvent;
+import com.jolupbisang.demo.domain.meeting.event.MeetingStartedEvent;
 import com.jolupbisang.demo.global.exception.ServiceLogicException;
 import com.jolupbisang.demo.infrastructure.audio.AudioProgressRepository;
 import com.jolupbisang.demo.infrastructure.audio.AudioRepository;
@@ -158,8 +158,8 @@ public class AudioService {
     }
 
     @EventListener
-    public void handleMeetingStartingEvent(MeetingStartingEvent event) {
-        List<Long> users = meetingUserRepository.findUserIdByMeetingId(event.getMeetingId());
+    public void handleMeetingStartingEvent(MeetingStartedEvent event) {
+        List<Long> users = meetingUserRepository.findUserIdByMeetingId(event.meetingId());
 
         List<byte[]> totalVectors = new ArrayList<>();
         List<Integer> counts = new ArrayList<>();
@@ -169,18 +169,18 @@ public class AudioService {
             totalVectors.addAll(userVectors);
         }
 
-        whisperClient.sendRefenceVector(event.getMeetingId(), users, counts, totalVectors);
+        whisperClient.sendRefenceVector(event.meetingId(), users, counts, totalVectors);
     }
 
     @Order(4)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleMeetingCompletedEvent(MeetingCompletedEvent event) {
-        long meetingId = event.getMeetingId();
+        long meetingId = event.meetingId();
         StepFunctionOutput stepFunctionOutput = sfnClientUtil.startMergeAudioStateMachine(MERGE_AUDIO_STATE_MACHINE_ARN, meetingId);
 
         if (stepFunctionOutput != null) {
             if (stepFunctionOutput.statusCode().equals("400")) {
-                log.error("[StepFunction] meetingId:{}, statusCode: {}", event.getMeetingId(), stepFunctionOutput.statusCode());
+                log.error("[StepFunction] meetingId:{}, statusCode: {}", event.meetingId(), stepFunctionOutput.statusCode());
             }
         } else {
             log.error("[StepFunction] return null");

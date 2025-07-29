@@ -1,7 +1,10 @@
 package com.jolupbisang.demo.domain.meeting.model;
 
 import com.jolupbisang.demo.domain.common.BaseTimeEntity;
+import com.jolupbisang.demo.domain.meeting.event.MeetingCompletedEvent;
+import com.jolupbisang.demo.domain.meeting.event.MeetingStartedEvent;
 import com.jolupbisang.demo.domain.meeting.exception.*;
+import com.jolupbisang.demo.global.event.Events;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -62,23 +65,32 @@ public class Meeting extends BaseTimeEntity {
         initiateStatus();
     }
 
-    public void start() {
+    public void start(long accessUserId) {
+        validateHostAuthority(accessUserId);
+
         if (!isWaiting()) {
             throw new MeetingNotWaitingStatusException();
         }
+
         meetingStatus = MeetingStatus.IN_PROGRESS;
         actualProgressTime = new ActualProgressTime(LocalDateTime.now(), null);
+        Events.raise(new MeetingStartedEvent(id));
     }
 
-    public void end() {
+    public void complete(long accessUserId) {
+        validateHostAuthority(accessUserId);
+
         if (!isInProgress()) {
             throw new NotProgressingStatusException();
         }
         meetingStatus = MeetingStatus.COMPLETED;
         actualProgressTime = new ActualProgressTime(actualProgressTime.getActualStartTime(), LocalDateTime.now());
+        Events.raise(new MeetingCompletedEvent(id));
     }
 
-    public void cancel() {
+    public void cancel(long accessUserId) {
+        validateHostAuthority(accessUserId);
+
         if (!isWaiting()) {
             throw new MeetingNotWaitingStatusException();
         }
@@ -201,6 +213,15 @@ public class Meeting extends BaseTimeEntity {
 
         if (hostCount > MAX_MEETING_HOST_COUNT) {
             throw new TooManyHostException();
+        }
+    }
+
+    private void validateHostAuthority(long accessUserId) {
+        boolean isHost = participants.stream()
+                .anyMatch(p -> p.getUserId().equals(accessUserId) && p.getRole() == MeetingRole.HOST);
+
+        if (!isHost) {
+            throw new NotHostException();
         }
     }
 }

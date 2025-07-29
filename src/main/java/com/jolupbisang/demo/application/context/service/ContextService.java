@@ -1,7 +1,11 @@
 package com.jolupbisang.demo.application.context.service;
 
-import com.jolupbisang.demo.application.event.*;
+import com.jolupbisang.demo.application.event.AgendaReceivedEvent;
+import com.jolupbisang.demo.application.event.FeedbackReceivedEvent;
+import com.jolupbisang.demo.application.event.SummaryReceivedEvent;
 import com.jolupbisang.demo.application.event.whisper.WhisperContextEvent;
+import com.jolupbisang.demo.domain.meeting.event.MeetingCompletedEvent;
+import com.jolupbisang.demo.domain.meeting.event.MeetingStartedEvent;
 import com.jolupbisang.demo.infrastructure.audio.client.WhisperClient;
 import com.jolupbisang.demo.infrastructure.audio.client.dto.response.ContextResponse;
 import lombok.RequiredArgsConstructor;
@@ -38,8 +42,8 @@ public class ContextService {
 
     @Async("AsyncTaskExecutor")
     @EventListener
-    public void handleMeetingStart(MeetingStartingEvent event) {
-        long meetingId = event.getMeetingId();
+    public void handleMeetingStart(MeetingStartedEvent event) {
+        long meetingId = event.meetingId();
         Runnable task = () -> whisperClient.sendContext(meetingId);
 
         ScheduledFuture<?> scheduledFuture = taskScheduler.scheduleAtFixedRate(
@@ -52,7 +56,7 @@ public class ContextService {
     @Order(1)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleMeetingCompletion(MeetingCompletedEvent event) {
-        Long meetingId = event.getMeetingId();
+        Long meetingId = event.meetingId();
         ScheduledFuture<?> scheduledFuture = scheduledTasks.get(meetingId);
 
         if (scheduledFuture != null) {
