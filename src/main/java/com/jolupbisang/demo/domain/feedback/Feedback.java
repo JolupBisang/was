@@ -1,7 +1,6 @@
 package com.jolupbisang.demo.domain.feedback;
 
-import com.jolupbisang.demo.domain.meeting.model.Meeting;
-import com.jolupbisang.demo.domain.user.User;
+import com.jolupbisang.demo.domain.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -12,28 +11,29 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Feedback {
+public class Feedback extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "meeting_id")
-    private Meeting meeting;
+    @Column(name = "user_id")
+    private long userId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+    @Column(name = "meeting_id")
+    private long meetingId;
 
+    @Column(columnDefinition = "TEXT")
     private String comment;
 
-    private LocalDateTime timestamp;
+    @Column(name = "generated_date_time")
+    LocalDateTime generatedDateTime;
 
-    public Feedback(Meeting meeting, User user, String comment, LocalDateTime timestamp) {
-        this.meeting = meeting;
-        this.user = user;
+    public Feedback(long userId, long meetingId, String comment, LocalDateTime generatedDateTime) {
+        this.userId = userId;
+        this.meetingId = meetingId;
         this.comment = comment;
-        this.timestamp = timestamp;
+        this.generatedDateTime = generatedDateTime;
+
     }
 }
