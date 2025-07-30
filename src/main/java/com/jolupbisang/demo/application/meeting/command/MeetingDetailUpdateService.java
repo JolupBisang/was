@@ -1,13 +1,13 @@
 package com.jolupbisang.demo.application.meeting.command;
 
 import com.jolupbisang.demo.application.meeting.command.dto.MeetingDetailUpdateRes;
+import com.jolupbisang.demo.application.meeting.command.dto.MeetingUpdateReq;
 import com.jolupbisang.demo.application.meeting.exception.MeetingNotFoundException;
 import com.jolupbisang.demo.domain.meeting.dto.MeetingDetailUpdateDto;
 import com.jolupbisang.demo.domain.meeting.model.Meeting;
 import com.jolupbisang.demo.domain.meeting.model.RestTime;
 import com.jolupbisang.demo.domain.meeting.model.ScheduledTime;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
-import com.jolupbisang.demo.presentation.meeting.dto.request.MeetingUpdateReq;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

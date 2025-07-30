@@ -2,8 +2,8 @@ package com.jolupbisang.demo.presentation.meeting;
 
 import com.jolupbisang.demo.application.meeting.command.MeetingDetailUpdateService;
 import com.jolupbisang.demo.application.meeting.command.dto.MeetingDetailUpdateRes;
+import com.jolupbisang.demo.application.meeting.command.dto.MeetingUpdateReq;
 import com.jolupbisang.demo.infrastructure.auth.security.CustomUserDetails;
-import com.jolupbisang.demo.presentation.meeting.dto.request.MeetingUpdateReq;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

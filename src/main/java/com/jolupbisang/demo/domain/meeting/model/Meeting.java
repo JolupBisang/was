@@ -61,8 +61,8 @@ public class Meeting extends BaseTimeEntity {
         setScheduledTime(scheduledTime);
         setActualProgressTime(actualProgressTime);
         setRestTime(restTime);
-        addParticipants(participantDetails);
-        addAgendas(agendaDetails);
+        setParticipants(participantDetails);
+        setAgendas(agendaDetails);
         initiateStatus();
     }
 
@@ -114,20 +114,14 @@ public class Meeting extends BaseTimeEntity {
         return meetingStatus == MeetingStatus.CANCELLED;
     }
 
-    public void updateMeetingDetails(String title, String location, LocalDateTime scheduledStartTime, int targetTime, int restInterval, int restDuration) {
-        this.title = title;
-        this.location = location;
-        this.scheduledTime = new ScheduledTime(scheduledStartTime, scheduledStartTime.plusMinutes(targetTime));
-        this.restTime = new RestTime(restInterval, restDuration);
-    }
+    public void addParticipants(List<ParticipantDetail> participantDetails, long accessUserId) {
+        validateHostAuthority(accessUserId);
 
-    public void addParticipants(List<ParticipantDetail> participantDetails) {
         if (participantDetails == null) {
             throw new NullParticipantsException();
         }
 
         List<Participant> originalParticipants = new ArrayList<>(participants);
-
         try {
             for (ParticipantDetail detail : participantDetails) {
                 participants.removeIf(p -> p.getUserId().equals(detail.getUserId()));
@@ -214,6 +208,18 @@ public class Meeting extends BaseTimeEntity {
             throw new NullRestTimeException();
         }
         this.restTime = restTime;
+    }
+
+    private void setParticipants(List<ParticipantDetail> participantDetails) {
+        participantDetails.stream()
+                .map(detail -> new Participant(this, detail.getUserId(), detail.getMeetingRole()))
+                .forEach(participants::add);
+    }
+
+    private void setAgendas(List<AgendaDetail> agendaDetails) {
+        agendaDetails.stream()
+                .map(agendaDetail -> new Agenda(this, agendaDetail.getContent()))
+                .forEach(agendas::add);
     }
 
     private void initiateStatus() {

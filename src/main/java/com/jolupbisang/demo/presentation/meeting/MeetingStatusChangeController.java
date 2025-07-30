@@ -2,8 +2,9 @@ package com.jolupbisang.demo.presentation.meeting;
 
 import com.jolupbisang.demo.application.meeting.command.MeetingStatusChangeService;
 import com.jolupbisang.demo.application.meeting.command.dto.MeetingStatusChangeRes;
-import com.jolupbisang.demo.application.meeting.command.dto.TargetMeetingStatus;
+import com.jolupbisang.demo.application.meeting.command.dto.MeetingStatusUpdateReq;
 import com.jolupbisang.demo.infrastructure.auth.security.CustomUserDetails;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,10 +22,10 @@ public class MeetingStatusChangeController {
 
     @PutMapping("/api/v1/meetings/{meetingId}/status")
     public ResponseEntity<MeetingStatusChangeRes> updateMeetingStatusV1(@PathVariable Long meetingId,
-                                                                        @RequestBody TargetMeetingStatus targetMeetingStatus,
+                                                                        @Valid @RequestBody MeetingStatusUpdateReq meetingStatusUpdateReq,
                                                                         @AuthenticationPrincipal CustomUserDetails userDetails) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(meetingStatusChangeService.changeMeetingStatus(meetingId, userDetails.getUserId(), targetMeetingStatus));
+                .body(meetingStatusChangeService.changeMeetingStatus(meetingId, userDetails.getUserId(), meetingStatusUpdateReq));
     }
 }

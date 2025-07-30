@@ -1,4 +1,4 @@
-package com.jolupbisang.demo.presentation.meeting.dto.request;
+package com.jolupbisang.demo.application.meeting.command.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
