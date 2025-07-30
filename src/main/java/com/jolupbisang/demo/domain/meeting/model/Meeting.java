@@ -244,4 +244,10 @@ public class Meeting extends BaseTimeEntity {
             throw new NotHostException();
         }
     }
+
+    public void removeParticipant(long accessUserId, long participantId) {
+        validateHostAuthority(accessUserId);
+
+        participants.removeIf(p -> p.getUserId().equals(participantId));
+    }
 }

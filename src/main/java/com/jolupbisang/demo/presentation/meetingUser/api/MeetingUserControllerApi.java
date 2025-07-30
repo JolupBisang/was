@@ -1,7 +1,7 @@
 package com.jolupbisang.demo.presentation.meetingUser.api;
 
+import com.jolupbisang.demo.domain.meeting.dto.ParticipantAddReq;
 import com.jolupbisang.demo.infrastructure.auth.security.CustomUserDetails;
-import com.jolupbisang.demo.presentation.meetingUser.dto.request.ParticipantAddReq;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
