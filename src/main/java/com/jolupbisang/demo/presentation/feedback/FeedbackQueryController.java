@@ -1,7 +1,7 @@
 package com.jolupbisang.demo.presentation.feedback;
 
-import com.jolupbisang.demo.application.feedback.FeedbackDetailQueryService;
-import com.jolupbisang.demo.application.feedback.dto.FeedbackListRes;
+import com.jolupbisang.demo.application.feedback.query.FeedbackDetailQueryService;
+import com.jolupbisang.demo.application.feedback.query.dto.FeedbackListRes;
 import com.jolupbisang.demo.infrastructure.auth.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;

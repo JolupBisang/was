@@ -1,6 +1,8 @@
 package com.jolupbisang.demo.domain.feedback;
 
 import com.jolupbisang.demo.domain.common.BaseTimeEntity;
+import com.jolupbisang.demo.domain.feedback.event.FeedbackCreatedEvent;
+import com.jolupbisang.demo.global.event.Events;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -34,6 +36,6 @@ public class Feedback extends BaseTimeEntity {
         this.meetingId = meetingId;
         this.comment = comment;
         this.generatedDateTime = generatedDateTime;
-
+        Events.raise(new FeedbackCreatedEvent(meetingId, userId, comment, generatedDateTime));
     }
 }

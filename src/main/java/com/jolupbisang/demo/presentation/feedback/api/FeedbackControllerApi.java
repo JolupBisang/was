@@ -1,6 +1,6 @@
 package com.jolupbisang.demo.presentation.feedback.api;
 
-import com.jolupbisang.demo.application.feedback.dto.FeedbackListRes;
+import com.jolupbisang.demo.application.feedback.query.dto.FeedbackListRes;
 import com.jolupbisang.demo.infrastructure.auth.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
