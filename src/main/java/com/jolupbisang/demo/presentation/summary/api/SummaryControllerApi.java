@@ -1,6 +1,6 @@
 package com.jolupbisang.demo.presentation.summary.api;
 
-import com.jolupbisang.demo.application.summary.dto.SummaryListRes;
+import com.jolupbisang.demo.application.summary.query.dto.SummaryListRes;
 import com.jolupbisang.demo.infrastructure.auth.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

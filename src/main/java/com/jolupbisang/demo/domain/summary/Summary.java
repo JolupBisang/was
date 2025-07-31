@@ -1,6 +1,8 @@
 package com.jolupbisang.demo.domain.summary;
 
-import com.jolupbisang.demo.domain.meeting.model.Meeting;
+import com.jolupbisang.demo.domain.common.BaseTimeEntity;
+import com.jolupbisang.demo.domain.summary.event.SummaryCreatedEvent;
+import com.jolupbisang.demo.global.event.Events;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -11,26 +13,29 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Summary {
+public class Summary extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "meeting_id")
-    private Meeting meeting;
+    @Column(name = "meeting_id")
+    long meetingId;
 
     private String content;
 
     private boolean isRecap;
 
-    private LocalDateTime timestamp;
+    private LocalDateTime generatedDateTime;
 
-    public Summary(Meeting meeting, String content, boolean isRecap, LocalDateTime timestamp) {
-        this.meeting = meeting;
+    public Summary(long meetingId, String content, boolean isRecap, LocalDateTime generatedDateTime) {
+        this.meetingId = meetingId;
         this.content = content;
         this.isRecap = isRecap;
-        this.timestamp = timestamp;
+        this.generatedDateTime = generatedDateTime;
+
+        if (!isRecap) {
+            Events.raise(new SummaryCreatedEvent(meetingId, content, generatedDateTime));
+        }
     }
 }

@@ -1,4 +1,4 @@
-package com.jolupbisang.demo.application.summary.dto;
+package com.jolupbisang.demo.application.summary.query.dto;
 
 import com.jolupbisang.demo.domain.summary.Summary;
 
@@ -8,7 +8,7 @@ public record SummaryListRes(
         Long id,
         String content,
         boolean isRecap,
-        LocalDateTime timestamp
+        LocalDateTime generatedDateTime
 ) {
 
     public static SummaryListRes from(Summary summary) {
@@ -16,7 +16,7 @@ public record SummaryListRes(
                 summary.getId(),
                 summary.getContent(),
                 summary.isRecap(),
-                summary.getTimestamp()
+                summary.getGeneratedDateTime()
         );
     }
 } 

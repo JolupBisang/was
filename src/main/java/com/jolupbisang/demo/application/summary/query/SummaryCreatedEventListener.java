@@ -1,7 +1,7 @@
-package com.jolupbisang.demo.application.feedback.command;
+package com.jolupbisang.demo.application.summary.query;
 
-import com.jolupbisang.demo.application.feedback.command.dto.LiveFeedbackDto;
-import com.jolupbisang.demo.domain.feedback.event.FeedbackCreatedEvent;
+import com.jolupbisang.demo.application.summary.query.dto.LiveSummaryDto;
+import com.jolupbisang.demo.domain.summary.event.SummaryCreatedEvent;
 import com.jolupbisang.demo.infrastructure.sse.MeetingSseEventType;
 import com.jolupbisang.demo.infrastructure.sse.MeetingSseManager;
 import lombok.RequiredArgsConstructor;
@@ -11,17 +11,16 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 @Component
 @RequiredArgsConstructor
-public class FeedbackCreatedEventListener {
+public class SummaryCreatedEventListener {
 
     private final MeetingSseManager sseManager;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleFeedbackCreatedEvent(FeedbackCreatedEvent event) {
+    public void handleSummaryCreatedEvent(SummaryCreatedEvent event) {
         sseManager.sendEvent(
                 event.meetingId(),
-                event.userId(),
-                MeetingSseEventType.FEEDBACK,
-                new LiveFeedbackDto(event.comment())
+                MeetingSseEventType.SUMMARY,
+                new LiveSummaryDto(event.content())
         );
     }
 }
