@@ -11,7 +11,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Service
 @RequiredArgsConstructor
-public class MeetingSubscribeService {
+public class MeetingEventSubscribeService {
 
     private final MeetingRepository meetingRepository;
     private final MeetingSseManager meetingSseManager;
