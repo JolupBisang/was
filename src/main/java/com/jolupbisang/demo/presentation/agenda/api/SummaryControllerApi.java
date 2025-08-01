@@ -1,4 +1,4 @@
-package com.jolupbisang.demo.presentation.summary.api;
+package com.jolupbisang.demo.presentation.agenda.api;
 
 import com.jolupbisang.demo.application.summary.query.dto.SummaryListRes;
 import com.jolupbisang.demo.infrastructure.auth.security.CustomUserDetails;
