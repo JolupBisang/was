@@ -16,9 +16,8 @@ import com.jolupbisang.demo.infrastructure.audio.AudioProgressRepository;
 import com.jolupbisang.demo.infrastructure.audio.AudioRepository;
 import com.jolupbisang.demo.infrastructure.audio.EmbeddedVectorRepository;
 import com.jolupbisang.demo.infrastructure.audio.EmbeddingAudioRepository;
-import com.jolupbisang.demo.infrastructure.audio.client.WhisperClient;
 import com.jolupbisang.demo.infrastructure.aws.sfn.SfnClientUtil;
-import com.jolupbisang.demo.infrastructure.meetingUser.MeetingUserRepository;
+import com.jolupbisang.demo.infrastructure.whisper.WhisperClient;
 import com.jolupbisang.demo.presentation.audio.dto.response.SocketResponseType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,7 +48,6 @@ public class AudioService {
 
     private final AudioRepository audioRepository;
     private final AudioProgressRepository audioProgressRepository;
-    private final MeetingUserRepository meetingUserRepository;
     private final EmbeddingAudioRepository embeddingAudioRepository;
     private final EmbeddedVectorRepository embeddedVectorRepository;
 

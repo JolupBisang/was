@@ -1,4 +1,4 @@
-package com.jolupbisang.demo.infrastructure.audio.client;
+package com.jolupbisang.demo.infrastructure.whisper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jolupbisang.demo.application.event.whisper.WhisperContextEvent;

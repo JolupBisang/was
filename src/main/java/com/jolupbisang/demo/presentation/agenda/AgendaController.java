@@ -3,7 +3,6 @@ package com.jolupbisang.demo.presentation.agenda;
 import com.jolupbisang.demo.application.agenda.service.AgendaService;
 import com.jolupbisang.demo.global.response.SuccessResponse;
 import com.jolupbisang.demo.infrastructure.auth.security.CustomUserDetails;
-import com.jolupbisang.demo.presentation.agenda.api.AgendaControllerApi;
 import com.jolupbisang.demo.presentation.agenda.dto.request.AgendaCreateReq;
 import com.jolupbisang.demo.presentation.agenda.dto.request.AgendaStatusReq;
 import com.jolupbisang.demo.presentation.agenda.dto.request.AgendaUpdateReq;

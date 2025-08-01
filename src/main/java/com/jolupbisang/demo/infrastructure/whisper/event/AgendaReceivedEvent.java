@@ -1,4 +1,4 @@
-package com.jolupbisang.demo.application.event;
+package com.jolupbisang.demo.infrastructure.whisper.event;
 
 import lombok.Getter;
 import org.springframework.context.ApplicationEvent;

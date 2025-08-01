@@ -1,4 +1,4 @@
-package com.jolupbisang.demo.presentation.agenda.api.participationRate.api;
+package com.jolupbisang.demo.presentation.api;
 
 import com.jolupbisang.demo.application.participationRate.dto.ParticipationRateHistoryRes;
 import com.jolupbisang.demo.infrastructure.auth.security.CustomUserDetails;

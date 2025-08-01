@@ -1,4 +1,4 @@
-package com.jolupbisang.demo.presentation.agenda.api;
+package com.jolupbisang.demo.presentation.agenda;
 
 import com.jolupbisang.demo.infrastructure.auth.security.CustomUserDetails;
 import com.jolupbisang.demo.presentation.agenda.dto.request.AgendaCreateReq;

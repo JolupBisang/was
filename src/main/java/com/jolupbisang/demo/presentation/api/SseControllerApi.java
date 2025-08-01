@@ -1,4 +1,4 @@
-package com.jolupbisang.demo.presentation.agenda.api;
+package com.jolupbisang.demo.presentation.api;
 
 import com.jolupbisang.demo.infrastructure.auth.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
