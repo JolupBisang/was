@@ -29,11 +29,18 @@ public class Participant {
     @Enumerated(EnumType.STRING)
     private ParticipantStatus status;
 
+    @Embedded
+    private ParticipationRate participationRate;
+
     public Participant(Meeting meeting, Long userId, MeetingRole role) {
         setUserId(userId);
         initiateStatus();
         this.meeting = meeting;
         this.role = role;
+    }
+
+    public void updateParticipationRate(double rate, long totalParticipationChunk) {
+        participationRate = new ParticipationRate(rate, totalParticipationChunk);
     }
 
     private void setUserId(Long userId) {

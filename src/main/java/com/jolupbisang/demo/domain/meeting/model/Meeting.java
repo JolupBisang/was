@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 회의 관리 어그리거트 루트
@@ -173,6 +174,15 @@ public class Meeting extends BaseTimeEntity {
         setLocation(updateDto.location());
         setScheduledTime(updateDto.scheduledTime());
         setRestTime(updateDto.RestTime());
+    }
+
+    public void updateParticipationRates(Map<Long, Double> participationRates, Map<Long, Long> participantChunks) {
+        participants
+                .forEach(participant -> {
+                    if (participationRates.containsKey(participant.getUserId())) {
+                        participant.updateParticipationRate(participationRates.get(participant.getUserId()), participantChunks.get(participant.getUserId()));
+                    }
+                });
     }
 
     private void setTitle(String title) {
