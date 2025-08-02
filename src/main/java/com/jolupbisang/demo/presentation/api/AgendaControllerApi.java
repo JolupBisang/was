@@ -1,9 +1,9 @@
-package com.jolupbisang.demo.presentation.agenda;
+package com.jolupbisang.demo.presentation.api;
 
+import com.jolupbisang.demo.application.meeting.command.dto.AgendaCreateReq;
+import com.jolupbisang.demo.application.meeting.command.dto.AgendaStatusReq;
+import com.jolupbisang.demo.application.meeting.command.dto.AgendaUpdateReq;
 import com.jolupbisang.demo.infrastructure.auth.security.CustomUserDetails;
-import com.jolupbisang.demo.presentation.agenda.dto.request.AgendaCreateReq;
-import com.jolupbisang.demo.presentation.agenda.dto.request.AgendaStatusReq;
-import com.jolupbisang.demo.presentation.agenda.dto.request.AgendaUpdateReq;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
