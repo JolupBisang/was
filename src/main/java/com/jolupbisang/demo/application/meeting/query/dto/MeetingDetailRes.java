@@ -15,10 +15,11 @@ public record MeetingDetailRes(
         Integer restDuration,
         String meetingStatus,
         List<ParticipantInfoRes> participants,
+        List<AgendaInfoRes> agendas,
         boolean isHost
 ) {
 
-    public static MeetingDetailRes from(Meeting meeting, List<ParticipantInfoRes> participantInfos, boolean isHost) {
+    public static MeetingDetailRes from(Meeting meeting, List<ParticipantInfoRes> participantInfos, List<AgendaInfoRes> agendas, boolean isHost) {
         return new MeetingDetailRes(
                 meeting.getId(),
                 meeting.getTitle(),
@@ -29,6 +30,7 @@ public record MeetingDetailRes(
                 meeting.getRestTime().getRestDuration(),
                 meeting.getMeetingStatus().name(),
                 participantInfos,
+                agendas,
                 isHost
         );
     }

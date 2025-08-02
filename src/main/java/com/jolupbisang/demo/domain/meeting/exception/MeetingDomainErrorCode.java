@@ -28,9 +28,10 @@ public enum MeetingDomainErrorCode implements ErrorCode {
     TOO_MANY_HOST("MD-0019", HttpStatus.BAD_REQUEST, "회의 메인 호스트는 한명이어야 합니다."),
     EMPTY_MEETING_ROLE("MD-0020", HttpStatus.BAD_REQUEST, "회의에서 회원의 역할은 필수입니다."),
     EMPTY_AGENDA_CONTENT("MD-0021", HttpStatus.BAD_REQUEST, "회의 안건 내용이 비어있습니다."),
-    ONLY_FOR_HOST_AUTHORITY("MD-0022", HttpStatus.UNAUTHORIZED, "회의 호스트만 가능한 작업입니다."),   
-    INVALID_RATE_RANGE("MD-0023", HttpStatus.BAD_REQUEST, "참여율은 0~1 사이의 값이어야 합니다."), 
-    INVALID_TOTAL_PARTICIPATION_CHUNK("MD-0024", HttpStatus.BAD_REQUEST, "참여 청크는 0보다 크거나 같아야합니다.");
+    ONLY_FOR_HOST_AUTHORITY("MD-0022", HttpStatus.UNAUTHORIZED, "회의 호스트만 가능한 작업입니다."),
+    INVALID_RATE_RANGE("MD-0023", HttpStatus.BAD_REQUEST, "참여율은 0~1 사이의 값이어야 합니다."),
+    INVALID_TOTAL_PARTICIPATION_CHUNK("MD-0024", HttpStatus.BAD_REQUEST, "참여 청크는 0보다 크거나 같아야합니다."),
+    NON_EXISTING_AGENDA("MD-0025", HttpStatus.NOT_FOUND, "없는 아젠다 입니다.");
 
     private final String code;
     private final HttpStatus status;

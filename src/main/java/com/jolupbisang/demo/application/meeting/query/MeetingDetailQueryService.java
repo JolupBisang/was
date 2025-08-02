@@ -1,6 +1,7 @@
 package com.jolupbisang.demo.application.meeting.query;
 
 import com.jolupbisang.demo.application.meeting.exception.MeetingNotFoundException;
+import com.jolupbisang.demo.application.meeting.query.dto.AgendaInfoRes;
 import com.jolupbisang.demo.application.meeting.query.dto.MeetingDetailRes;
 import com.jolupbisang.demo.application.meeting.query.dto.ParticipantInfoRes;
 import com.jolupbisang.demo.domain.meeting.model.Meeting;
@@ -27,15 +28,16 @@ public class MeetingDetailQueryService {
 
     @Transactional(readOnly = true)
     public MeetingDetailRes getMeetingDetail(long meetingId, long accessUserId) {
-        Meeting meeting = meetingRepository.findByIdWithParticipant(meetingId)
+        Meeting meeting = meetingRepository.findByIdWithAllDetail(meetingId)
                 .orElseThrow(() -> new MeetingNotFoundException(Map.of("meetingId", meetingId)));
 
         meeting.validateViewAuthority(accessUserId);
 
         List<ParticipantInfoRes> participantInfos = getParticipantInfoRes(meeting);
+        List<AgendaInfoRes> agendaInfoRes = getAgendaInfoRes(meeting);
         boolean isHost = meeting.isHost(accessUserId);
 
-        return MeetingDetailRes.from(meeting, participantInfos, isHost);
+        return MeetingDetailRes.from(meeting, participantInfos, agendaInfoRes, isHost);
     }
 
     private List<ParticipantInfoRes> getParticipantInfoRes(Meeting meeting) {
@@ -59,5 +61,12 @@ public class MeetingDetailQueryService {
         User user = userMap.get(participant.getUserId());
         String email = (user != null) ? user.getEmail() : NOT_FOUND_USER_EMAIL;
         return new ParticipantInfoRes(participant.getUserId(), email, participant.getRole());
+    }
+
+
+    private List<AgendaInfoRes> getAgendaInfoRes(Meeting meeting) {
+        return meeting.getAgendas().stream()
+                .map(agenda -> new AgendaInfoRes(agenda.getId(), agenda.getContent(), agenda.getIsCompleted()))
+                .collect(Collectors.toList());
     }
 }

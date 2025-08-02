@@ -11,9 +11,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static com.jolupbisang.demo.domain.meeting.entity.QMeeting.meeting;
-import static com.jolupbisang.demo.domain.meeting.entity.QMeetingUser.meetingUser;
-import static com.jolupbisang.demo.domain.meeting.entity.QParticipant.participant;
+import static com.jolupbisang.demo.domain.meeting.model.QAgenda.agenda;
+import static com.jolupbisang.demo.domain.meeting.model.QMeeting.meeting;
+import static com.jolupbisang.demo.domain.meeting.model.QParticipant.participant;
 
 
 @RequiredArgsConstructor
@@ -31,10 +31,10 @@ public class MeetingRepositoryImpl implements MeetingRepositoryCustom {
     }
 
     private static JPQLQuery<Long> findAcceptedMeetingByUserId(Long userId) {
-        return JPAExpressions.select(meetingUser.meeting.id)
-                .from(meetingUser)
-                .where(meetingUser.user.id.eq(userId)
-                        .and(meetingUser.status.eq(ParticipantStatus.ACCEPTED)));
+        return JPAExpressions.select(participant.meeting.id)
+                .from(participant)
+                .where(participant.userId.eq(userId)
+                        .and(participant.status.eq(ParticipantStatus.ACCEPTED)));
     }
 
     @Override
@@ -46,6 +46,25 @@ public class MeetingRepositoryImpl implements MeetingRepositoryCustom {
                 .fetchOne();
 
         return Optional.ofNullable(resultMeeting);
+    }
+
+    @Override
+    public Optional<Meeting> findByIdWithAgenda(long meetingId, long agendaId) {
+        Meeting resultMeeting = queryFactory.selectFrom(meeting)
+                .leftJoin(meeting.agendas, agenda).fetchJoin()
+                .where(meeting.id.eq(meetingId))
+                .fetchOne();
+
+        return Optional.ofNullable(resultMeeting);
+    }
+
+    @Override
+    public Optional<Meeting> findByIdWithAllDetail(long meetingId) {
+        return Optional.ofNullable(queryFactory.selectFrom(meeting)
+                .leftJoin(meeting.participants, participant).fetchJoin()
+                .leftJoin(meeting.agendas, agenda).fetchJoin()
+                .where(meeting.id.eq(meetingId))
+                .fetchOne());
     }
 
 }

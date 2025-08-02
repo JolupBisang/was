@@ -1,5 +1,7 @@
 package com.jolupbisang.demo.domain.meeting.model;
 
+import com.jolupbisang.demo.domain.meeting.event.AgendaStatusChangedEvent;
+import com.jolupbisang.demo.global.event.Events;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -28,11 +30,15 @@ public class Agenda {
         this.isCompleted = false;
     }
 
-    public void setIsCompleted(boolean isCompleted) {
-        this.isCompleted = isCompleted;
-    }
-
     public void updateContent(String content) {
         this.content = content;
+    }
+
+    public void changeStatus(boolean isCompleted) {
+        if (this.isCompleted == isCompleted) {
+            return;
+        }
+        this.isCompleted = isCompleted;
+        Events.raise(new AgendaStatusChangedEvent(id, isCompleted));
     }
 }

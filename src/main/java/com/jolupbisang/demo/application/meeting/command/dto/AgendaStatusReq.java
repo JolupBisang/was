@@ -1,4 +1,4 @@
-package com.jolupbisang.demo.presentation.agenda.dto.request;
+package com.jolupbisang.demo.application.meeting.command.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
@@ -7,6 +7,6 @@ import jakarta.validation.constraints.NotNull;
 public record AgendaStatusReq(
         @Schema(description = "완료 여부", example = "true", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotNull(message = "완료 상태는 null일 수 없습니다.")
-        Boolean isCompleted
+        boolean isCompleted
 ) {
 }

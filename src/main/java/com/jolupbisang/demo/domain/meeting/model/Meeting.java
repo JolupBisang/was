@@ -137,6 +137,12 @@ public class Meeting extends BaseTimeEntity {
         }
     }
 
+    public void removeParticipant(long accessUserId, long participantId) {
+        validateHostAuthority(accessUserId);
+
+        participants.removeIf(p -> p.getUserId().equals(participantId));
+    }
+
     public void addAgendas(List<AgendaDetail> agendaDetails) {
         if (agendaDetails == null) {
             throw new NullAgendaException();
@@ -145,6 +151,17 @@ public class Meeting extends BaseTimeEntity {
             Agenda newAgenda = new Agenda(this, detail.getContent());
             this.agendas.add(newAgenda);
         }
+    }
+
+    public void changeAgendaStatus(long agendaId, long accessUserId, boolean isCompleted) {
+        validateHostAuthority(accessUserId);
+
+        Agenda foundAgenda = agendas.stream()
+                .filter(a -> a.getId().equals(agendaId))
+                .findFirst()
+                .orElseThrow(() -> new AgendaNotExistingException(Map.of("agendaId", agendaId)));
+
+        foundAgenda.changeStatus(isCompleted);
     }
 
     public void validateViewAuthority(long accessUserId) {
@@ -253,11 +270,5 @@ public class Meeting extends BaseTimeEntity {
         if (!isHost) {
             throw new NotHostException();
         }
-    }
-
-    public void removeParticipant(long accessUserId, long participantId) {
-        validateHostAuthority(accessUserId);
-
-        participants.removeIf(p -> p.getUserId().equals(participantId));
     }
 }
