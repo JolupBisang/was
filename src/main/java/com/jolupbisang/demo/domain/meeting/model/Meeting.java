@@ -1,6 +1,7 @@
 package com.jolupbisang.demo.domain.meeting.model;
 
 import com.jolupbisang.demo.domain.common.BaseTimeEntity;
+import com.jolupbisang.demo.domain.meeting.dto.CreatedAgendaDetail;
 import com.jolupbisang.demo.domain.meeting.dto.MeetingDetailUpdateDto;
 import com.jolupbisang.demo.domain.meeting.event.MeetingCompletedEvent;
 import com.jolupbisang.demo.domain.meeting.event.MeetingStartedEvent;
@@ -143,14 +144,19 @@ public class Meeting extends BaseTimeEntity {
         participants.removeIf(p -> p.getUserId().equals(participantId));
     }
 
-    public void addAgendas(List<AgendaDetail> agendaDetails) {
+    public List<CreatedAgendaDetail> addAgendas(List<AgendaDetail> agendaDetails) {
         if (agendaDetails == null) {
             throw new NullAgendaException();
         }
+
+        List<CreatedAgendaDetail> createdAgendaDetails = new ArrayList<>();
         for (AgendaDetail detail : agendaDetails) {
             Agenda newAgenda = new Agenda(this, detail.getContent());
             this.agendas.add(newAgenda);
+            createdAgendaDetails.add(new CreatedAgendaDetail(newAgenda.getId(), newAgenda.getContent()));
         }
+
+        return createdAgendaDetails;
     }
 
     public void changeAgendaStatus(long agendaId, long accessUserId, boolean isCompleted) {
@@ -162,6 +168,17 @@ public class Meeting extends BaseTimeEntity {
                 .orElseThrow(() -> new AgendaNotExistingException(Map.of("agendaId", agendaId)));
 
         foundAgenda.changeStatus(isCompleted);
+    }
+
+    public void deleteAgenda(long agendaId, long accessUserId) {
+        validateHostAuthority(accessUserId);
+
+        Agenda foundAgenda = agendas.stream()
+                .filter(a -> a.getId().equals(agendaId))
+                .findFirst()
+                .orElseThrow(() -> new AgendaNotExistingException(Map.of("agendaId", agendaId)));
+
+        agendas.remove(foundAgenda);
     }
 
     public void validateViewAuthority(long accessUserId) {
