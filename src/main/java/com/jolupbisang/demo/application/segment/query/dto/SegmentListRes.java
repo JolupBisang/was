@@ -1,13 +1,12 @@
-package com.jolupbisang.demo.application.segment.dto;
+package com.jolupbisang.demo.application.segment.query.dto;
 
-import com.jolupbisang.demo.domain.segment.Segment;
+import com.jolupbisang.demo.domain.segment.model.Segment;
 
 import java.time.LocalDateTime;
 
 public record SegmentListRes(
-        Long id,
-        Long userId,
-        String userName,
+        long id,
+        long userId,
         int segmentOrder,
         LocalDateTime timestamp,
         String text,
@@ -17,12 +16,11 @@ public record SegmentListRes(
     public static SegmentListRes from(Segment segment) {
         return new SegmentListRes(
                 segment.getId(),
-                segment.getUser().getId(),
-                segment.getUser().getNickname(),
-                segment.getSegmentOrder(),
-                segment.getTimestamp(),
+                segment.getUserId(),
+                segment.getOrder(),
+                segment.getSpokenDateTime(),
                 segment.getText(),
                 segment.getLang()
         );
     }
-} 
+}
