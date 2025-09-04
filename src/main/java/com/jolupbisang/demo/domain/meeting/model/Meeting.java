@@ -288,4 +288,15 @@ public class Meeting extends BaseTimeEntity {
             throw new NotHostException();
         }
     }
+
+    public void updateAgenda(long agendaId, long accessUserId, String content) {
+        validateHostAuthority(accessUserId);
+
+        Agenda foundAgenda = agendas.stream()
+                .filter(a -> a.getId().equals(agendaId))
+                .findFirst()
+                .orElseThrow(() -> new AgendaNotExistingException(Map.of("agendaId", agendaId)));
+
+        foundAgenda.updateContent(content);
+    }
 }

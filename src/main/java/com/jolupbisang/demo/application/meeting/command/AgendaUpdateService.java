@@ -7,6 +7,7 @@ import com.jolupbisang.demo.domain.meeting.model.Meeting;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 
@@ -16,6 +17,7 @@ public class AgendaUpdateService {
 
     private final MeetingRepository meetingRepository;
 
+    @Transactional
     public AgendaUpdateRes updateContent(Long meetingId, Long agendaId, Long accessUserId, AgendaUpdateReq agendaUpdateReq) {
 
         Meeting meeting = meetingRepository.findByIdWithAllDetail(meetingId)
