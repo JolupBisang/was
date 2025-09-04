@@ -1,6 +1,6 @@
-package com.jolupbisang.demo.presentation.segment.api;
+package com.jolupbisang.demo.presentation.api;
 
-import com.jolupbisang.demo.application.segment.dto.SegmentListRes;
+import com.jolupbisang.demo.application.segment.query.dto.SegmentDetailRes;
 import com.jolupbisang.demo.infrastructure.auth.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -83,7 +83,7 @@ public interface SegmentControllerApi {
                                     """),
                     }))
     })
-    Slice<SegmentListRes> getSegments(
+    Slice<SegmentDetailRes> getSegments(
             @Parameter(description = "회의 ID", required = true, example = "1")
             @PathVariable Long meetingId,
             @Parameter(description = "페이징 파라미터 (page: 페이지 번호, size: 페이지 크기, sort: 정렬 조건)")

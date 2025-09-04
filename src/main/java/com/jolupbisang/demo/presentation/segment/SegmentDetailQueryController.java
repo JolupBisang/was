@@ -1,7 +1,7 @@
 package com.jolupbisang.demo.presentation.segment;
 
 import com.jolupbisang.demo.application.segment.query.SegmentDetailQueryService;
-import com.jolupbisang.demo.application.segment.query.dto.SegmentListRes;
+import com.jolupbisang.demo.application.segment.query.dto.SegmentDetailRes;
 import com.jolupbisang.demo.infrastructure.auth.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -20,9 +20,9 @@ public class SegmentDetailQueryController {
     private final SegmentDetailQueryService segmentDetailQueryService;
 
     @GetMapping("/api/v1/meeting/{meetingId}/segments")
-    public Slice<SegmentListRes> getSegments(@PathVariable Long meetingId,
-                                             @PageableDefault(size = 40, sort = "segmentOrder", direction = Sort.Direction.DESC) Pageable pageable,
-                                             @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public Slice<SegmentDetailRes> getSegments(@PathVariable Long meetingId,
+                                               @PageableDefault(size = 40, sort = "segmentOrder", direction = Sort.Direction.DESC) Pageable pageable,
+                                               @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         return segmentDetailQueryService.getSegmentDetails(meetingId, userDetails.getUserId(), pageable);
     }
