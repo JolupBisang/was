@@ -1,9 +1,9 @@
 package com.jolupbisang.demo.presentation.auth.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jolupbisang.demo.global.exception.CustomException;
 import com.jolupbisang.demo.global.exception.ErrorCode;
 import com.jolupbisang.demo.global.exception.GlobalErrorCode;
-import com.jolupbisang.demo.global.exception.ServiceLogicException;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -38,7 +38,7 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
             handleException(response, ex, GlobalErrorCode.INVALID_TOKEN_SIGNATURE);
         } catch (JwtException ex) {
             handleException(response, ex, GlobalErrorCode.UNKNOWN_TOKEN_ERROR);
-        } catch (ServiceLogicException ex) {
+        } catch (CustomException ex) {
             handleException(response, ex, ex.getErrorCode());
         } catch (Exception ex) {
             handleException(response, ex, GlobalErrorCode.INTERNAL_SERVER_ERROR);

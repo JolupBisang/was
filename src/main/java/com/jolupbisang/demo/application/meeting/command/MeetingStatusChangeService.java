@@ -5,7 +5,7 @@ import com.jolupbisang.demo.application.meeting.command.dto.MeetingStatusUpdateR
 import com.jolupbisang.demo.application.meeting.exception.MeetingErrorCode;
 import com.jolupbisang.demo.application.meeting.exception.NoSuchMeetingStatusException;
 import com.jolupbisang.demo.domain.meeting.model.Meeting;
-import com.jolupbisang.demo.global.exception.ServiceLogicException;
+import com.jolupbisang.demo.global.exception.CustomException;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,7 +22,7 @@ public class MeetingStatusChangeService {
     @Transactional
     public MeetingStatusChangeRes changeMeetingStatus(long meetingId, long accessId, MeetingStatusUpdateReq meetingStatusUpdateReq) {
         Meeting meeting = meetingRepository.findByIdWithParticipant(meetingId)
-                .orElseThrow(() -> new ServiceLogicException(MeetingErrorCode.MEETING_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(MeetingErrorCode.MEETING_NOT_FOUND));
 
         switch (meetingStatusUpdateReq.targetStatus()) {
             case IN_PROGRESSING -> meeting.start(accessId);

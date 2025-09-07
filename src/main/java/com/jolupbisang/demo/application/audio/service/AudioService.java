@@ -11,7 +11,7 @@ import com.jolupbisang.demo.application.common.MeetingSessionManager;
 import com.jolupbisang.demo.application.event.whisper.WhisperEmbeddedEvent;
 import com.jolupbisang.demo.domain.meeting.event.MeetingCompletedEvent;
 import com.jolupbisang.demo.domain.meeting.event.MeetingStartedEvent;
-import com.jolupbisang.demo.global.exception.ServiceLogicException;
+import com.jolupbisang.demo.global.exception.CustomException;
 import com.jolupbisang.demo.infrastructure.audio.AudioProgressRepository;
 import com.jolupbisang.demo.infrastructure.audio.AudioRepository;
 import com.jolupbisang.demo.infrastructure.audio.EmbeddedVectorRepository;
@@ -86,10 +86,10 @@ public class AudioService {
 
     public void processAndSaveAudioData(WebSocketSession session, BinaryMessage message) throws IOException {
         long userId = meetingSessionManager.getUserIdBySession(session)
-                .orElseThrow(() -> new ServiceLogicException(AudioErrorCode.SESSION_INFO_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(AudioErrorCode.SESSION_INFO_NOT_FOUND));
 
         long meetingId = meetingSessionManager.getMeetingIdBySession(session)
-                .orElseThrow(() -> new ServiceLogicException(AudioErrorCode.SESSION_INFO_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(AudioErrorCode.SESSION_INFO_NOT_FOUND));
 
         long expectedChunkId = audioProgressRepository.findLastProcessedChunkId(userId, meetingId)
                 .orElse(-1L) + 1;
@@ -122,18 +122,18 @@ public class AudioService {
     @Transactional
     public void embeddingAudio(Long userId, MultipartFile audioFile) {
         if (audioFile.isEmpty()) {
-            throw new ServiceLogicException(AudioErrorCode.INVALID_EMBEDDING_AUDIO);
+            throw new CustomException(AudioErrorCode.INVALID_EMBEDDING_AUDIO);
         }
 
         if (!"audio/mp4".equals(audioFile.getContentType())) {
-            throw new ServiceLogicException(AudioErrorCode.INVALID_EMBEDDING_AUDIO_TYPE);
+            throw new CustomException(AudioErrorCode.INVALID_EMBEDDING_AUDIO_TYPE);
         }
 
         try {
             embeddingAudioRepository.save(userId, audioFile.getBytes());
             whisperClient.sendEmbeddingAudio(userId, audioFile.getBytes());
         } catch (IOException e) {
-            throw new ServiceLogicException(AudioErrorCode.INVALID_EMBEDDING_AUDIO);
+            throw new CustomException(AudioErrorCode.INVALID_EMBEDDING_AUDIO);
         }
     }
 
@@ -205,7 +205,7 @@ public class AudioService {
     private AudioDetails extractAudioDetails(ByteBuffer byteBuffer) {
         int metaLength = byteBuffer.getInt();
         if (metaLength <= 0 || metaLength > byteBuffer.remaining()) {
-            throw new ServiceLogicException(AudioErrorCode.METADATA_INVALID_PAYLOAD_LENGTH);
+            throw new CustomException(AudioErrorCode.METADATA_INVALID_PAYLOAD_LENGTH);
         }
         byte[] metaDataBytes = new byte[metaLength];
         byteBuffer.get(metaDataBytes);
@@ -214,10 +214,10 @@ public class AudioService {
         try {
             return objectMapper.readValue(metaString, AudioDetails.class);
         } catch (JsonProcessingException ex) {
-            if (ex.getCause() instanceof ServiceLogicException) {
-                throw (ServiceLogicException) ex.getCause();
+            if (ex.getCause() instanceof CustomException) {
+                throw (CustomException) ex.getCause();
             }
-            throw new ServiceLogicException(AudioErrorCode.INVALID_META_DATA);
+            throw new CustomException(AudioErrorCode.INVALID_META_DATA);
         }
     }
 
@@ -252,16 +252,16 @@ public class AudioService {
     private record AudioDetails(String type, Long chunkId, String encoding, LocalDateTime timestamp) {
         public AudioDetails {
             if (type == null || type.trim().isEmpty()) {
-                throw new ServiceLogicException(AudioErrorCode.METADATA_TYPE_INVALID);
+                throw new CustomException(AudioErrorCode.METADATA_TYPE_INVALID);
             }
             if (chunkId == null) {
-                throw new ServiceLogicException(AudioErrorCode.METADATA_CHUNKID_NULL);
+                throw new CustomException(AudioErrorCode.METADATA_CHUNKID_NULL);
             }
             if (encoding == null || encoding.trim().isEmpty()) {
-                throw new ServiceLogicException(AudioErrorCode.METADATA_ENCODING_INVALID);
+                throw new CustomException(AudioErrorCode.METADATA_ENCODING_INVALID);
             }
             if (timestamp == null) {
-                throw new ServiceLogicException(AudioErrorCode.METADATA_TIMESTAMP_NULL);
+                throw new CustomException(AudioErrorCode.METADATA_TIMESTAMP_NULL);
             }
         }
 

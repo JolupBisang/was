@@ -8,7 +8,8 @@ import org.springframework.http.HttpStatus;
 @Getter
 @RequiredArgsConstructor
 public enum AudioApplicationErrorCode implements ErrorCode {
-    UNACCESSIBLE_AUDIO_FILE("AA-0001", HttpStatus.BAD_REQUEST, "오디오 파일에 접근할 수 없습니다.");
+    UNACCESSIBLE_AUDIO_FILE("AA-0001", HttpStatus.BAD_REQUEST, "오디오 파일에 접근할 수 없습니다."),
+    MEETING_NOT_COMPLETED("AA-0002", HttpStatus.FORBIDDEN, "회의가 완료되지 않았습니다.");
 
     private final String code;
     private final HttpStatus status;

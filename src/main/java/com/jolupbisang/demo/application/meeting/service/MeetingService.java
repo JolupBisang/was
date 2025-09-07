@@ -10,7 +10,7 @@ import com.jolupbisang.demo.application.meeting.exception.MeetingErrorCode;
 import com.jolupbisang.demo.domain.meeting.model.Meeting;
 import com.jolupbisang.demo.domain.meeting.model.MeetingStatus;
 import com.jolupbisang.demo.domain.user.User;
-import com.jolupbisang.demo.global.exception.ServiceLogicException;
+import com.jolupbisang.demo.global.exception.CustomException;
 import com.jolupbisang.demo.infrastructure.agenda.AgendaRepository;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
 import com.jolupbisang.demo.infrastructure.meetingUser.MeetingUserRepository;
@@ -48,7 +48,7 @@ public class MeetingService {
         meetingAccessValidator.validateUserParticipating(meetingId, userId);
 
         Meeting meeting = meetingRepository.findById(meetingId)
-                .orElseThrow(() -> new ServiceLogicException(MeetingErrorCode.MEETING_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(MeetingErrorCode.MEETING_NOT_FOUND));
 
         List<User> participants = userRepository.findByMeetingId(meetingId);
         boolean isHost = meetingUserRepository.existsByMeetingIdAndUserIdAndIsHost(meetingId, userId, true);
@@ -59,7 +59,7 @@ public class MeetingService {
     @Transactional(readOnly = true)
     public List<MeetingDetailSummary> getMeetingsByYearAndMonth(int year, int month, Long userId) {
         if (year < 0 || month < 1 || month > 12) {
-            throw new ServiceLogicException(MeetingErrorCode.INVALID_DATE);
+            throw new CustomException(MeetingErrorCode.INVALID_DATE);
         }
 
         LocalDateTime startOfMonth = LocalDateTime.of(year, month, 1, 0, 0, 0);
@@ -75,7 +75,7 @@ public class MeetingService {
     @Transactional
     public void changeMeetingStatus(Long meetingId, Long userId, String apiTargetStatus) {
         Meeting meeting = meetingRepository.findById(meetingId)
-                .orElseThrow(() -> new ServiceLogicException(MeetingErrorCode.MEETING_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(MeetingErrorCode.MEETING_NOT_FOUND));
 
         switch (apiTargetStatus) {
             case "IN_PROGRESS":
@@ -88,7 +88,7 @@ public class MeetingService {
                 cancelMeeting(meeting, meetingId, userId);
                 break;
             default:
-                throw new ServiceLogicException(MeetingErrorCode.CANNOT_CHANGE_TO_REQUESTED_STATUS);
+                throw new CustomException(MeetingErrorCode.CANNOT_CHANGE_TO_REQUESTED_STATUS);
         }
     }
 
@@ -97,10 +97,10 @@ public class MeetingService {
         meetingAccessValidator.validateUserIsHost(meetingId, userId);
 
         Meeting meeting = meetingRepository.findById(meetingId)
-                .orElseThrow(() -> new ServiceLogicException(MeetingErrorCode.MEETING_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(MeetingErrorCode.MEETING_NOT_FOUND));
 
         if (!meeting.isWaiting()) {
-            throw new ServiceLogicException(MeetingErrorCode.CANNOT_UPDATE_MEETING);
+            throw new CustomException(MeetingErrorCode.CANNOT_UPDATE_MEETING);
         }
 
         meeting.updateMeetingDetails(
@@ -115,7 +115,7 @@ public class MeetingService {
 
     public LocalDateTime getMeetingStartTime(long meetingId) {
         Meeting meeting = meetingRepository.findById(meetingId)
-                .orElseThrow(() -> new ServiceLogicException(MeetingErrorCode.MEETING_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(MeetingErrorCode.MEETING_NOT_FOUND));
         return meeting.getScheduledTime().getScheduledStartTime();
     }
 
@@ -136,7 +136,7 @@ public class MeetingService {
     private void cancelMeeting(Meeting meeting, Long meetingId, Long userId) {
         meetingAccessValidator.validateUserIsHost(meetingId, userId);
         if (meeting.getMeetingStatus() != MeetingStatus.WAITING) {
-            throw new ServiceLogicException(MeetingErrorCode.MEETING_NOT_WAITING);
+            throw new CustomException(MeetingErrorCode.MEETING_NOT_WAITING);
         }
         meeting.cancel();
     }

@@ -39,7 +39,7 @@ public class WebSocketErrorHandler {
     }
 
     private ErrorCode resolveErrorCode(Throwable exception) {
-        if (exception instanceof ServiceLogicException customEx) {
+        if (exception instanceof CustomException customEx) {
             return customEx.getErrorCode();
         } else if (exception instanceof IOException) {
             return GlobalErrorCode.INTERNAL_SERVER_ERROR;
