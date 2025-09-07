@@ -2,7 +2,7 @@ package com.jolupbisang.demo.application.meeting.command;
 
 import com.jolupbisang.demo.application.meeting.command.dto.MeetingDetailUpdateRes;
 import com.jolupbisang.demo.application.meeting.command.dto.MeetingUpdateReq;
-import com.jolupbisang.demo.application.meeting.exception.MeetingNotFoundException;
+import com.jolupbisang.demo.global.exception.NotFoundException;
 import com.jolupbisang.demo.domain.meeting.dto.MeetingDetailUpdateDto;
 import com.jolupbisang.demo.domain.meeting.model.Meeting;
 import com.jolupbisang.demo.domain.meeting.model.RestTime;
@@ -23,7 +23,7 @@ public class MeetingDetailUpdateService {
         MeetingDetailUpdateDto meetingDetailUpdateDto = createMeetingDetailUpdateDto(meetingUpdateReq);
 
         Meeting meeting = meetingRepository.findByIdWithParticipant(meetingId)
-                .orElseThrow(MeetingNotFoundException::new);
+                .orElseThrow(() -> new NotFoundException("meetingId: %d", meetingId));
 
         meeting.updateDetails(meetingDetailUpdateDto, accessUserId);
 

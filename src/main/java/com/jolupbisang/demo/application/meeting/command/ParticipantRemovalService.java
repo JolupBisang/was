@@ -1,7 +1,7 @@
 package com.jolupbisang.demo.application.meeting.command;
 
 import com.jolupbisang.demo.application.meeting.command.dto.ParticipantRemovalRes;
-import com.jolupbisang.demo.application.meeting.exception.MeetingNotFoundException;
+import com.jolupbisang.demo.global.exception.NotFoundException;
 import com.jolupbisang.demo.domain.meeting.model.Meeting;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +15,7 @@ public class ParticipantRemovalService {
 
     public ParticipantRemovalRes removeParticipant(long meetingId, long accessUserId, long participantId) {
         Meeting meeting = meetingRepository.findByIdWithParticipant(meetingId)
-                .orElseThrow(MeetingNotFoundException::new);
+                .orElseThrow(() -> new NotFoundException("meetingId: %d", meetingId));
 
         meeting.removeParticipant(accessUserId, participantId);
 

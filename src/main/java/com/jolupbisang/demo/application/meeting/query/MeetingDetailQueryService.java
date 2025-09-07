@@ -1,12 +1,12 @@
 package com.jolupbisang.demo.application.meeting.query;
 
-import com.jolupbisang.demo.application.meeting.exception.MeetingNotFoundException;
 import com.jolupbisang.demo.application.meeting.query.dto.AgendaInfoRes;
 import com.jolupbisang.demo.application.meeting.query.dto.MeetingDetailRes;
 import com.jolupbisang.demo.application.meeting.query.dto.ParticipantInfoRes;
 import com.jolupbisang.demo.domain.meeting.model.Meeting;
 import com.jolupbisang.demo.domain.meeting.model.Participant;
 import com.jolupbisang.demo.domain.user.User;
+import com.jolupbisang.demo.global.exception.NotFoundException;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
 import com.jolupbisang.demo.infrastructure.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +29,7 @@ public class MeetingDetailQueryService {
     @Transactional(readOnly = true)
     public MeetingDetailRes getMeetingDetail(long meetingId, long accessUserId) {
         Meeting meeting = meetingRepository.findByIdWithAllDetail(meetingId)
-                .orElseThrow(() -> new MeetingNotFoundException(Map.of("meetingId", meetingId)));
+                .orElseThrow(() -> new NotFoundException("meetingId: %d", meetingId));
 
         meeting.validateViewAuthority(accessUserId);
 

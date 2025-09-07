@@ -1,7 +1,7 @@
 package com.jolupbisang.demo.application.meeting.command;
 
 import com.jolupbisang.demo.application.meeting.command.dto.ParticipantAdditionRes;
-import com.jolupbisang.demo.application.meeting.exception.MeetingNotFoundException;
+import com.jolupbisang.demo.global.exception.NotFoundException;
 import com.jolupbisang.demo.domain.meeting.dto.ParticipantAddReq;
 import com.jolupbisang.demo.domain.meeting.model.Meeting;
 import com.jolupbisang.demo.domain.meeting.model.MeetingRole;
@@ -23,7 +23,7 @@ public class ParticipantAdditionService {
 
     public ParticipantAdditionRes addParticipants(long meetingId, long accessUserId, ParticipantAddReq participantAddReq) {
         Meeting meeting = meetingRepository.findById(meetingId)
-                .orElseThrow(MeetingNotFoundException::new);
+                .orElseThrow(() -> new NotFoundException("meetingId: %d", meetingId));
 
         List<ParticipantDetail> participantDetails = createParticipantDetailByEmail(participantAddReq.emails());
 

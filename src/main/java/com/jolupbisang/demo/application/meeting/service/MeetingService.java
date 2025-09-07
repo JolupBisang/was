@@ -3,21 +3,14 @@ package com.jolupbisang.demo.application.meeting.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jolupbisang.demo.application.common.MeetingAccessValidator;
 import com.jolupbisang.demo.application.common.MeetingSessionManager;
-import com.jolupbisang.demo.application.event.MeetingCompletedEvent;
-import com.jolupbisang.demo.application.event.MeetingStartingEvent;
 import com.jolupbisang.demo.application.meeting.dto.MeetingDetailSummary;
 import com.jolupbisang.demo.application.meeting.exception.MeetingErrorCode;
 import com.jolupbisang.demo.domain.meeting.model.Meeting;
-import com.jolupbisang.demo.domain.meeting.model.MeetingStatus;
-import com.jolupbisang.demo.domain.user.User;
 import com.jolupbisang.demo.global.exception.CustomException;
 import com.jolupbisang.demo.infrastructure.agenda.AgendaRepository;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
 import com.jolupbisang.demo.infrastructure.meetingUser.MeetingUserRepository;
 import com.jolupbisang.demo.infrastructure.user.UserRepository;
-import com.jolupbisang.demo.presentation.audio.dto.response.SocketResponseType;
-import com.jolupbisang.demo.presentation.meeting.dto.request.MeetingUpdateReq;
-import com.jolupbisang.demo.presentation.meeting.dto.response.MeetingDetailRes;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -44,19 +37,6 @@ public class MeetingService {
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional(readOnly = true)
-    public MeetingDetailRes getMeetingDetail(Long meetingId, Long userId) {
-        meetingAccessValidator.validateUserParticipating(meetingId, userId);
-
-        Meeting meeting = meetingRepository.findById(meetingId)
-                .orElseThrow(() -> new CustomException(MeetingErrorCode.MEETING_NOT_FOUND));
-
-        List<User> participants = userRepository.findByMeetingId(meetingId);
-        boolean isHost = meetingUserRepository.existsByMeetingIdAndUserIdAndIsHost(meetingId, userId, true);
-
-        return MeetingDetailRes.fromEntity(meeting, participants, isHost);
-    }
-
-    @Transactional(readOnly = true)
     public List<MeetingDetailSummary> getMeetingsByYearAndMonth(int year, int month, Long userId) {
         if (year < 0 || month < 1 || month > 12) {
             throw new CustomException(MeetingErrorCode.INVALID_DATE);
@@ -72,72 +52,10 @@ public class MeetingService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional
-    public void changeMeetingStatus(Long meetingId, Long userId, String apiTargetStatus) {
-        Meeting meeting = meetingRepository.findById(meetingId)
-                .orElseThrow(() -> new CustomException(MeetingErrorCode.MEETING_NOT_FOUND));
-
-        switch (apiTargetStatus) {
-            case "IN_PROGRESS":
-                startMeeting(meeting, meetingId, userId);
-                break;
-            case "COMPLETED":
-                completeMeeting(meeting, meetingId, userId);
-                break;
-            case "CANCELLED":
-                cancelMeeting(meeting, meetingId, userId);
-                break;
-            default:
-                throw new CustomException(MeetingErrorCode.CANNOT_CHANGE_TO_REQUESTED_STATUS);
-        }
-    }
-
-    @Transactional
-    public void updateMeeting(Long meetingId, Long userId, MeetingUpdateReq meetingUpdateReq) {
-        meetingAccessValidator.validateUserIsHost(meetingId, userId);
-
-        Meeting meeting = meetingRepository.findById(meetingId)
-                .orElseThrow(() -> new CustomException(MeetingErrorCode.MEETING_NOT_FOUND));
-
-        if (!meeting.isWaiting()) {
-            throw new CustomException(MeetingErrorCode.CANNOT_UPDATE_MEETING);
-        }
-
-        meeting.updateMeetingDetails(
-                meetingUpdateReq.title(),
-                meetingUpdateReq.location(),
-                meetingUpdateReq.scheduledStartTime(),
-                meetingUpdateReq.targetTime(),
-                meetingUpdateReq.restInterval(),
-                meetingUpdateReq.restDuration()
-        );
-    }
 
     public LocalDateTime getMeetingStartTime(long meetingId) {
         Meeting meeting = meetingRepository.findById(meetingId)
                 .orElseThrow(() -> new CustomException(MeetingErrorCode.MEETING_NOT_FOUND));
         return meeting.getScheduledTime().getScheduledStartTime();
-    }
-
-    private void startMeeting(Meeting meeting, Long meetingId, Long userId) {
-        meetingAccessValidator.validateUserIsHost(meetingId, userId);
-        meeting.start();
-        eventPublisher.publishEvent(new MeetingStartingEvent(this, meetingId));
-    }
-
-    private void completeMeeting(Meeting meeting, Long meetingId, Long userId) {
-        meetingAccessValidator.validateUserIsHost(meetingId, userId);
-        meeting.end();
-        meetingSessionManager.sendTextToParticipants(SocketResponseType.MEETING_COMPLETED, meetingId, "회의가 종료되었습니다.");
-
-        eventPublisher.publishEvent(new MeetingCompletedEvent(this, meetingId));
-    }
-
-    private void cancelMeeting(Meeting meeting, Long meetingId, Long userId) {
-        meetingAccessValidator.validateUserIsHost(meetingId, userId);
-        if (meeting.getMeetingStatus() != MeetingStatus.WAITING) {
-            throw new CustomException(MeetingErrorCode.MEETING_NOT_WAITING);
-        }
-        meeting.cancel();
     }
 }

@@ -1,8 +1,9 @@
 package com.jolupbisang.demo.application.meeting.query;
 
-import com.jolupbisang.demo.application.meeting.exception.InvalidDateException;
+import com.jolupbisang.demo.application.meeting.exception.MeetingApplicationErrorCode;
 import com.jolupbisang.demo.application.meeting.query.dto.MeetingDetailSummary;
 import com.jolupbisang.demo.domain.meeting.model.Meeting;
+import com.jolupbisang.demo.global.exception.BusinessException;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -10,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,7 +30,7 @@ public class MeetingSummariesQueryService {
     @Transactional(readOnly = true)
     public List<MeetingDetailSummary> getMeetingDetailSummary(int year, int month, long userId) {
         if (year < MIN_YEAR || month < MIN_MONTH || month > MAX_MONTH) {
-            throw new InvalidDateException(Map.of("year", year, "month", month));
+            throw new BusinessException(MeetingApplicationErrorCode.INVALID_QUERY_DATE, "year: %d, month: %d", year, month);
         }
 
         LocalDateTime startDayOfMonth = LocalDateTime.of(year, month, START_DAY_OF_MONTH, START_HOUR_OF_DAY, START_MINUTE_OF_HOUR, START_SECOND_OF_MINUTE);

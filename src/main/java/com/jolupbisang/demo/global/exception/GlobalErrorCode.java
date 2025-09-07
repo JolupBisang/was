@@ -10,8 +10,8 @@ public enum GlobalErrorCode implements ErrorCode {
     EXPIRED_JWT(HttpStatus.UNAUTHORIZED, "만료된 토큰입니다."),
     INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "잘못된 토큰입니다."),
     INVALID_TOKEN_SIGNATURE(HttpStatus.UNAUTHORIZED, "잘못 서명된 토큰입니다."),
-    UNKNOWN_TOKEN_ERROR(HttpStatus.UNAUTHORIZED, "알 수 없는 토큰 에러입니다.");
-
+    UNKNOWN_TOKEN_ERROR(HttpStatus.UNAUTHORIZED, "알 수 없는 토큰 에러입니다."),
+    NOT_FOUND(HttpStatus.NOT_FOUND, "없는 데이터입니다.");
 
     private final HttpStatus status;
     private final String message;

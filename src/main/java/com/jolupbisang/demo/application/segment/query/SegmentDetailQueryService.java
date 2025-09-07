@@ -1,6 +1,6 @@
 package com.jolupbisang.demo.application.segment.query;
 
-import com.jolupbisang.demo.application.meeting.exception.MeetingNotFoundException;
+import com.jolupbisang.demo.global.exception.NotFoundException;
 import com.jolupbisang.demo.application.segment.query.dto.SegmentDetailRes;
 import com.jolupbisang.demo.domain.meeting.exception.NotParticipantException;
 import com.jolupbisang.demo.domain.meeting.model.Meeting;
@@ -23,7 +23,7 @@ public class SegmentDetailQueryService {
     @Transactional(readOnly = true)
     public Slice<SegmentDetailRes> getSegmentDetails(long meetingId, long accessUserId, Pageable pageable) {
         Meeting meeting = meetingRepository.findByIdWithParticipant(meetingId)
-                .orElseThrow(MeetingNotFoundException::new);
+                .orElseThrow(() -> new NotFoundException("meetingId: %d", meetingId));
 
         if (!meeting.isParticipant(accessUserId)) {
             throw new NotParticipantException();

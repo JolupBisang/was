@@ -1,7 +1,7 @@
 package com.jolupbisang.demo.application.meeting.command;
 
 import com.jolupbisang.demo.application.meeting.command.dto.AgendaDeletionRes;
-import com.jolupbisang.demo.application.meeting.exception.MeetingNotFoundException;
+import com.jolupbisang.demo.global.exception.NotFoundException;
 import com.jolupbisang.demo.domain.meeting.model.Meeting;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ public class AgendaDeletionService {
 
     public AgendaDeletionRes delete(long meetingId, long agendaId, long userId) {
         Meeting meeting = meetingRepository.findByIdWithAllDetail(meetingId)
-                .orElseThrow(() -> new MeetingNotFoundException(Map.of("meetingId", meetingId)));
+                .orElseThrow(() -> new NotFoundException("meetingId: %d", meetingId));
 
         meeting.deleteAgenda(agendaId, userId);
 

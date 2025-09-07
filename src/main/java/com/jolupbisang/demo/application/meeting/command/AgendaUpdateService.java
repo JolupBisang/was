@@ -2,7 +2,7 @@ package com.jolupbisang.demo.application.meeting.command;
 
 import com.jolupbisang.demo.application.meeting.command.dto.AgendaUpdateReq;
 import com.jolupbisang.demo.application.meeting.command.dto.AgendaUpdateRes;
-import com.jolupbisang.demo.application.meeting.exception.MeetingNotFoundException;
+import com.jolupbisang.demo.global.exception.NotFoundException;
 import com.jolupbisang.demo.domain.meeting.model.Meeting;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +21,7 @@ public class AgendaUpdateService {
     public AgendaUpdateRes updateContent(Long meetingId, Long agendaId, Long accessUserId, AgendaUpdateReq agendaUpdateReq) {
 
         Meeting meeting = meetingRepository.findByIdWithAllDetail(meetingId)
-                .orElseThrow(() -> new MeetingNotFoundException(Map.of("meetingId", meetingId)));
+                .orElseThrow(() -> new NotFoundException("meetingId: %d", meetingId));
 
         meeting.updateAgenda(agendaId, accessUserId, agendaUpdateReq.content());
 

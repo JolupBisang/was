@@ -1,6 +1,6 @@
 package com.jolupbisang.demo.application.summary.query;
 
-import com.jolupbisang.demo.application.meeting.exception.MeetingNotFoundException;
+import com.jolupbisang.demo.global.exception.NotFoundException;
 import com.jolupbisang.demo.application.summary.query.dto.SummaryListRes;
 import com.jolupbisang.demo.domain.meeting.exception.NotParticipantException;
 import com.jolupbisang.demo.domain.meeting.model.Meeting;
@@ -21,7 +21,7 @@ public class SummaryDetailQueryService {
 
     public Slice<SummaryListRes> getSummaries(Long meetingId, Long accessUserId, boolean isRecap, Pageable pageable) {
         Meeting meeting = meetingRepository.findByIdWithParticipant(meetingId)
-                .orElseThrow(MeetingNotFoundException::new);
+                .orElseThrow(() -> new NotFoundException("meetingId: %d", meetingId));
 
         if (!meeting.isParticipant(accessUserId)) {
             throw new NotParticipantException();

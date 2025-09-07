@@ -1,6 +1,6 @@
 package com.jolupbisang.demo.application.meeting.query;
 
-import com.jolupbisang.demo.application.meeting.exception.MeetingNotFoundException;
+import com.jolupbisang.demo.global.exception.NotFoundException;
 import com.jolupbisang.demo.domain.meeting.exception.NotParticipantException;
 import com.jolupbisang.demo.domain.meeting.model.Meeting;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
@@ -16,9 +16,9 @@ public class MeetingEventSubscribeService {
     private final MeetingRepository meetingRepository;
     private final MeetingSseManager meetingSseManager;
 
-    public SseEmitter subscribe(Long meetingId, Long userId) {
+    public SseEmitter subscribe(long meetingId, long userId) {
         Meeting meeting = meetingRepository.findByIdWithParticipant(meetingId)
-                .orElseThrow(MeetingNotFoundException::new);
+                .orElseThrow(() -> new NotFoundException("meetingId: %d", meetingId));
 
         if (!meeting.isParticipant(userId)) {
             throw new NotParticipantException();

@@ -1,6 +1,6 @@
 package com.jolupbisang.demo.application.meeting.command;
 
-import com.jolupbisang.demo.application.meeting.exception.MeetingNotFoundException;
+import com.jolupbisang.demo.global.exception.NotFoundException;
 import com.jolupbisang.demo.domain.meeting.event.MeetingCompletedEvent;
 import com.jolupbisang.demo.domain.meeting.model.Meeting;
 import com.jolupbisang.demo.domain.meeting.service.ParticipationRateCalculator;
@@ -43,7 +43,7 @@ public class ParticipationRateCreationService {
 
         try {
             Meeting meeting = meetingRepository.findByIdWithParticipant(meetingId)
-                    .orElseThrow(MeetingNotFoundException::new);
+                    .orElseThrow(() -> new NotFoundException("meetingId: %d", meetingId));
 
             Map<Long, Double> participationRates = participationRateCalculator.calculate(participationChunks);
             meeting.updateParticipationRates(participationRates, participationChunks);
