@@ -1,7 +1,8 @@
 package com.jolupbisang.demo.infrastructure.audio;
 
 import com.jolupbisang.demo.domain.audio.model.AudioChunk;
-import com.jolupbisang.demo.infrastructure.audio.exception.AudioChunkStorageException;
+import com.jolupbisang.demo.global.exception.InfraException;
+import com.jolupbisang.demo.infrastructure.audio.exception.AudioInfraErrorCode;
 import com.jolupbisang.demo.infrastructure.aws.s3.S3ClientUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -9,7 +10,6 @@ import org.springframework.stereotype.Repository;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
 
 @Repository
 @RequiredArgsConstructor
@@ -27,7 +27,7 @@ public class AudioChunkRepositoryImpl implements AudioChunkRepository {
         try (InputStream audioInputStream = new ByteArrayInputStream(audioChunk.getAudioData())) {
             audioURL = s3ClientUtil.uploadInputStream(s3Key, audioInputStream, audioChunk.getAudioData().length, audioChunk.getEncodingType().getType());
         } catch (IOException e) {
-            throw new AudioChunkStorageException(Map.of("meetingId", audioChunk.getMeetingId(), "userId", audioChunk.getUserId(), "chunkId", audioChunk.getChunkId()), e);
+            throw new InfraException(AudioInfraErrorCode.AUDIO_STORAGE_FAILED, e, "meetingId: %d, userId: %d, chunkId: %d", audioChunk.getMeetingId(), audioChunk.getUserId(), audioChunk.getChunkId());
         }
 
         return audioURL;
