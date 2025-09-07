@@ -6,10 +6,10 @@ import java.util.Map;
 
 public class InvalidUserIdException extends DomainException {
     public InvalidUserIdException(Map<String, Object> values) {
-        super(AudioDomainErrorCode.INVALID_USER_ID, values);
+        super(AudioDomainErrorCode.NEGATIVE_USER_ID, values);
     }
 
     public InvalidUserIdException() {
-        super(AudioDomainErrorCode.INVALID_USER_ID);
+        super(AudioDomainErrorCode.NEGATIVE_USER_ID);
     }
 }

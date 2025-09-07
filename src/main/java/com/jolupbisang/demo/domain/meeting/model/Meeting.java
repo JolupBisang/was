@@ -5,8 +5,10 @@ import com.jolupbisang.demo.domain.meeting.dto.CreatedAgendaDetail;
 import com.jolupbisang.demo.domain.meeting.dto.MeetingDetailUpdateDto;
 import com.jolupbisang.demo.domain.meeting.event.MeetingCompletedEvent;
 import com.jolupbisang.demo.domain.meeting.event.MeetingStartedEvent;
-import com.jolupbisang.demo.domain.meeting.exception.*;
+import com.jolupbisang.demo.domain.meeting.exception.MeetingDomainErrorCode;
+import com.jolupbisang.demo.domain.meeting.exception.TooManyHostException;
 import com.jolupbisang.demo.global.event.Events;
+import com.jolupbisang.demo.global.exception.DomainException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -50,10 +52,10 @@ public class Meeting extends BaseTimeEntity {
     private MeetingStatus meetingStatus;
 
     @OneToMany(mappedBy = "meeting", fetch = FetchType.LAZY)
-    private List<Participant> participants = new ArrayList<>();
+    private final List<Participant> participants = new ArrayList<>();
 
     @OneToMany(mappedBy = "meeting", fetch = FetchType.LAZY)
-    private List<Agenda> agendas = new ArrayList<>();
+    private final List<Agenda> agendas = new ArrayList<>();
 
     private static final long MAX_MEETING_HOST_COUNT = 1L;
 
@@ -72,7 +74,7 @@ public class Meeting extends BaseTimeEntity {
         validateHostAuthority(accessUserId);
 
         if (!isWaiting()) {
-            throw new MeetingNotWaitingStatusException();
+            throw new DomainException(MeetingDomainErrorCode.NOT_WAITING_STATUS, "meetingStatus: %s", meetingStatus);
         }
 
         meetingStatus = MeetingStatus.IN_PROGRESS;
@@ -84,7 +86,7 @@ public class Meeting extends BaseTimeEntity {
         validateHostAuthority(accessUserId);
 
         if (!isInProgress()) {
-            throw new NotProgressingStatusException();
+            throw new DomainException(MeetingDomainErrorCode.NOT_PROGRESSING_STATUS, "meetingStatus: %s", meetingStatus);
         }
         meetingStatus = MeetingStatus.COMPLETED;
         actualProgressTime = new ActualProgressTime(actualProgressTime.getActualStartTime(), LocalDateTime.now());
@@ -95,7 +97,7 @@ public class Meeting extends BaseTimeEntity {
         validateHostAuthority(accessUserId);
 
         if (!isWaiting()) {
-            throw new MeetingNotWaitingStatusException();
+            throw new DomainException(MeetingDomainErrorCode.NOT_WAITING_STATUS, "meetingStatus: %s", meetingStatus);
         }
         meetingStatus = MeetingStatus.CANCELLED;
     }
@@ -120,7 +122,7 @@ public class Meeting extends BaseTimeEntity {
         validateHostAuthority(accessUserId);
 
         if (participantDetails == null) {
-            throw new NullParticipantsException();
+            throw new DomainException(MeetingDomainErrorCode.NULL_PARTICIPANTS_LIST);
         }
 
         List<Participant> originalParticipants = new ArrayList<>(participants);
@@ -146,7 +148,7 @@ public class Meeting extends BaseTimeEntity {
 
     public List<CreatedAgendaDetail> addAgendas(List<AgendaDetail> agendaDetails) {
         if (agendaDetails == null) {
-            throw new NullAgendaException();
+            throw new DomainException(MeetingDomainErrorCode.NULL_AGENDA_LIST);
         }
 
         List<CreatedAgendaDetail> createdAgendaDetails = new ArrayList<>();
@@ -165,7 +167,7 @@ public class Meeting extends BaseTimeEntity {
         Agenda foundAgenda = agendas.stream()
                 .filter(a -> a.getId().equals(agendaId))
                 .findFirst()
-                .orElseThrow(() -> new AgendaNotExistingException(Map.of("agendaId", agendaId)));
+                .orElseThrow(() -> new DomainException(MeetingDomainErrorCode.NON_EXISTING_AGENDA, "agendaId: %d", agendaId));
 
         foundAgenda.changeStatus(isCompleted);
     }
@@ -176,14 +178,14 @@ public class Meeting extends BaseTimeEntity {
         Agenda foundAgenda = agendas.stream()
                 .filter(a -> a.getId().equals(agendaId))
                 .findFirst()
-                .orElseThrow(() -> new AgendaNotExistingException(Map.of("agendaId", agendaId)));
+                .orElseThrow(() -> new DomainException(MeetingDomainErrorCode.NON_EXISTING_AGENDA, "agendaId: %d", agendaId));
 
         agendas.remove(foundAgenda);
     }
 
     public void validateViewAuthority(long accessUserId) {
         if (!isParticipant(accessUserId)) {
-            throw new NotParticipantException();
+            throw new DomainException(MeetingDomainErrorCode.NOT_PARTICIPANT, "userId: %d", accessUserId);
         }
     }
 
@@ -201,7 +203,7 @@ public class Meeting extends BaseTimeEntity {
         validateHostAuthority(accessUserId);
 
         if (!isWaiting()) {
-            throw new MeetingNotWaitingStatusException();
+            throw new DomainException(MeetingDomainErrorCode.NOT_WAITING_STATUS, "meetingStatus: %s", meetingStatus);
         }
 
         setTitle(updateDto.title());
@@ -221,35 +223,35 @@ public class Meeting extends BaseTimeEntity {
 
     private void setTitle(String title) {
         if (title == null || title.isBlank()) {
-            throw new EmptyTitleException();
+            throw new DomainException(MeetingDomainErrorCode.EMPTY_TITLE);
         }
         this.title = title;
     }
 
     private void setLocation(String location) {
         if (location == null || location.isBlank()) {
-            throw new EmptyLocationException();
+            throw new DomainException(MeetingDomainErrorCode.EMPTY_LOCATION);
         }
         this.location = location;
     }
 
     private void setScheduledTime(ScheduledTime scheduledTime) {
         if (scheduledTime == null) {
-            throw new NullScheduledTimeException();
+            throw new DomainException(MeetingDomainErrorCode.NULL_SCHEDULED_TIME);
         }
         this.scheduledTime = scheduledTime;
     }
 
     private void setActualProgressTime(ActualProgressTime actualProgressTime) {
         if (actualProgressTime == null) {
-            throw new NullActualProgressTimeException();
+            throw new DomainException(MeetingDomainErrorCode.NULL_ACTUAL_PROGRESS_TIME);
         }
         this.actualProgressTime = actualProgressTime;
     }
 
     private void setRestTime(RestTime restTime) {
         if (restTime == null) {
-            throw new NullRestTimeException();
+            throw new DomainException(MeetingDomainErrorCode.NULL_REST_TIME);
         }
         this.restTime = restTime;
     }
@@ -276,7 +278,7 @@ public class Meeting extends BaseTimeEntity {
                 .count();
 
         if (hostCount > MAX_MEETING_HOST_COUNT) {
-            throw new TooManyHostException();
+            throw new TooManyHostException(MeetingDomainErrorCode.TOO_MANY_HOST, "hostCount: %d", hostCount);
         }
     }
 
@@ -285,7 +287,7 @@ public class Meeting extends BaseTimeEntity {
                 .anyMatch(p -> p.getUserId().equals(accessUserId) && p.getRole() == MeetingRole.HOST);
 
         if (!isHost) {
-            throw new NotHostException();
+            throw new DomainException(MeetingDomainErrorCode.ONLY_FOR_HOST_AUTHORITY);
         }
     }
 
@@ -295,7 +297,7 @@ public class Meeting extends BaseTimeEntity {
         Agenda foundAgenda = agendas.stream()
                 .filter(a -> a.getId().equals(agendaId))
                 .findFirst()
-                .orElseThrow(() -> new AgendaNotExistingException(Map.of("agendaId", agendaId)));
+                .orElseThrow(() -> new DomainException(MeetingDomainErrorCode.NON_EXISTING_AGENDA, "agendaId: %d", agendaId));
 
         foundAgenda.updateContent(content);
     }

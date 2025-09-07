@@ -1,10 +1,12 @@
 package com.jolupbisang.demo.domain.audio.model;
 
-import com.jolupbisang.demo.domain.audio.exception.*;
+import com.jolupbisang.demo.domain.audio.exception.AudioDomainErrorCode;
+import com.jolupbisang.demo.domain.audio.exception.EmptyAudioDataException;
+import com.jolupbisang.demo.domain.audio.exception.NullAudioDataException;
+import com.jolupbisang.demo.global.exception.DomainException;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
-import java.util.Map;
 
 @Getter
 public class AudioChunk {
@@ -27,38 +29,35 @@ public class AudioChunk {
 
     private void setUserId(long userId) {
         if (userId < 0) {
-            throw new InvalidUserIdException(Map.of("userId", userId));
+            throw new DomainException(AudioDomainErrorCode.NEGATIVE_USER_ID, "userId: %d", userId);
         }
         this.userId = userId;
     }
 
     private void setMeetingId(long meetingId) {
         if (meetingId < 0) {
-            throw new IllegalArgumentException("Meeting ID must be positive");
+            throw new DomainException(AudioDomainErrorCode.NEGATIVE_MEETING_ID, "meetingId: %d", meetingId);
         }
         this.meetingId = meetingId;
     }
 
     private void setChunkId(long chunkId) {
         if (chunkId < 0) {
-            throw new IllegalArgumentException("Chunk ID must be positive");
+            throw new DomainException(AudioDomainErrorCode.NEGATIVE_MEETING_ID, "chunkId: %d", chunkId);
         }
         this.chunkId = chunkId;
     }
 
     private void setEncodingType(AudioEncodingType encodingType) {
         if (!AudioEncodingType.AUDIO_PCM.equals(encodingType)) {
-            throw new UnsupportedEncodingTypeException(Map.of("encodingType", encodingType));
+            throw new DomainException(AudioDomainErrorCode.UNSUPPORTED_ENCODING_TYPE, "encodingType: %s", encodingType);
         }
         this.encodingType = encodingType;
     }
 
     private void setCreatedDateTime(LocalDateTime createdDateTime) {
-        if (createdDateTime == null) {
-            throw new NullCreatedDateTimeException();
-        }
-        if (createdDateTime.isAfter(LocalDateTime.now())) {
-            throw new FutureCreatedDateTimeException(Map.of("createdDateTime", createdDateTime));
+        if (createdDateTime == null || createdDateTime.isAfter(LocalDateTime.now())) {
+            throw new DomainException(AudioDomainErrorCode.FUTURE_CREATED_DATE_TIME, "createdDateTime: %s", createdDateTime);
         }
         this.createdDateTime = createdDateTime;
     }

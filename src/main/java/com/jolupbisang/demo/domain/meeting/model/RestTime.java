@@ -1,15 +1,13 @@
 package com.jolupbisang.demo.domain.meeting.model;
 
-import com.jolupbisang.demo.domain.meeting.exception.MinimumRestDurationException;
-import com.jolupbisang.demo.domain.meeting.exception.MinimumRestIntervalException;
+import com.jolupbisang.demo.domain.meeting.exception.MeetingDomainErrorCode;
+import com.jolupbisang.demo.global.exception.DomainException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.Map;
 
 @Embeddable
 @Getter
@@ -32,7 +30,7 @@ public class RestTime {
 
     private void setRestInterval(int restInterval) {
         if (restInterval < MIN_REST_INTERVAL) {
-            throw new MinimumRestIntervalException(Map.of("restInterval", restInterval));
+            throw new DomainException(MeetingDomainErrorCode.INVALID_RATE_RANGE, "restInterval: %d (최솟값: %d)", restInterval, MIN_REST_INTERVAL);
         }
 
         this.restInterval = restInterval;
@@ -40,7 +38,7 @@ public class RestTime {
 
     private void setRestDuration(int restDuration) {
         if (restDuration < MIN_REST_DURATION) {
-            throw new MinimumRestDurationException(Map.of("restDuration", restDuration));
+            throw new DomainException(MeetingDomainErrorCode.MINIMUM_REST_DURATION, "restDuration: %d (최솟값: %d)", restDuration, MIN_REST_DURATION);
         }
 
         this.restDuration = restDuration;

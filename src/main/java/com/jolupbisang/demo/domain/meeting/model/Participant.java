@@ -1,6 +1,7 @@
 package com.jolupbisang.demo.domain.meeting.model;
 
-import com.jolupbisang.demo.domain.meeting.exception.EmptyParticipantIdException;
+import com.jolupbisang.demo.domain.meeting.exception.MeetingDomainErrorCode;
+import com.jolupbisang.demo.global.exception.DomainException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -43,9 +44,9 @@ public class Participant {
         participationRate = new ParticipationRate(rate, totalParticipationChunk);
     }
 
-    private void setUserId(Long userId) {
-        if (userId == null) {
-            throw new EmptyParticipantIdException();
+    private void setUserId(long userId) {
+        if (userId < 0) {
+            throw new DomainException(MeetingDomainErrorCode.NEGATIVE_USER_ID, "userId: %d", userId);
         }
         this.userId = userId;
     }

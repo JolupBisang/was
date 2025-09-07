@@ -1,6 +1,7 @@
 package com.jolupbisang.demo.domain.meeting.model;
 
-import com.jolupbisang.demo.domain.meeting.exception.EmptyAgendaContentException;
+import com.jolupbisang.demo.domain.meeting.exception.MeetingDomainErrorCode;
+import com.jolupbisang.demo.global.exception.DomainException;
 import lombok.Getter;
 
 @Getter
@@ -13,7 +14,7 @@ public class AgendaDetail {
 
     private void setContent(String content) {
         if (content == null || content.isBlank()) {
-            throw new EmptyAgendaContentException();
+            throw new DomainException(MeetingDomainErrorCode.EMPTY_AGENDA_CONTENT);
         }
         this.content = content;
     }

@@ -1,14 +1,13 @@
 package com.jolupbisang.demo.domain.meeting.model;
 
-import com.jolupbisang.demo.domain.meeting.exception.ActualProgressTimeOrderException;
-import com.jolupbisang.demo.domain.meeting.exception.EmptyActualStartTimeException;
+import com.jolupbisang.demo.domain.meeting.exception.MeetingDomainErrorCode;
+import com.jolupbisang.demo.global.exception.DomainException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.Map;
 
 @Embeddable
 @Getter
@@ -28,10 +27,10 @@ public class ActualProgressTime {
 
     private void validateTimeOrder(LocalDateTime actualStartTime, LocalDateTime actualEndTime) {
         if (actualStartTime == null && actualEndTime != null) {
-            throw new EmptyActualStartTimeException(Map.of("actualEndTime", actualEndTime));
+            throw new DomainException(MeetingDomainErrorCode.EMPTY_ACTUAL_START_TIME);
         }
         if (actualStartTime != null && actualStartTime.isAfter(actualEndTime)) {
-            throw new ActualProgressTimeOrderException(Map.of("actualStartTime", actualStartTime, "actualEndTime", actualEndTime));
+            throw new DomainException(MeetingDomainErrorCode.END_TIME_BEFORE_START_TIME, "actualStartTime: %s, actualEndTime: %s", actualStartTime, actualEndTime);
         }
     }
 }

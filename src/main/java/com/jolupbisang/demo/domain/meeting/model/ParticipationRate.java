@@ -1,8 +1,7 @@
 package com.jolupbisang.demo.domain.meeting.model;
 
-import com.jolupbisang.demo.domain.meeting.exception.InvalidRateRangeException;
-import com.jolupbisang.demo.domain.meeting.exception.InvalidTotalParticipationChunkException;
-
+import com.jolupbisang.demo.domain.meeting.exception.MeetingDomainErrorCode;
+import com.jolupbisang.demo.global.exception.DomainException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.EqualsAndHashCode;
@@ -36,16 +35,16 @@ public class ParticipationRate {
         setTotalParticipationChunk(totalParticipationChunk);
     }
 
-    private void setRate(double rate) { 
+    private void setRate(double rate) {
         if (rate < MIN_RATE || rate > MAX_RATE) {
-            throw new InvalidRateRangeException();
+            throw new DomainException(MeetingDomainErrorCode.INVALID_RATE_RANGE, "participation rate: %f", rate);
         }
         this.rate = rate;
     }
 
     private void setTotalParticipationChunk(long totalParticipationChunk) {
         if (totalParticipationChunk < MIN_TOTAL_PARTICIPATION_CHUNK) {
-            throw new InvalidTotalParticipationChunkException();
+            throw new DomainException(MeetingDomainErrorCode.INVALID_TOTAL_PARTICIPATION_CHUNK, "total participation chunk: %d (최솟값: %d)", totalParticipationChunk, MIN_TOTAL_PARTICIPATION_CHUNK);
         }
         this.totalParticipationChunk = totalParticipationChunk;
     }

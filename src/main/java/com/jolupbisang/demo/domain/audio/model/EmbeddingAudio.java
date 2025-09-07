@@ -1,10 +1,10 @@
 package com.jolupbisang.demo.domain.audio.model;
 
-import com.jolupbisang.demo.domain.audio.exception.*;
+import com.jolupbisang.demo.domain.audio.exception.AudioDomainErrorCode;
+import com.jolupbisang.demo.global.exception.DomainException;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
-import java.util.Map;
 
 @Getter
 public class EmbeddingAudio {
@@ -23,34 +23,28 @@ public class EmbeddingAudio {
 
     private void setEncodingType(AudioEncodingType encodingType) {
         if (!encodingType.equals(AudioEncodingType.AUDIO_MP4)) {
-            throw new UnsupportedEncodingTypeException(Map.of("encodingType", encodingType));
+            throw new DomainException(AudioDomainErrorCode.UNSUPPORTED_ENCODING_TYPE, "encodingType: %s", encodingType.getType());
         }
         this.encodingType = encodingType;
     }
 
     private void setUserId(long userId) {
         if (userId < 0) {
-            throw new InvalidUserIdException(Map.of("userId", userId));
+            throw new DomainException(AudioDomainErrorCode.NEGATIVE_USER_ID, "userId: %d", userId);
         }
         this.userId = userId;
     }
 
     private void setCreatedDateTime(LocalDateTime createdDateTime) {
-        if (createdDateTime == null) {
-            throw new NullCreatedDateTimeException();
-        }
-        if (createdDateTime.isAfter(LocalDateTime.now())) {
-            throw new FutureCreatedDateTimeException(Map.of("createdDateTime", createdDateTime));
+        if (createdDateTime == null || createdDateTime.isAfter(LocalDateTime.now())) {
+            throw new DomainException(AudioDomainErrorCode.FUTURE_CREATED_DATE_TIME, "createdDateTime: %s", createdDateTime);
         }
         this.createdDateTime = createdDateTime;
     }
 
     private void setAudio(byte[] audio) {
-        if (audio == null) {
-            throw new NullAudioDataException();
-        }
-        if (audio.length == 0) {
-            throw new EmptyAudioDataException();
+        if (audio == null || audio.length == 0) {
+            throw new DomainException(AudioDomainErrorCode.EMPTY_AUDIO_DATA);
         }
         this.audio = audio;
     }

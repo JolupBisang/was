@@ -1,8 +1,7 @@
 package com.jolupbisang.demo.domain.meeting.model;
 
-import com.jolupbisang.demo.domain.meeting.exception.EmptyEndTimeException;
-import com.jolupbisang.demo.domain.meeting.exception.EndTimeBeforeStartTimeException;
-import com.jolupbisang.demo.domain.meeting.exception.StartTimeNullException;
+import com.jolupbisang.demo.domain.meeting.exception.MeetingDomainErrorCode;
+import com.jolupbisang.demo.global.exception.DomainException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
@@ -11,7 +10,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.Map;
 
 @Embeddable
 @Getter
@@ -41,14 +39,14 @@ public class ScheduledTime {
 
     private void setScheduledStartTime(LocalDateTime scheduledStartTime) {
         if (scheduledStartTime == null) {
-            throw new StartTimeNullException();
+            throw new DomainException(MeetingDomainErrorCode.EMPTY_START_TIME);
         }
         this.scheduledStartTime = scheduledStartTime;
     }
 
     private void setScheduledEndTime(LocalDateTime scheduledEndTime) {
         if (scheduledEndTime == null) {
-            throw new EmptyEndTimeException(Map.of("scheduledTime", scheduledEndTime));
+            throw new DomainException(MeetingDomainErrorCode.EMPTY_END_TIME);
         }
         this.scheduledEndTime = scheduledEndTime;
     }
@@ -56,7 +54,7 @@ public class ScheduledTime {
 
     private void validateTimeOrder(LocalDateTime startTime, LocalDateTime endTime) {
         if (startTime.isAfter(endTime) || startTime.isEqual(endTime)) {
-            throw new EndTimeBeforeStartTimeException(Map.of("startTime", startTime, "endTime", endTime));
+            throw new DomainException(MeetingDomainErrorCode.END_TIME_BEFORE_START_TIME, "startTime: %s, endTime: %s", startTime, endTime);
         }
     }
 }

@@ -24,7 +24,6 @@ public class DomainException extends CustomException {
         super(errorCode);
     }
 
-    // 새로운 String.format 방식
     public DomainException(ErrorCode errorCode, String detailedMessage, Object... args) {
         super(errorCode, detailedMessage, args);
     }

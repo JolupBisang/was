@@ -1,7 +1,7 @@
 package com.jolupbisang.demo.domain.meeting.model;
 
-import com.jolupbisang.demo.domain.meeting.exception.EmptyMeetingRoleException;
-import com.jolupbisang.demo.domain.meeting.exception.EmptyParticipantIdException;
+import com.jolupbisang.demo.domain.meeting.exception.MeetingDomainErrorCode;
+import com.jolupbisang.demo.global.exception.DomainException;
 import lombok.Getter;
 
 @Getter
@@ -14,16 +14,13 @@ public class ParticipantDetail {
         setRole(meetingRole);
     }
 
-    private void setUserId(Long userId) {
-        if (userId == null) {
-            throw new EmptyParticipantIdException();
-        }
+    private void setUserId(long userId) {
         this.userId = userId;
     }
 
     private void setRole(MeetingRole meetingRole) {
         if (meetingRole == null) {
-            throw new EmptyMeetingRoleException();
+            throw new DomainException(MeetingDomainErrorCode.EMPTY_MEETING_ROLE);
         }
         this.meetingRole = meetingRole;
     }

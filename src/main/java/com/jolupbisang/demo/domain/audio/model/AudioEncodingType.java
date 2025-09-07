@@ -19,8 +19,4 @@ public enum AudioEncodingType {
         }
         return null;
     }
-
-    public String getExtension() {
-        return this.extension;
-    }
 }
