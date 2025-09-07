@@ -1,6 +1,6 @@
 package com.jolupbisang.demo.global.exception;
 
-public class NotFoundException extends BusinessException {
+public class NotFoundException extends ApplicationException {
     public NotFoundException(Throwable cause) {
         super(GlobalErrorCode.NOT_FOUND, cause);
     }

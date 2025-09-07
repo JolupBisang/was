@@ -4,7 +4,7 @@ import com.jolupbisang.demo.application.feedback.query.dto.FeedbackListRes;
 import com.jolupbisang.demo.application.meeting.exception.MeetingApplicationErrorCode;
 import com.jolupbisang.demo.domain.feedback.Feedback;
 import com.jolupbisang.demo.domain.meeting.model.Meeting;
-import com.jolupbisang.demo.global.exception.BusinessException;
+import com.jolupbisang.demo.global.exception.ApplicationException;
 import com.jolupbisang.demo.global.exception.NotFoundException;
 import com.jolupbisang.demo.infrastructure.feedback.FeedbackRepository;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
@@ -25,7 +25,7 @@ public class FeedbackDetailQueryService {
                 .orElseThrow(() -> new NotFoundException("meetingId: %d", meetingId));
 
         if (!meeting.isParticipant(accessUserId)) {
-            throw new BusinessException(MeetingApplicationErrorCode.NOT_PARTICIPANT, "userId: %d", accessUserId);
+            throw new ApplicationException(MeetingApplicationErrorCode.NOT_PARTICIPANT, "userId: %d", accessUserId);
         }
 
         Slice<Feedback> feedbacks = feedbackRepository.findByMeetingIdAndUserId(meetingId, accessUserId, pageable);

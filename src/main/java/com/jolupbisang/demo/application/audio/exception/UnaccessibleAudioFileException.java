@@ -1,10 +1,10 @@
 package com.jolupbisang.demo.application.audio.exception;
 
-import com.jolupbisang.demo.global.exception.BusinessException;
+import com.jolupbisang.demo.global.exception.ApplicationException;
 
 import java.util.Map;
 
-public class UnaccessibleAudioFileException extends BusinessException {
+public class UnaccessibleAudioFileException extends ApplicationException {
     public UnaccessibleAudioFileException(Map<String, Object> values, Throwable cause) {
         super(AudioApplicationErrorCode.UNACCESSIBLE_AUDIO_FILE, values, cause);
     }
