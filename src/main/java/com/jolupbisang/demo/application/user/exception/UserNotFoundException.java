@@ -1,6 +1,6 @@
 package com.jolupbisang.demo.application.user.exception;
 
-import com.jolupbisang.demo.application.common.NotFoundException;
+import com.jolupbisang.demo.global.exception.NotFoundException;
 
 import java.util.Map;
 

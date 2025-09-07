@@ -1,17 +1,13 @@
 package com.jolupbisang.demo.domain.segment.model;
 
-import com.jolupbisang.demo.domain.segment.exception.EmptyTextException;
-import com.jolupbisang.demo.domain.segment.exception.InvalidSegmentChunkOrderException;
-import com.jolupbisang.demo.domain.segment.exception.NullEndChunkException;
-import com.jolupbisang.demo.domain.segment.exception.NullStartChunkException;
+import com.jolupbisang.demo.domain.segment.exception.SegmentDomainErrorCode;
+import com.jolupbisang.demo.global.exception.DomainException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.Map;
 
 @Embeddable
 @Getter
@@ -42,21 +38,21 @@ public class Word {
 
     private void setStartChunk(Integer startChunk) {
         if (startChunk == null) {
-            throw new NullStartChunkException(Map.of("startChunk", startChunk));
+            throw new DomainException(SegmentDomainErrorCode.NULL_START_CHUNK);
         }
         this.startChunk = startChunk;
     }
 
     private void setEndChunk(Integer endChunk) {
         if (endChunk == null) {
-            throw new NullEndChunkException(Map.of("endChunk", endChunk));
+            throw new DomainException(SegmentDomainErrorCode.NULL_END_CHUNK);
         }
         this.endChunk = endChunk;
     }
 
     private void setText(String text) {
         if (text == null || text.isEmpty()) {
-            throw new EmptyTextException(Map.of("text", text));
+            throw new DomainException(SegmentDomainErrorCode.EMPTY_TEXT);
         }
         this.text = text;
     }
@@ -71,7 +67,7 @@ public class Word {
 
     private void validateChunkOrder(Integer startChunk, Integer endChunk) {
         if (startChunk > endChunk) {
-            throw new InvalidSegmentChunkOrderException(Map.of("startChunk", startChunk, "endChunk", endChunk));
+            throw new DomainException(SegmentDomainErrorCode.INVALID_SEGMENT_CHUNK_ORDER, "startChunk: %d, endChunk: %d", startChunk, endChunk);
         }
     }
 }

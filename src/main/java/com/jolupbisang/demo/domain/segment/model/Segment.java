@@ -1,7 +1,8 @@
 package com.jolupbisang.demo.domain.segment.model;
 
 import com.jolupbisang.demo.domain.common.BaseTimeEntity;
-import com.jolupbisang.demo.domain.segment.exception.*;
+import com.jolupbisang.demo.domain.segment.exception.SegmentDomainErrorCode;
+import com.jolupbisang.demo.global.exception.DomainException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -9,7 +10,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -73,29 +73,26 @@ public class Segment extends BaseTimeEntity {
 
     private void setMeetingId(long meetingId) {
         if (meetingId < 0) {
-            throw new InvalidMeetingIdException(Map.of("meetingId", meetingId));
+            throw new DomainException(SegmentDomainErrorCode.INVALID_MEETING_ID, "meetingId: %d", meetingId);
         }
         this.meetingId = meetingId;
     }
 
     private void setUserId(long userId) {
         if (userId < 0) {
-            throw new InvalidUserIdException(Map.of("userId", userId));
+            throw new DomainException(SegmentDomainErrorCode.INVALID_USER_ID, "userId: %d", userId);
         }
         this.userId = userId;
     }
 
     private void setAudioUserId(long audioUserId) {
         if (audioUserId < 0) {
-            throw new InvalidUserIdException(Map.of("audioUserId", audioUserId));
+            throw new DomainException(SegmentDomainErrorCode.INVALID_USER_ID, "audioUserId: %d", audioUserId);
         }
         this.audioUserId = audioUserId;
     }
 
-    private void setOrder(Integer order) {
-        if (order == null) {
-            throw new InvalidOrderException(Map.of("order", order));
-        }
+    private void setOrder(int order) {
         this.order = order;
     }
 
@@ -105,7 +102,7 @@ public class Segment extends BaseTimeEntity {
 
     private void setText(String text) {
         if (text == null || text.isEmpty()) {
-            throw new EmptySegmentTextException(Map.of("text", text));
+            throw new DomainException(SegmentDomainErrorCode.EMPTY_SEGMENT_TEXT);
         }
         this.text = text;
     }
@@ -120,7 +117,7 @@ public class Segment extends BaseTimeEntity {
 
     private void setSpokenDateTime(LocalDateTime spokenDateTime) {
         if (spokenDateTime == null) {
-            throw new NullSpokenDateTimeException(Map.of("spokenDateTime", spokenDateTime));
+            throw new DomainException(SegmentDomainErrorCode.NULL_SPOKEN_DATE_TIME);
         }
         this.spokenDateTime = spokenDateTime;
     }
