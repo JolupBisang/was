@@ -1,8 +1,9 @@
 package com.jolupbisang.demo.application.audio.command;
 
-import com.jolupbisang.demo.application.audio.exception.UnaccessibleAudioFileException;
+import com.jolupbisang.demo.application.audio.exception.AudioApplicationErrorCode;
 import com.jolupbisang.demo.domain.audio.model.AudioEncodingType;
 import com.jolupbisang.demo.domain.audio.model.EmbeddingAudio;
+import com.jolupbisang.demo.global.exception.ApplicationException;
 import com.jolupbisang.demo.infrastructure.audio.EmbeddingAudioRepository;
 import com.jolupbisang.demo.infrastructure.whisper.WhisperClient;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +14,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Map;
 
 @Service
 @Slf4j
@@ -30,7 +30,7 @@ public class EmbeddingAudioCreationService {
             audioBytes = audioFile.getBytes();
         } catch (IOException e) {
             log.error("AudioFile Access Error: {}", e.getMessage(), e);
-            throw new UnaccessibleAudioFileException(Map.of("audioType", audioFile.getContentType()), e);
+            throw new ApplicationException(AudioApplicationErrorCode.UNACCESSIBLE_AUDIO_FILE, e);
         }
 
         whisperClient.sendEmbeddingAudio(userId, audioBytes);

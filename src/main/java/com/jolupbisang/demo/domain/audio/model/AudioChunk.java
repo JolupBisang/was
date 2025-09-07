@@ -1,8 +1,6 @@
 package com.jolupbisang.demo.domain.audio.model;
 
 import com.jolupbisang.demo.domain.audio.exception.AudioDomainErrorCode;
-import com.jolupbisang.demo.domain.audio.exception.EmptyAudioDataException;
-import com.jolupbisang.demo.domain.audio.exception.NullAudioDataException;
 import com.jolupbisang.demo.global.exception.DomainException;
 import lombok.Getter;
 
@@ -63,11 +61,8 @@ public class AudioChunk {
     }
 
     private void setAudioData(byte[] audioData) {
-        if (audioData == null) {
-            throw new NullAudioDataException();
-        }
-        if (audioData.length == 0) {
-            throw new EmptyAudioDataException();
+        if (audioData == null || audioData.length == 0) {
+            throw new DomainException(AudioDomainErrorCode.EMPTY_AUDIO_DATA);
         }
         this.audioData = audioData;
     }

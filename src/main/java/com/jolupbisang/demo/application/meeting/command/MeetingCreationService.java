@@ -2,9 +2,9 @@ package com.jolupbisang.demo.application.meeting.command;
 
 import com.jolupbisang.demo.application.meeting.command.dto.MeetingCreationReq;
 import com.jolupbisang.demo.application.meeting.command.dto.MeetingCreationRes;
-import com.jolupbisang.demo.application.user.exception.UserNotFoundException;
 import com.jolupbisang.demo.domain.meeting.model.*;
 import com.jolupbisang.demo.domain.user.User;
+import com.jolupbisang.demo.global.exception.NotFoundException;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
 import com.jolupbisang.demo.infrastructure.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,7 +25,7 @@ public class MeetingCreationService {
     @Transactional
     public MeetingCreationRes create(MeetingCreationReq meetingCreationReq, long hostId) {
         User host = userRepository.findById(hostId)
-                .orElseThrow(() -> new UserNotFoundException(Map.of("hostId", hostId)));
+                .orElseThrow(() -> new NotFoundException("hostId: %d", hostId));
 
         List<User> participants = userRepository.findByEmailIn(meetingCreationReq.participants());
         Meeting meeting = createMeeting(host, participants, meetingCreationReq);

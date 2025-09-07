@@ -4,7 +4,7 @@ import com.jolupbisang.demo.application.auth.dto.OAuthUserInfoDto;
 import com.jolupbisang.demo.application.auth.exception.AuthErrorCode;
 import com.jolupbisang.demo.domain.user.OAuthPlatform;
 import com.jolupbisang.demo.domain.user.User;
-import com.jolupbisang.demo.global.exception.CustomException;
+import com.jolupbisang.demo.global.exception.ApplicationException;
 import com.jolupbisang.demo.infrastructure.auth.JwtProvider;
 import com.jolupbisang.demo.infrastructure.auth.OAuthClientFactory;
 import com.jolupbisang.demo.infrastructure.auth.client.OAuthClient;
@@ -22,7 +22,7 @@ public class AuthService {
 
     public String loginWithOAuth(OAuthPlatform oAuthPlatform, ClientPlatform clientPlatform, String code) {
         OAuthClient oAuthClient = oAuthClientFactory.getClientByPlatform(oAuthPlatform)
-                .orElseThrow(() -> new CustomException(AuthErrorCode.INVALID_OAUTH_PLATFORM));
+                .orElseThrow(() -> new ApplicationException(AuthErrorCode.INVALID_OAUTH_PLATFORM));
 
         String OAuthAccessToken = oAuthClient.requestAccessToken(clientPlatform, code);
         OAuthUserInfoDto oAuthUserInfoDto = oAuthClient.requestUserInfo(OAuthAccessToken);
