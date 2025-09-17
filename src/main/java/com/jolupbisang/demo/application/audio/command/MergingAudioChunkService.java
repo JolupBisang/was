@@ -1,6 +1,6 @@
 package com.jolupbisang.demo.application.audio.command;
 
-import com.jolupbisang.demo.application.audio.dto.StepFunctionOutput;
+import com.jolupbisang.demo.application.audio.command.dto.StepFunctionOutput;
 import com.jolupbisang.demo.domain.meeting.event.MeetingCompletedEvent;
 import com.jolupbisang.demo.infrastructure.aws.sfn.SfnClientUtil;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingWebsocketManager;
