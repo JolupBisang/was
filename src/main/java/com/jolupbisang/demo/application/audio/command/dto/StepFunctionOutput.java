@@ -1,4 +1,4 @@
-package com.jolupbisang.demo.application.audio.dto;
+package com.jolupbisang.demo.application.audio.command.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

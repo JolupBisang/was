@@ -2,14 +2,14 @@ package com.jolupbisang.demo.infrastructure.whisper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jolupbisang.demo.application.event.whisper.WhisperContextEvent;
-import com.jolupbisang.demo.application.event.whisper.WhisperDiarizedEvent;
 import com.jolupbisang.demo.application.event.whisper.WhisperEmbeddedEvent;
+import com.jolupbisang.demo.application.segment.event.TextTranslatedEvent;
 import com.jolupbisang.demo.global.properties.WhisperProperties;
 import com.jolupbisang.demo.infrastructure.audio.client.dto.request.*;
 import com.jolupbisang.demo.infrastructure.audio.client.dto.response.ContextResponse;
-import com.jolupbisang.demo.infrastructure.audio.client.dto.response.DiarizedResponse;
 import com.jolupbisang.demo.infrastructure.audio.client.dto.response.EmbeddedVectorResponse;
 import com.jolupbisang.demo.infrastructure.audio.client.dto.response.WhisperResponseType;
+import com.jolupbisang.demo.infrastructure.whisper.dto.WhisperDiarizedRes;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -182,8 +182,8 @@ public class WhisperClient extends BinaryWebSocketHandler {
     }
 
     private void processDiarizedResponse(String jsonResponse) throws IOException {
-        DiarizedResponse diarizedResponse = objectMapper.readValue(jsonResponse, DiarizedResponse.class);
-        this.eventPublisher.publishEvent(new WhisperDiarizedEvent(diarizedResponse));
+        WhisperDiarizedRes diarizedResponse = objectMapper.readValue(jsonResponse, WhisperDiarizedRes.class);
+        this.eventPublisher.publishEvent(TextTranslatedEvent.from(diarizedResponse));
     }
 
     private void processEmbeddedResponse(String jsonResponse, byte[] audio) throws IOException {

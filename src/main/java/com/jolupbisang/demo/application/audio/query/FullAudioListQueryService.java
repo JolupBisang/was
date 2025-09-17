@@ -23,7 +23,7 @@ public class FullAudioListQueryService {
     public AudioListRes getCompletedMeetingAudioList(long meetingId, long accessUserId) {
 
         Meeting meeting = meetingRepository.findByIdWithParticipant(meetingId)
-                .orElseThrow(() -> new NotFoundException("meetingId: ", meetingId));
+                .orElseThrow(() -> new NotFoundException("meetingId: %d", meetingId));
 
         meeting.validateViewAuthority(accessUserId);
 

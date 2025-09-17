@@ -1,6 +1,6 @@
 package com.jolupbisang.demo.application.segment.event;
 
-import com.jolupbisang.demo.infrastructure.whisper.dto.WhisperDiarizedResponse;
+import com.jolupbisang.demo.infrastructure.whisper.dto.WhisperDiarizedRes;
 
 import java.util.List;
 
@@ -9,7 +9,7 @@ public record TextTranslatedEvent(
         List<SegmentDto> completed,
         List<SegmentDto> candidate
 ) {
-    public static TextTranslatedEvent from(WhisperDiarizedResponse res) {
+    public static TextTranslatedEvent from(WhisperDiarizedRes res) {
         return new TextTranslatedEvent(
                 res.meetingId(),
                 res.completed().stream()
@@ -21,7 +21,7 @@ public record TextTranslatedEvent(
         );
     }
 
-    private static SegmentDto createSegmentDto(WhisperDiarizedResponse.WhisperSegment whisperSegment) {
+    private static SegmentDto createSegmentDto(WhisperDiarizedRes.WhisperSegment whisperSegment) {
         return new SegmentDto(
                 whisperSegment.order(),
                 whisperSegment.lang(),
@@ -34,7 +34,7 @@ public record TextTranslatedEvent(
         );
     }
 
-    private static WordDto createWordDto(WhisperDiarizedResponse.WhisperWord whisperWord) {
+    private static WordDto createWordDto(WhisperDiarizedRes.WhisperWord whisperWord) {
         return new WordDto(
                 whisperWord.start(),
                 whisperWord.end(),
