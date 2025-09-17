@@ -18,8 +18,8 @@ public class EmbeddingAudioCreationController {
     private final EmbeddingAudioCreationService embeddingAudioCreationService;
 
     @PostMapping("/api/v1/audio/embedding")
-    public ResponseEntity<?> createEmbeddingAudio(@RequestPart("audioFile") MultipartFile file,
-                                                  @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<Void> createEmbeddingAudio(@RequestPart("audioFile") MultipartFile file,
+                                                     @AuthenticationPrincipal CustomUserDetails userDetails) {
         embeddingAudioCreationService.createEmbeddingAudio(userDetails.getUserId(), file);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
