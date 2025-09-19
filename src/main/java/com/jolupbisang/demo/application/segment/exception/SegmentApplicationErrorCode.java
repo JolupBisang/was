@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 @RequiredArgsConstructor
 public enum SegmentApplicationErrorCode implements ErrorCode {
-    NOT_PARTICIPANT("SA-0001", HttpStatus.FORBIDDEN, "회의 참가자가 아닙니다.");
+    NOT_PARTICIPANT("SA-0001", HttpStatus.UNAUTHORIZED, "회의 참가자가 아닙니다.");
 
     private final String code;
     private final HttpStatus status;

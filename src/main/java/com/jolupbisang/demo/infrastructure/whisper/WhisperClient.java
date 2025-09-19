@@ -27,6 +27,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
@@ -38,6 +39,9 @@ public class WhisperClient extends BinaryWebSocketHandler {
     private WebSocketSession whisperSession;
 
     private final WhisperProperties whisperProperties;
+
+    private static final int MAX_RETRY_ATTEMPTS = 5;
+    private static final int RETRY_DELAY_SECONDS = 5;
 
     @PostConstruct
     public void init() {
@@ -149,12 +153,25 @@ public class WhisperClient extends BinaryWebSocketHandler {
 
     private void connectToWhisperServer() {
         WebSocketClient client = new StandardWebSocketClient();
-        try {
-            whisperSession = client.execute(this, whisperProperties.getWebsocketUrl()).get();
-            log.info("[WhisperClient] Connected to Whisper server");
-        } catch (InterruptedException | ExecutionException e) {
-            log.error("[WhisperClient] Failed to connect to Whisper server", e);
+        for (int attempt = 1; attempt <= MAX_RETRY_ATTEMPTS; attempt++) {
+            try {
+                whisperSession = client.execute(this, whisperProperties.getWebsocketUrl()).get();
+                log.info("[WhisperClient] Connection successful on attempt {}", attempt);
+                return;
+            } catch (InterruptedException | ExecutionException e) {
+                log.error("[WhisperClient] Connection failed on attempt {}/{}: {}", attempt, MAX_RETRY_ATTEMPTS, e.getMessage());
+                if (attempt < MAX_RETRY_ATTEMPTS) {
+                    try {
+                        TimeUnit.SECONDS.sleep(RETRY_DELAY_SECONDS);
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        log.error("[WhisperClient] Thread interrupted during retry delay", ie);
+                        return;
+                    }
+                }
+            }
         }
+        log.error("[WhisperClient] Failed to connect to Whisper server after {} attempts. Retries exhausted.", MAX_RETRY_ATTEMPTS);
     }
 
     private int readJsonLength(ByteBuffer payload) {

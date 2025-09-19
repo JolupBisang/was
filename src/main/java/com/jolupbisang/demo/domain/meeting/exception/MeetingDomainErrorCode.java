@@ -32,7 +32,7 @@ public enum MeetingDomainErrorCode implements ErrorCode {
     INVALID_RATE_RANGE("MD-0023", HttpStatus.BAD_REQUEST, "참여율은 0~1 사이의 값이어야 합니다."),
     INVALID_TOTAL_PARTICIPATION_CHUNK("MD-0024", HttpStatus.BAD_REQUEST, "참여 청크는 0보다 크거나 같아야합니다."),
     NON_EXISTING_AGENDA("MD-0025", HttpStatus.NOT_FOUND, "없는 아젠다 입니다."),
-    NOT_PARTICIPANT("MD-0026", HttpStatus.FORBIDDEN, "회의 참여자만 가능합니다."),
+    NOT_PARTICIPANT("MD-0026", HttpStatus.UNAUTHORIZED, "회의 참여자만 가능합니다."),
     NEGATIVE_USER_ID("MD-0027", HttpStatus.BAD_REQUEST, "사용자 Id는 0보다 크거나 같아야합니다.");
 
     private final String code;

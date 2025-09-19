@@ -20,7 +20,7 @@ public class MeetingDetailUpdateController {
 
     private final MeetingDetailUpdateService meetingDetailUpdateService;
 
-    @PutMapping("/api/v1/meetings/{meetingId)")
+    @PutMapping("/api/v1/meetings/{meetingId}")
     public ResponseEntity<MeetingDetailUpdateRes> updateMeetingDetail(@PathVariable Long meetingId,
                                                                       @Valid @RequestBody MeetingUpdateReq meetingUpdateReq,
                                                                       @AuthenticationPrincipal CustomUserDetails userDetails) {

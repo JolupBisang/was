@@ -22,6 +22,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -75,7 +76,7 @@ public class ContextService {
 
         String context = contextResponse.context();
         if (context != null && !context.isEmpty()) {
-            eventPublisher.publishEvent(new SummaryReceivedEvent(source, meetingId, context, isRecap));
+            eventPublisher.publishEvent(new SummaryReceivedEvent(meetingId, context, isRecap, LocalDateTime.now()));
         }
 
         List<Integer> agenda = contextResponse.agenda();
@@ -87,7 +88,7 @@ public class ContextService {
         if (feedbackResList != null && !feedbackResList.isEmpty()) {
             for (ContextResponse.FeedbackRes feedbackRes : feedbackResList) {
                 if (feedbackRes != null && feedbackRes.userId() != null && feedbackRes.comment() != null && !feedbackRes.comment().isEmpty()) {
-                    eventPublisher.publishEvent(new FeedbackReceivedEvent(source, meetingId, feedbackRes.userId(), feedbackRes.comment()));
+                    eventPublisher.publishEvent(new FeedbackReceivedEvent(meetingId, feedbackRes.userId(), feedbackRes.comment(), LocalDateTime.now()));
                 }
             }
         }
@@ -146,7 +147,7 @@ public class ContextService {
 //
 //            DiarizedResponse diarizedResponseForTest = new DiarizedResponse(WhisperResponseType.DIARIZED, meetingId, completedList, candidateList);
 //
-//            eventPublisher.publishEvent(new WhisperDiarizedEvent(diarizedResponseForTest));
+//            eventPublisher.publishEvent(new TextTranslatedEvent(diarizedResponseForTest));
 //        };
 //
 //        taskScheduler.scheduleAtFixedRate(task1, Instant.now().plusSeconds(10), Duration.ofMinutes(1));
