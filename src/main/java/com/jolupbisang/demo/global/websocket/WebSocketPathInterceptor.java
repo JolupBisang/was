@@ -37,8 +37,8 @@ public class WebSocketPathInterceptor implements HandshakeInterceptor {
         String[] segments = path.split("/");
 
         try {
-            if (path.matches("/ws/v1/meeting/\\d+")) {
-                variables.put("meetingId", segments[3]);
+            if (path.matches("/ws/v1/meeting/\\d+/audio")) {
+                variables.put("meetingId", segments[4]);
             } else {
                 log.warn("Unknown WebSocket path pattern: {}", path);
             }

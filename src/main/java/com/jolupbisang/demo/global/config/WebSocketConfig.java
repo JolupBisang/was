@@ -24,7 +24,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(meetingSocketHandler, "/ws/meeting/audio/{meetingId}")
+        registry.addHandler(meetingSocketHandler, "/ws/v1/meeting/{meetingId}/audio")
                 .addInterceptors(webSocketAuthInterceptor, webSocketPathInterceptor)
                 .setAllowedOrigins("*");
     }
