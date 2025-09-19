@@ -50,7 +50,7 @@ public class LiveParticipationRateService {
     }
 
     @EventListener
-    @Async("scheduledTaskExecutor")
+    @Async("AsyncTaskExecutor")
     public void cancelScheduledTask(MeetingCompletedEvent event) {
         ScheduledFuture<?> scheduledFuture = scheduledTasks.get(event.meetingId());
         if (scheduledFuture != null) {

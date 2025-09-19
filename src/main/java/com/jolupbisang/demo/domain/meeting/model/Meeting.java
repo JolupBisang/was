@@ -5,6 +5,7 @@ import com.jolupbisang.demo.domain.meeting.dto.CreatedAgendaDetail;
 import com.jolupbisang.demo.domain.meeting.dto.MeetingDetailUpdateDto;
 import com.jolupbisang.demo.domain.meeting.event.MeetingCompletedEvent;
 import com.jolupbisang.demo.domain.meeting.event.MeetingStartedEvent;
+import com.jolupbisang.demo.domain.meeting.event.ParticipationRateSavedEvent;
 import com.jolupbisang.demo.domain.meeting.exception.MeetingDomainErrorCode;
 import com.jolupbisang.demo.domain.meeting.exception.TooManyHostException;
 import com.jolupbisang.demo.global.event.Events;
@@ -219,6 +220,7 @@ public class Meeting extends BaseTimeEntity {
                         participant.updateParticipationRate(participationRates.get(participant.getUserId()), participantChunks.get(participant.getUserId()));
                     }
                 });
+        Events.raise(new ParticipationRateSavedEvent(this.id));
     }
 
     private void setTitle(String title) {
