@@ -1,7 +1,6 @@
 package com.jolupbisang.demo.presentation.audio.api;
 
 import com.jolupbisang.demo.application.audio.query.dto.AudioListRes;
-import com.jolupbisang.demo.global.response.SuccessResponse;
 import com.jolupbisang.demo.infrastructure.auth.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -76,7 +75,7 @@ public interface AudioControllerApi {
                                     """)
                     }))
     })
-    ResponseEntity<SuccessResponse<AudioListRes>> getCompletedMeetingAudioList(
+    ResponseEntity<AudioListRes> getCompletedMeetingAudioList(
             @Parameter(description = "회의 ID", required = true, example = "123")
             @PathVariable Long meetingId,
             @Parameter(hidden = true)

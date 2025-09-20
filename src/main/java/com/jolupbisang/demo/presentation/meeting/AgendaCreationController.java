@@ -20,7 +20,7 @@ public class AgendaCreationController {
 
     private final AgendaCreationService agendaCreationService;
 
-    @PostMapping("/api/v1/{meetingId}/agendas")
+    @PostMapping("/api/v1/meetings/{meetingId}/agendas")
     public ResponseEntity<AgendaCreationRes> addAgenda(@PathVariable("meetingId") Long meetingId,
                                                        @RequestBody @Valid AgendaCreateReq agendaCreateReq,
                                                        @AuthenticationPrincipal CustomUserDetails customUserDetails) {
