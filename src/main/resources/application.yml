@@ -1,41 +1,111 @@
-spring.profiles:
-  active: local
-  group:
-    local: local, common, secret
-    blue: blue, common, secret
-    green: green, common, secret
+spring:
+  application:
+    name: SilRok
+  profiles:
+    default: dev   # 로컬 기본은 dev
+
+  # ─────────────────────────────────────────────────────────────
+  # 공통(구조/디폴트)
+  # ─────────────────────────────────────────────────────────────
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:update}
+    show-sql: ${JPA_SHOW_SQL:false}
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        jdbc.batch_size: ${HIBERNATE_JDBC_BATCH_SIZE:64}
+        default_batch_fetch_size: ${HIBERNATE_DEFAULT_BATCH_FETCH_SIZE:64}
+        jdbc.batch_versioned_data: ${HIBERNATE_BATCH_VERSIONED:false}
+        order_inserts: ${HIBERNATE_ORDER_INSERTS:true}
+        order_updates: ${HIBERNATE_ORDER_UPDATES:true}
+    open-in-view: ${JPA_OPEN_IN_VIEW:false}
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT:6379}
+
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+    # --- 데이터 무손실을 위한 설정 ---
+    publisher-confirm-type: correlated
+    publisher-returns: true
+    template:
+      mandatory: true
+    listener:
+      simple:
+        acknowledge-mode: manual
+        retry:
+          enabled: true
+          initial-interval: 2s
+          max-attempts: 3
+        concurrency: ${RABBITMQ_CONCURRENCY:1}
+  mvc:
+    async:
+      request-timeout: ${MVC_ASYNC_TIMEOUT:1800000}
+
+cloud:
+  aws:
+    credentials:
+      access-key: ${AWS_ACCESS_KEY_ID}
+      secret-key: ${AWS_SECRET_ACCESS_KEY}
+    region: ${AWS_REGION:ap-northeast-2}
+    s3:
+      bucket: ${S3_BUCKET}
+    sfn:
+      merge-audio-state-machine-arn: ${SFN_MERGE_ARN}
+
+oauth2:
+  google:
+    token-uri: https://oauth2.googleapis.com/token
+    client-id: ${GOOGLE_CLIENT_ID}
+    client-secret: ${GOOGLE_CLIENT_SECRET}
+    redirect-uris:
+      web: ${GOOGLE_REDIRECT_WEB:http://localhost:8080/api/auth/login/web/GOOGLE}
+      app: ${GOOGLE_REDIRECT_APP:http://localhost:8080/api/auth/login/app/GOOGLE}
+    user-info-uri: https://www.googleapis.com/userinfo/v2/me
+
+jwt:
+  secret: ${JWT_SECRET}
+  access-expiration: ${JWT_ACCESS_EXP:3600000}
+  refresh-expiration: ${JWT_REFRESH_EXP:604800000}
+  issuer: Silrok
+
+whisper:
+  websocket-url: ${WHISPER_WS_URL}
+
+websocket:
+  text-buffer-size: ${WS_TEXT_BUF:130072}
+  binary-buffer-size: ${WS_BIN_BUF:130072}
+  session-timeout: ${WS_SESSION_TIMEOUT:3600000}
+
+schedule:
+  context: ${SCHEDULE_CONTEXT:1}
+  participation-rate: ${SCHEDULE_PARTICIPATION_RATE:30}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics   # prod 헬스/메트릭 노출용
+  endpoint:
+    health:
+      probes:
+        enabled: true
 
 server:
-  env: blue
+  port: ${SERVER_PORT:8080}
 
----
-spring:
-  config.activate.on-profile: local
-
-server:
-  port: 8080
-
----
-spring:
-  config.activate.on-profile: blue
-
-server:
-  port: 8080
-  address: 0.0.0.0
----
-spring:
-  config.activate.on-profile: green
-
-server:
-  port: 8081
-  address: 0.0.0.0
----
-
-spring:
-  config.activate.on-profile: common
-  application.name: demo
-
-# Swagger 공통 설정
 springdoc:
   swagger-ui:
     path: /index.html
@@ -45,4 +115,64 @@ springdoc:
     disable-swagger-default-url: true
   api-docs:
     path: /v3/api-docs
-  packages-to-scan: com.jolupbisang.demo
+  packages-to-scan: ${SWAGGER_PACKAGES:com.jolupbisang.demo}
+
+# ─────────────────────────────────────────────────────────────
+# dev (로컬/개발) — 흐름 보려고 로깅 상향
+# ─────────────────────────────────────────────────────────────
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+logging:
+  level:
+    root: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
+    com.jolupbisang: DEBUG
+
+app.slot: dev
+
+# ─────────────────────────────────────────────────────────────
+# prod 공통
+# ─────────────────────────────────────────────────────────────
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+logging:
+  level:
+    root: INFO
+    com.jolupbisang: INFO
+
+# ─────────────────────────────────────────────────────────────
+# prod 슬롯: blue
+# ─────────────────────────────────────────────────────────────
+---
+spring:
+  config:
+    activate:
+      on-profile: blue
+server:
+  port: ${BLUE_PORT:${SERVER_PORT:8080}}
+  address: 0.0.0.0
+app:
+  slot: blue
+
+# ─────────────────────────────────────────────────────────────
+# prod 슬롯: green
+# ─────────────────────────────────────────────────────────────
+---
+spring:
+  config:
+    activate:
+      on-profile: green
+server:
+  port: ${GREEN_PORT:${SERVER_PORT:8081}}
+  address: 0.0.0.0
+app:
+  slot: green
