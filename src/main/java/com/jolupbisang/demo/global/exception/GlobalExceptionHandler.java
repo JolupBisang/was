@@ -46,7 +46,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DomainException.class)
     protected ResponseEntity<?> handleDomainException(DomainException ex) {
         String errorId = UUID.randomUUID().toString();
-        log.error("[Domain Error - {}] - errorCode: {}, status: {}, message: {}", errorId, ex.getCustomCode(), ex.getStatus(), ex.getMessage(), ex);
+        log.info("[Domain Error - {}] - errorCode: {}, status: {}, message: {}", errorId, ex.getCustomCode(), ex.getStatus(), ex.getMessage(), ex);
 
         return ResponseEntity.status(ex.getStatus()).body(ErrorResponse.of(errorId, ex.getMessage()));
     }
@@ -54,7 +54,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ApplicationException.class)
     public ResponseEntity<?> handleApplicationException(ApplicationException ex) {
         String errorId = UUID.randomUUID().toString();
-        log.error("[Application Error - {}] - errorCode: {}, status: {}, message: {}", errorId, ex.getCustomCode(), ex.getStatus(), ex.getMessage(), ex);
+        log.info("[Application Error - {}] - errorCode: {}, status: {}, message: {}", errorId, ex.getCustomCode(), ex.getStatus(), ex.getMessage(), ex);
 
         return ResponseEntity.status(ex.getStatus()).body(ErrorResponse.of(errorId, ex.getMessage()));
     }
