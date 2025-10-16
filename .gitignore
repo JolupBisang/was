@@ -4,7 +4,9 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-application-secret.yml
+/logs
+.env.dev
+.env.prod
 
 ### STS ###
 .apt_generated
@@ -37,3 +39,8 @@ out/
 
 ### VS Code ###
 .vscode/
+
+/docker/.env.*
+/docker/logstash.conf
+/docker/.docker.env
+/docker/prometheus.yml

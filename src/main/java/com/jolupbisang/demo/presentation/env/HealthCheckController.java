@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class HealthCheckController {
-    @Value("${server.env}")
+    @Value("${app.slot}")
     private String env;
 
     @GetMapping("/env")

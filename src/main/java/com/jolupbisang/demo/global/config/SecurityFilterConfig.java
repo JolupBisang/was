@@ -7,12 +7,10 @@ import com.jolupbisang.demo.presentation.auth.filter.JwtExceptionFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.core.userdetails.UserDetailsService;
 
 @Configuration
 @RequiredArgsConstructor
 public class SecurityFilterConfig {
-    private final UserDetailsService userDetailsService;
     private final JwtProvider jwtProvider;
     private final ObjectMapper objectMapper;
 

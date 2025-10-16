@@ -19,10 +19,10 @@ public class BaseTimeEntity {
     @CreatedDate
     @JsonIgnore
     @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
+    private LocalDateTime createdDateTime;
 
     @LastModifiedDate
     @JsonIgnore
     @Column(name = "modified_at")
-    private LocalDateTime modifiedAt;
+    private LocalDateTime modifiedDateTime;
 }

@@ -61,7 +61,9 @@ dependencies {
 
     //Messaging
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
-    
+
+    //LogStash
+    implementation 'net.logstash.logback:logstash-logback-encoder:8.0'
 }
 
 tasks.named('test') {

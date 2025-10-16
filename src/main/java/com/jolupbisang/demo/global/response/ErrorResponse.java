@@ -2,13 +2,17 @@ package com.jolupbisang.demo.global.response;
 
 import java.util.Map;
 
-public record ErrorResponse(String message, String errorId, Map<String, String> errors) {
+public record ErrorResponse(
+        String errorId,
+        String message,
+        Map<String, String> errors
+) {
 
-    public static ErrorResponse of(String message, String errorId) {
-        return new ErrorResponse(message, errorId, null);
+    public static ErrorResponse of(String errorId, String message) {
+        return new ErrorResponse(errorId, message, null);
     }
 
-    public static ErrorResponse of(String message, String errorId, Map<String, String> errors) {
-        return new ErrorResponse(message, errorId, errors);
+    public static ErrorResponse of(String errorId, String message, Map<String, String> errors) {
+        return new ErrorResponse(errorId, message, errors);
     }
 }

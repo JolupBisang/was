@@ -1,6 +1,8 @@
 package com.jolupbisang.demo.infrastructure.audio;
 
+import com.jolupbisang.demo.domain.audio.model.EmbeddingAudio;
+
 public interface EmbeddingAudioRepository {
 
-    void save(long userId, byte[] audio);
+    void save(EmbeddingAudio embeddingAudio);
 }

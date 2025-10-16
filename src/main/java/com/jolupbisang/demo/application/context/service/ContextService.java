@@ -1,9 +1,13 @@
 package com.jolupbisang.demo.application.context.service;
 
-import com.jolupbisang.demo.application.event.*;
 import com.jolupbisang.demo.application.event.whisper.WhisperContextEvent;
-import com.jolupbisang.demo.infrastructure.audio.client.WhisperClient;
+import com.jolupbisang.demo.domain.meeting.event.MeetingCompletedEvent;
+import com.jolupbisang.demo.domain.meeting.event.MeetingStartedEvent;
 import com.jolupbisang.demo.infrastructure.audio.client.dto.response.ContextResponse;
+import com.jolupbisang.demo.infrastructure.whisper.WhisperClient;
+import com.jolupbisang.demo.infrastructure.whisper.event.AgendaReceivedEvent;
+import com.jolupbisang.demo.infrastructure.whisper.event.FeedbackReceivedEvent;
+import com.jolupbisang.demo.infrastructure.whisper.event.SummaryReceivedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +22,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -38,8 +43,8 @@ public class ContextService {
 
     @Async("AsyncTaskExecutor")
     @EventListener
-    public void handleMeetingStart(MeetingStartingEvent event) {
-        long meetingId = event.getMeetingId();
+    public void handleMeetingStart(MeetingStartedEvent event) {
+        long meetingId = event.meetingId();
         Runnable task = () -> whisperClient.sendContext(meetingId);
 
         ScheduledFuture<?> scheduledFuture = taskScheduler.scheduleAtFixedRate(
@@ -52,7 +57,7 @@ public class ContextService {
     @Order(1)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleMeetingCompletion(MeetingCompletedEvent event) {
-        Long meetingId = event.getMeetingId();
+        Long meetingId = event.meetingId();
         ScheduledFuture<?> scheduledFuture = scheduledTasks.get(meetingId);
 
         if (scheduledFuture != null) {
@@ -71,7 +76,7 @@ public class ContextService {
 
         String context = contextResponse.context();
         if (context != null && !context.isEmpty()) {
-            eventPublisher.publishEvent(new SummaryReceivedEvent(source, meetingId, context, isRecap));
+            eventPublisher.publishEvent(new SummaryReceivedEvent(meetingId, context, isRecap, LocalDateTime.now()));
         }
 
         List<Integer> agenda = contextResponse.agenda();
@@ -83,7 +88,7 @@ public class ContextService {
         if (feedbackResList != null && !feedbackResList.isEmpty()) {
             for (ContextResponse.FeedbackRes feedbackRes : feedbackResList) {
                 if (feedbackRes != null && feedbackRes.userId() != null && feedbackRes.comment() != null && !feedbackRes.comment().isEmpty()) {
-                    eventPublisher.publishEvent(new FeedbackReceivedEvent(source, meetingId, feedbackRes.userId(), feedbackRes.comment()));
+                    eventPublisher.publishEvent(new FeedbackReceivedEvent(meetingId, feedbackRes.userId(), feedbackRes.comment(), LocalDateTime.now()));
                 }
             }
         }
@@ -142,7 +147,7 @@ public class ContextService {
 //
 //            DiarizedResponse diarizedResponseForTest = new DiarizedResponse(WhisperResponseType.DIARIZED, meetingId, completedList, candidateList);
 //
-//            eventPublisher.publishEvent(new WhisperDiarizedEvent(diarizedResponseForTest));
+//            eventPublisher.publishEvent(new TextTranslatedEvent(diarizedResponseForTest));
 //        };
 //
 //        taskScheduler.scheduleAtFixedRate(task1, Instant.now().plusSeconds(10), Duration.ofMinutes(1));

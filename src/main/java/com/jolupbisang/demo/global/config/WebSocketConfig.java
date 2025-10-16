@@ -1,8 +1,9 @@
 package com.jolupbisang.demo.global.config;
 
 import com.jolupbisang.demo.global.properties.WebSocketProperties;
-import com.jolupbisang.demo.presentation.auth.interceptor.WebSocketAuthInterceptor;
+import com.jolupbisang.demo.global.websocket.WebSocketPathInterceptor;
 import com.jolupbisang.demo.presentation.audio.MeetingSocketHandler;
+import com.jolupbisang.demo.presentation.auth.interceptor.WebSocketAuthInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,11 +20,12 @@ public class WebSocketConfig implements WebSocketConfigurer {
     private final WebSocketProperties webSocketProperties;
     private final MeetingSocketHandler meetingSocketHandler;
     private final WebSocketAuthInterceptor webSocketAuthInterceptor;
+    private final WebSocketPathInterceptor webSocketPathInterceptor;
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(meetingSocketHandler, "/ws/meeting/audio/{meetingId}")
-                .addInterceptors(webSocketAuthInterceptor)
+        registry.addHandler(meetingSocketHandler, "/ws/v1/meeting/{meetingId}/audio")
+                .addInterceptors(webSocketAuthInterceptor, webSocketPathInterceptor)
                 .setAllowedOrigins("*");
     }
 
