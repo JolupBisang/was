@@ -38,6 +38,7 @@ public class Participant {
         initiateStatus();
         this.meeting = meeting;
         this.role = role;
+        this.participationRate = new ParticipationRate();
     }
 
     public void updateParticipationRate(double rate, long totalParticipationChunk) {
