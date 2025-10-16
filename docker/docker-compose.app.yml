@@ -1,0 +1,45 @@
+services:
+  blue:
+    image: "${DOCKER_REGISTRY_URL}/${SPRING_IMAGE_NAME}:${DOCKER_IMAGE_TAG:-latest}"
+    container_name: blue
+    environment:
+      - PROFILES=${SPRING_PROFILE:-local}
+      - ENV=${SPRING_ENV:-blue}
+    env_file:
+      - "${ENV_FILE:-.env.dev}"
+    ports:
+      - "${BLUE_PORT:-8080}:8080"
+    networks:
+      - app_network
+    restart: always
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -sf http://127.0.0.1:8080/actuator/health | grep -q '\"status\":\"UP\"'" ]
+      interval: 15s
+      timeout: 3s
+      retries: 5
+      start_period: 20s
+
+  green:
+    image: "${DOCKER_REGISTRY_URL}/${SPRING_IMAGE_NAME}:${DOCKER_IMAGE_TAG:-latest}"
+    container_name: green
+    environment:
+      - PROFILES=${SPRING_PROFILE:-local}
+      - ENV=${SPRING_ENV:-blue}
+    env_file:
+      - "${ENV_FILE:-.env.dev}"
+    ports:
+      - "${GREEN_PORT:-8081}:8080"
+    networks:
+      - app_network
+    restart: always
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -sf http://127.0.0.1:8080/actuator/health | grep -q '\"status\":\"UP\"'" ]
+      interval: 15s
+      timeout: 3s
+      retries: 5
+      start_period: 20s
+
+networks:
+  app_network:
+    external: true
+    name: ${DOCKER_NETWORK_NAME:-combined_network}

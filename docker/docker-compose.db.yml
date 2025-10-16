@@ -1,0 +1,31 @@
+services:
+  mysql:
+    image: mysql:${MYSQL_VERSION:-8.0}
+    container_name: ${MYSQL_CONTAINER_NAME:-my-mysql}
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_password}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-default_db}
+      MYSQL_USER: ${MYSQL_USER:-test_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-test_password}
+    volumes:
+      - ${MYSQL_DATA_VOLUME:-mysql_data}:/var/lib/mysql
+      - ${MYSQL_LOG_PATH:-./docker_logs/mysql}:/var/log/mysql # Adjusted default path
+    networks:
+      - db_network
+    restart: always
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    command: --default-authentication-plugin=mysql_native_password
+
+volumes:
+  mysql_data:
+
+networks:
+  db_network:
+    external: true
+    name: ${DOCKER_NETWORK_NAME:-combined_network}
