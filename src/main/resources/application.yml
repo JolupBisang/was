@@ -2,7 +2,7 @@ spring:
   application:
     name: SilRok
   profiles:
-    default: dev   # 로컬 기본은 dev
+    active: ${SPRING_PROFILES_ACTIVE:dev}
 
   # ─────────────────────────────────────────────────────────────
   # 공통(구조/디폴트)
@@ -97,7 +97,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics   # prod 헬스/메트릭 노출용
+        include: health,info,metrics,prometheus   # prod 헬스/메트릭 노출용
   endpoint:
     health:
       probes:
@@ -130,13 +130,14 @@ logging:
   level:
     root: INFO
     org.hibernate.SQL: DEBUG
-    org.hibernate.orm.jdbc.bind: TRACE
+    org.hibernate.orm.jdbc.bind: DEBUG
     com.jolupbisang: DEBUG
+  config: classpath:logback-dev.xml
 
 app.slot: dev
 
 # ─────────────────────────────────────────────────────────────
-# prod 공통
+# prod
 # ─────────────────────────────────────────────────────────────
 ---
 spring:
@@ -148,31 +149,7 @@ logging:
   level:
     root: INFO
     com.jolupbisang: INFO
+  config: classpath:logback-prod.xml
 
-# ─────────────────────────────────────────────────────────────
-# prod 슬롯: blue
-# ─────────────────────────────────────────────────────────────
----
-spring:
-  config:
-    activate:
-      on-profile: blue
-server:
-  port: ${BLUE_PORT:${SERVER_PORT:8080}}
-  address: 0.0.0.0
 app:
-  slot: blue
-
-# ─────────────────────────────────────────────────────────────
-# prod 슬롯: green
-# ─────────────────────────────────────────────────────────────
----
-spring:
-  config:
-    activate:
-      on-profile: green
-server:
-  port: ${GREEN_PORT:${SERVER_PORT:8081}}
-  address: 0.0.0.0
-app:
-  slot: green
+  slot: ${ENV:green}
