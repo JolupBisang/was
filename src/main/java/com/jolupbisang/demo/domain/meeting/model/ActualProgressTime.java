@@ -29,7 +29,7 @@ public class ActualProgressTime {
         if (actualStartTime == null && actualEndTime != null) {
             throw new DomainException(MeetingDomainErrorCode.EMPTY_ACTUAL_START_TIME);
         }
-        if (actualStartTime != null && actualStartTime.isAfter(actualEndTime)) {
+        if (actualStartTime != null && actualEndTime != null && actualStartTime.isAfter(actualEndTime)) {
             throw new DomainException(MeetingDomainErrorCode.END_TIME_BEFORE_START_TIME, "actualStartTime: %s, actualEndTime: %s", actualStartTime, actualEndTime);
         }
     }
