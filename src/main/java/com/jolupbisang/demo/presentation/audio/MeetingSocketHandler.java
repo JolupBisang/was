@@ -4,6 +4,7 @@ import com.jolupbisang.demo.application.meeting.Intergration.MeetingWebsocketCon
 import com.jolupbisang.demo.application.meeting.event.MeetingSessionClosedEvent;
 import com.jolupbisang.demo.global.event.Events;
 import com.jolupbisang.demo.global.websocket.WebSocketErrorHandler;
+import com.jolupbisang.demo.infrastructure.auth.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -12,6 +13,8 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.AbstractWebSocketHandler;
+
+import java.util.Map;
 
 @Slf4j
 @Component
@@ -26,27 +29,35 @@ public class MeetingSocketHandler extends AbstractWebSocketHandler {
     public void afterConnectionEstablished(WebSocketSession session) {
 
         Long tmpMeetingId = 0L, tmpUserId = 0L;
+
+        Map<String, Object> attributes = session.getAttributes();
+        for (String key : attributes.keySet()) {
+            log.debug("[{}] Session attribute: {}, {}", session.getId(), key, attributes.get(key));
+        }
+
         try {
-            tmpMeetingId = (Long) session.getAttributes().get("meetingId");
-            tmpUserId = (Long) session.getAttributes().get("userId");
+            CustomUserDetails userDetails = (CustomUserDetails) session.getAttributes().get("userDetails");
+            tmpMeetingId = Long.parseLong((String) session.getAttributes().get("meetingId"));
+            tmpUserId = userDetails.getUserId();
+
+            log.debug("userId : {}, meetingId: {}", userDetails.getUserId(), tmpMeetingId);
 
             if (tmpMeetingId == null || tmpUserId == null) {
-                log.warn("[{}] Missing userId or meetingId in session attributes", session.getId());
+                log.info("[{}] Missing userId or meetingId in session attributes", session.getId());
                 throw new IllegalArgumentException("Missing userId or meetingId in session attributes");
             }
         } catch (Exception ex) {
-            try {
-                session.close(CloseStatus.POLICY_VIOLATION);
-            } catch (Exception closeEx) {
-                log.warn("[{}] Error closing WebSocket session: {}", session.getId(), closeEx.getMessage(), closeEx);
-            }
+            log.info("Error processing WebSocket handshake: sessionId: {}, message = {}", session.getId(), ex.getMessage(), ex);
+            closeQuietly(session);
         }
 
         long meetingId = tmpMeetingId;
         long userId = tmpUserId;
 
-        webSocketErrorHandler.handleWithErrorManagement(session, () ->
-                meetingWebsocketConnectionService.registerSessionToMeeting(session, meetingId, userId));
+        if (!webSocketErrorHandler.handleWithErrorManagement(session, () ->
+                meetingWebsocketConnectionService.registerSessionToMeeting(session, meetingId, userId))) {
+            closeQuietly(session);
+        }
 
     }
 
@@ -78,5 +89,13 @@ public class MeetingSocketHandler extends AbstractWebSocketHandler {
         log.info("[{}] WebSocket Connection Closed - Status: {}. Session unregistration attempted.", session.getId(), status);
 
         Events.raise(new MeetingSessionClosedEvent(meetingId, userId));
+    }
+
+    private void closeQuietly(WebSocketSession session) {
+        try {
+            session.close(CloseStatus.POLICY_VIOLATION);
+        } catch (Exception closeEx) {
+            log.warn("[{}] Error closing WebSocket session: {}", session.getId(), closeEx.getMessage(), closeEx);
+        }
     }
 }

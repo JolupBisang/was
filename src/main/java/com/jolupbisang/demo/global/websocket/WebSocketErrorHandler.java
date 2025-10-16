@@ -24,19 +24,26 @@ public class WebSocketErrorHandler {
 
     /**
      * 리턴값이 없는 WebSocket 작업을 에러 처리와 함께 실행
+     * 오류 발생시 false 반환
      */
-    public void handleWithErrorManagement(WebSocketSession session, Runnable operation) {
+    public boolean handleWithErrorManagement(WebSocketSession session, Runnable operation) {
         try {
             operation.run();
         } catch (ApplicationException e) {
             handleApplicationException(session, e);
+            return false;
         } catch (DomainException e) {
             handleDomainException(session, e);
+            return false;
         } catch (InfraException e) {
             handleInfraException(session, e);
+            return false;
         } catch (Exception e) {
             handleUnexpectedException(session, e);
+            return false;
         }
+
+        return true;
     }
 
     /**
@@ -61,12 +68,12 @@ public class WebSocketErrorHandler {
     }
 
     private void handleApplicationException(WebSocketSession session, ApplicationException e) {
-        log.warn("Application exception in WebSocket session {}: {}", session.getId(), e.getMessage());
+        log.info("Application exception in WebSocket session {}: {}", session.getId(), e.getMessage());
         sendErrorToClient(session, e.getMessage(), e.getErrorCode().getCode());
     }
 
     private void handleDomainException(WebSocketSession session, DomainException e) {
-        log.warn("Domain exception in WebSocket session {}: {}", session.getId(), e.getMessage());
+        log.info("Domain exception in WebSocket session {}: {}", session.getId(), e.getMessage());
         sendErrorToClient(session, e.getMessage(), e.getErrorCode().getCode());
     }
 
