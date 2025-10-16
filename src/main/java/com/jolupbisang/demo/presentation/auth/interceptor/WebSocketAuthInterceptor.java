@@ -3,6 +3,7 @@ package com.jolupbisang.demo.presentation.auth.interceptor;
 import com.jolupbisang.demo.global.exception.CustomException;
 import com.jolupbisang.demo.global.exception.GlobalErrorCode;
 import com.jolupbisang.demo.infrastructure.auth.JwtProvider;
+import com.jolupbisang.demo.infrastructure.auth.security.CustomUserDetails;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -45,9 +46,7 @@ public class WebSocketAuthInterceptor implements HandshakeInterceptor {
             String nickname = jwtProvider.getNickname(accessToken);
 
             // 4. attributes에 사용자 정보 저장
-            attributes.put("userId", userId);
-            attributes.put("userEmail", email);
-            attributes.put("userNickname", nickname);
+            attributes.put("userDetails", new CustomUserDetails(userId, email, nickname));
 
             log.info("WebSocket authentication successful - userId: {}", userId);
             return true;
@@ -70,7 +69,7 @@ public class WebSocketAuthInterceptor implements HandshakeInterceptor {
             return false;
         } catch (CustomException e) {
             log.warn("Custom exception in WebSocket handshake: {}", e.getMessage());
-            response.setStatusCode(HttpStatus.valueOf(e.getErrorCode().getStatus().value()));
+            response.setStatusCode(e.getStatus());
             return false;
         } catch (Exception e) {
             log.error("Unexpected error in WebSocket handshake", e);
