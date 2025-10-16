@@ -52,10 +52,10 @@ public class Meeting extends BaseTimeEntity {
     @Column(nullable = false)
     private MeetingStatus meetingStatus;
 
-    @OneToMany(mappedBy = "meeting", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "meeting", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<Participant> participants = new ArrayList<>();
 
-    @OneToMany(mappedBy = "meeting", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "meeting", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<Agenda> agendas = new ArrayList<>();
 
     private static final long MAX_MEETING_HOST_COUNT = 1L;
