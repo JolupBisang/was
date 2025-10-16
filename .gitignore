@@ -39,3 +39,8 @@ out/
 
 ### VS Code ###
 .vscode/
+
+/docker/.env.*
+/docker/logstash.conf
+/docker/.docker.env
+/docker/prometheus.yml
