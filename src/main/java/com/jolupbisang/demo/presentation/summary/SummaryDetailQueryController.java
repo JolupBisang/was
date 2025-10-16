@@ -9,16 +9,18 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/summary")
 public class SummaryDetailQueryController {
 
     private final SummaryDetailQueryService summaryDetailQueryService;
 
-    @GetMapping("/{meetingId}")
+    @GetMapping("/api/v1/meetings/{meetingId}/summary")
     public Slice<SummaryListRes> getSummaries(@PathVariable long meetingId,
                                               @RequestParam(defaultValue = "false") boolean isRecap,
                                               @PageableDefault(size = 30, sort = "timestamp", direction = Sort.Direction.DESC) Pageable pageable,

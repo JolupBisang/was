@@ -16,7 +16,7 @@ public class MeetingEventSubscribeController {
 
     private final MeetingEventSubscribeService meetingEventSubscribeService;
 
-    @GetMapping(path = "/api/meetings/{meetingId}/events/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @GetMapping(path = "/api/v1/meetings/{meetingId}/events/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter subscribe(@PathVariable Long meetingId,
                                 @AuthenticationPrincipal CustomUserDetails userDetails) {
 
