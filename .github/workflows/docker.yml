@@ -1,4 +1,4 @@
-name: Deploy Docker Compose Files
+name: Deploy Docker Compose
 
 on:
   push:
@@ -7,6 +7,8 @@ on:
     paths:
       - 'docker/docker-compose*.yml'
       - 'docker/docker-compose*.yaml'
+
+  workflow_dispatch:
 
 permissions:
   contents: read
