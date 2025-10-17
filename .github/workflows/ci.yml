@@ -1,4 +1,4 @@
-name: ci
+name: Test gradle build
 
 on:
   pull_request:
@@ -38,7 +38,7 @@ jobs:
         run: chmod +x ./gradlew
 
       # 테스트 없이 빌드
-      - name: Build with test
+      - name: Build without test
         uses: gradle/gradle-build-action@v3
         with:
           arguments: build -x test
