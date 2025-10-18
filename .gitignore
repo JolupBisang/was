@@ -44,3 +44,6 @@ out/
 /docker/logstash.conf
 /docker/.docker.env
 /docker/prometheus.yml
+/docker/loki-config.yml
+/docker/promtail-config.yml
+
