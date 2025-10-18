@@ -4,10 +4,9 @@ services:
     container_name: ${REDIS_CONTAINER_NAME:-my-redis}
     ports:
       - "${REDIS_PORT:-6379}:6379"
-    command: [ "redis-server", "--logfile", "/var/log/redis/redis.log" ]
+    command: [ "redis-server" ]
     volumes:
       - ${REDIS_DATA_VOLUME:-redis_data}:/data
-      - ${REDIS_LOG_PATH:-./docker_logs/redis}:/var/log/redis # Added and adjusted default path
     networks:
       - infra_net
     restart: always
@@ -26,8 +25,6 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-test_user}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-test_password}
-    volumes:
-      - ${RABBITMQ_LOG_PATH:-./docker_logs/rabbitmq}:/var/log/rabbitmq # Adjusted default path
     networks:
       - infra_net
     restart: always
@@ -37,49 +34,8 @@ services:
       timeout: 10s
       retries: 5
 
-  grafana:
-    image: grafana/grafana:${GRAFANA_VERSION:-10.4.2}
-    container_name: ${GRAFANA_CONTAINER_NAME:-my-grafana}
-    ports:
-      - "${GRAFANA_PORT:-3000}:3000"
-    volumes:
-      - ${GRAFANA_DATA_VOLUME:-grafana_data}:/var/lib/grafana
-      - ${GRAFANA_LOG_PATH:-./docker_logs/grafana}:/var/log/grafana # Adjusted default path
-    networks:
-      - infra_net
-    restart: always
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://grafana:3000/api/health" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  prometheus:
-    image: prom/prometheus:${PROMETHEUS_VERSION:-v2.49.1}
-    container_name: ${PROMETHEUS_CONTAINER_NAME:-my-prometheus}
-    ports:
-      - "${PROMETHEUS_PORT:-9090}:9090"
-    volumes:
-      - ${PROMETHEUS_CONFIG_PATH:-./prometheus.yml}:/etc/prometheus/prometheus.yml
-      - ${PROMETHEUS_DATA_VOLUME:-prometheus_data}:/prometheus
-    networks:
-      - infra_net
-    restart: always
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://prometheus:9090/-/ready" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-
 volumes:
   redis_data:
-  grafana_data:
-  prometheus_data:
 
 networks:
   infra_net:

@@ -1,0 +1,81 @@
+services:
+  loki:
+    image: grafana/loki:${LOKI_VERSION:-3.0.0}
+    container_name: my-loki
+    ports:
+      - "${LOKI_PORT:-3100}:3100"
+    volumes:
+      - ${LOKI_CONFIG_PATH:-./loki-config.yml}:/etc/loki/loki-config.yml
+      - ${LOKI_DATA_VOLUME:-loki_data}:/loki
+    command: -config.file=/etc/loki/loki-config.yml
+    networks:
+      - monitor_net
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3100/ready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  grafana:
+    image: grafana/grafana:${GRAFANA_VERSION:-10.4.2}
+    container_name: my-grafana
+    ports:
+      - "${GRAFANA_PORT:-3000}:3000"
+    volumes:
+      - ${GRAFANA_DATA_VOLUME:-grafana_data}:/var/lib/grafana
+      - ${GRAFANA_LOG_PATH:-./docker_logs/grafana}:/var/log/grafana # Adjusted default path
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    networks:
+      - monitor_net
+    restart: always
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:3000/api/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  prometheus:
+    image: prom/prometheus:${PROMETHEUS_VERSION:-v2.49.1}
+    container_name: ${PROMETHEUS_CONTAINER_NAME:-my-prometheus}
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    volumes:
+      - ${PROMETHEUS_CONFIG_PATH:-./prometheus.yml}:/etc/prometheus/prometheus.yml
+      - ${PROMETHEUS_DATA_VOLUME:-prometheus_data}:/prometheus
+    networks:
+      - monitor_net
+    restart: always
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://prometheus:9090/-/ready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  promtail:
+    image: grafana/promtail:${PROMTAIL_VERSION:-3.0.0}
+    container_name: ${PROMTAIL_CONTAINER_NAME:-my-promtail}
+    volumes:
+      - ${PROMTAIL_CONFIG_PATH:-./promtail-config.yml}:/etc/promtail/promtail-config.yml
+      - ${DOCKER_LOGS_PATH:-./docker_logs}:/var/log/docker
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command: -config.file=/etc/promtail/promtail-config.yml
+    networks:
+      - log_net
+    restart: unless-stopped
+
+volumes:
+  loki_data:
+  grafana_data:
+  prometheus_data:
+
+networks:
+  monitor_net:
+    external: true
+    name: ${DOCKER_NETWORK_NAME:-combined_network}
