@@ -3,12 +3,6 @@
 
     <property name="LOG_PATH" value="logs"/>
 
-    <!--     Logstash로 전송할 Appender -->
-    <!--    <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">-->
-    <!--        <destination>localhost:5044</destination>-->
-    <!--        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>-->
-    <!--    </appender>-->
-
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
