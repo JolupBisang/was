@@ -68,12 +68,12 @@ public class WebSocketErrorHandler {
     }
 
     private void handleApplicationException(WebSocketSession session, ApplicationException e) {
-        log.info("Application exception in WebSocket session {}: {}", session.getId(), e.getMessage());
+        log.info("Application exception in WebSocket session {}: {}", session.getId(), e.getMessage(), e);
         sendErrorToClient(session, e.getMessage(), e.getErrorCode().getCode());
     }
 
     private void handleDomainException(WebSocketSession session, DomainException e) {
-        log.info("Domain exception in WebSocket session {}: {}", session.getId(), e.getMessage());
+        log.info("Domain exception in WebSocket session {}: {}", session.getId(), e.getMessage(), e);
         sendErrorToClient(session, e.getMessage(), e.getErrorCode().getCode());
     }
 

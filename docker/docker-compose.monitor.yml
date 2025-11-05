@@ -67,7 +67,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     command: -config.file=/etc/promtail/promtail-config.yml
     networks:
-      - log_net
+      - monitor_net
     restart: unless-stopped
 
 volumes:

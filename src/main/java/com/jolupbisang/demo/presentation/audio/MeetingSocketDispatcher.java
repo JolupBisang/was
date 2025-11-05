@@ -6,6 +6,7 @@ import com.jolupbisang.demo.application.audio.command.AudioChunkReceiveService;
 import com.jolupbisang.demo.application.audio.command.dto.AudioChunkReq;
 import com.jolupbisang.demo.global.exception.CustomException;
 import com.jolupbisang.demo.global.exception.GlobalErrorCode;
+import com.jolupbisang.demo.infrastructure.auth.security.CustomUserDetails;
 import com.jolupbisang.demo.presentation.audio.dto.request.SocketRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,9 +42,10 @@ public class MeetingSocketDispatcher {
     }
 
     public void dispatchBinaryMessage(WebSocketSession session, BinaryMessage binaryMessage) {
+        CustomUserDetails userDetails = (CustomUserDetails) session.getAttributes().get("userDetails");
         audioChunkReceiveService.receiveAudioChunk(
-                (Long) session.getAttributes().get("meetingId"),
-                (Long) session.getAttributes().get("userId"),
+                Long.parseLong((String) session.getAttributes().get("meetingId")),
+                userDetails.getUserId(),
                 extractAudioChunkReq(binaryMessage)
         );
     }
@@ -69,6 +71,7 @@ public class MeetingSocketDispatcher {
         try {
             return objectMapper.readValue(metaString, AudioMeta.class);
         } catch (JsonProcessingException ex) {
+            log.error("Failed to parse meta JSON: {}", metaString, ex);
             throw new CustomException(GlobalErrorCode.INVALID_INPUT, ex);
         }
     }
