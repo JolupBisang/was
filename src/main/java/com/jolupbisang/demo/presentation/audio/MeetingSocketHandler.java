@@ -82,10 +82,11 @@ public class MeetingSocketHandler extends AbstractWebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
-        Long meetingId = (Long) session.getAttributes().get("meetingId");
-        Long userId = (Long) session.getAttributes().get("userId");
+        CustomUserDetails userDetails = (CustomUserDetails) session.getAttributes().get("userDetails");
+        long meetingId = Long.parseLong((String) session.getAttributes().get("meetingId"));
+        Long userId = userDetails.getUserId();
 
-        if (meetingId == null || userId == null) return;
+        if (userId == null) return;
         log.info("[{}] WebSocket Connection Closed - Status: {}. Session unregistration attempted.", session.getId(), status);
 
         Events.raise(new MeetingSessionClosedEvent(meetingId, userId));
