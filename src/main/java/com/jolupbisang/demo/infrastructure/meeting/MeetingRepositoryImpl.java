@@ -60,11 +60,20 @@ public class MeetingRepositoryImpl implements MeetingRepositoryCustom {
 
     @Override
     public Optional<Meeting> findByIdWithAllDetail(long meetingId) {
-        return Optional.ofNullable(queryFactory.selectFrom(meeting)
+        // 첫 번째 쿼리: participants를 fetch join
+        Meeting resultMeeting = queryFactory.selectFrom(meeting)
                 .leftJoin(meeting.participants, participant).fetchJoin()
-                .leftJoin(meeting.agendas, agenda).fetchJoin()
                 .where(meeting.id.eq(meetingId))
-                .fetchOne());
+                .fetchOne();
+
+        if (resultMeeting != null) {
+            queryFactory.selectFrom(meeting)
+                    .leftJoin(meeting.agendas, agenda).fetchJoin()
+                    .where(meeting.id.eq(meetingId))
+                    .fetchOne();
+        }
+
+        return Optional.ofNullable(resultMeeting);
     }
 
 }
