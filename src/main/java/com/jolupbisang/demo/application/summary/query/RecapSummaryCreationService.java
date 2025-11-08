@@ -1,6 +1,7 @@
 package com.jolupbisang.demo.application.summary.query;
 
 import com.jolupbisang.demo.domain.meeting.event.MeetingCompletedEvent;
+import com.jolupbisang.demo.domain.meeting.model.MeetingCompletedOrder;
 import com.jolupbisang.demo.infrastructure.whisper.WhisperClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.annotation.Order;
@@ -15,7 +16,7 @@ public class RecapSummaryCreationService {
 
     private final WhisperClient whisperClient;
 
-    @Order(3)
+    @Order(MeetingCompletedOrder.RECAP_SUMMARY_CREATION)
     @Async("AsyncTaskExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void createWholeSummary(MeetingCompletedEvent event) {

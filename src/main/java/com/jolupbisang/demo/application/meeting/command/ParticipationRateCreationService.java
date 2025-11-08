@@ -2,6 +2,7 @@ package com.jolupbisang.demo.application.meeting.command;
 
 import com.jolupbisang.demo.domain.meeting.event.MeetingCompletedEvent;
 import com.jolupbisang.demo.domain.meeting.model.Meeting;
+import com.jolupbisang.demo.domain.meeting.model.MeetingCompletedOrder;
 import com.jolupbisang.demo.domain.meeting.service.ParticipationRateCalculator;
 import com.jolupbisang.demo.global.exception.NotFoundException;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
@@ -29,7 +30,7 @@ public class ParticipationRateCreationService {
     private final RealTimeParticipationRepository realTimeParticipationRepository;
     private final ParticipationRateCalculator participationRateCalculator;
 
-    @Order(2)
+    @Order(MeetingCompletedOrder.LIVE_PARTICIPATION_SAVING)
     @Retryable(
             retryFor = {Exception.class}, // 모든 종류의 예외에 대해 재시도
             maxAttempts = 3,
