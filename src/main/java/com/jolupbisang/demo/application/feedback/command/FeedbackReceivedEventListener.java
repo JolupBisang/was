@@ -1,8 +1,8 @@
 package com.jolupbisang.demo.application.feedback.command;
 
+import com.jolupbisang.demo.application.feedback.event.FeedbackReceivedEvent;
 import com.jolupbisang.demo.domain.feedback.Feedback;
 import com.jolupbisang.demo.infrastructure.feedback.FeedbackRepository;
-import com.jolupbisang.demo.infrastructure.whisper.event.FeedbackReceivedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;

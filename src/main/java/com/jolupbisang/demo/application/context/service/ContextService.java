@@ -1,14 +1,14 @@
 package com.jolupbisang.demo.application.context.service;
 
-import com.jolupbisang.demo.application.event.whisper.WhisperContextEvent;
+import com.jolupbisang.demo.application.context.event.WhisperContextEvent;
+import com.jolupbisang.demo.application.feedback.event.FeedbackReceivedEvent;
+import com.jolupbisang.demo.application.meeting.event.AgendaReceivedEvent;
+import com.jolupbisang.demo.application.summary.event.SummaryReceivedEvent;
 import com.jolupbisang.demo.domain.meeting.event.MeetingCompletedEvent;
 import com.jolupbisang.demo.domain.meeting.event.MeetingStartedEvent;
 import com.jolupbisang.demo.domain.meeting.model.MeetingCompletedOrder;
 import com.jolupbisang.demo.infrastructure.audio.client.dto.response.ContextResponse;
 import com.jolupbisang.demo.infrastructure.whisper.WhisperClient;
-import com.jolupbisang.demo.infrastructure.whisper.event.AgendaReceivedEvent;
-import com.jolupbisang.demo.infrastructure.whisper.event.FeedbackReceivedEvent;
-import com.jolupbisang.demo.infrastructure.whisper.event.SummaryReceivedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
