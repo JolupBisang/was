@@ -2,6 +2,7 @@ package com.jolupbisang.demo.application.meeting.command;
 
 import com.jolupbisang.demo.domain.meeting.event.MeetingCompletedEvent;
 import com.jolupbisang.demo.domain.meeting.event.MeetingStartedEvent;
+import com.jolupbisang.demo.domain.meeting.model.MeetingCompletedOrder;
 import com.jolupbisang.demo.domain.meeting.service.ParticipationRateCalculator;
 import com.jolupbisang.demo.infrastructure.participationRate.RealTimeParticipationRepository;
 import com.jolupbisang.demo.infrastructure.sse.MeetingSseEventType;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -49,6 +51,7 @@ public class LiveParticipationRateService {
         scheduledTasks.put(meetingId, scheduledFuture);
     }
 
+    @Order(MeetingCompletedOrder.LIVE_PARTICIPATION_SCHEDULING_TERMINATION)
     @EventListener
     @Async("AsyncTaskExecutor")
     public void cancelScheduledTask(MeetingCompletedEvent event) {

@@ -20,7 +20,7 @@ public class ParticipantAdditionController {
 
     private final ParticipantAdditionService participantAdditionService;
 
-    @PostMapping("/api/v1/meeting/{meetingId}/participants")
+    @PostMapping("/api/v1/meetings/{meetingId}/participants")
     public ResponseEntity<ParticipantAdditionRes> addParticipant(@PathVariable long meetingId,
                                                                  @RequestBody @Valid ParticipantAddReq participantAddReq,
                                                                  @AuthenticationPrincipal CustomUserDetails userDetails) {

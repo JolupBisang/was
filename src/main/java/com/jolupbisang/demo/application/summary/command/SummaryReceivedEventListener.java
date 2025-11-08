@@ -1,8 +1,8 @@
 package com.jolupbisang.demo.application.summary.command;
 
+import com.jolupbisang.demo.application.summary.event.SummaryReceivedEvent;
 import com.jolupbisang.demo.domain.summary.Summary;
 import com.jolupbisang.demo.infrastructure.summary.SummaryRepository;
-import com.jolupbisang.demo.infrastructure.whisper.event.SummaryReceivedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;

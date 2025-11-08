@@ -1,4 +1,4 @@
-package com.jolupbisang.demo.application.event.whisper;
+package com.jolupbisang.demo.application.context.event;
 
 import com.jolupbisang.demo.infrastructure.audio.client.dto.response.ContextResponse;
 import lombok.Getter;

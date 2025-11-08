@@ -1,7 +1,6 @@
 package com.jolupbisang.demo.domain.meeting.model;
 
 import com.jolupbisang.demo.domain.common.BaseTimeEntity;
-import com.jolupbisang.demo.domain.meeting.dto.CreatedAgendaDetail;
 import com.jolupbisang.demo.domain.meeting.dto.MeetingDetailUpdateDto;
 import com.jolupbisang.demo.domain.meeting.event.MeetingCompletedEvent;
 import com.jolupbisang.demo.domain.meeting.event.MeetingStartedEvent;
@@ -10,7 +9,17 @@ import com.jolupbisang.demo.domain.meeting.exception.MeetingDomainErrorCode;
 import com.jolupbisang.demo.domain.meeting.exception.TooManyHostException;
 import com.jolupbisang.demo.global.event.Events;
 import com.jolupbisang.demo.global.exception.DomainException;
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -147,19 +156,17 @@ public class Meeting extends BaseTimeEntity {
         participants.removeIf(p -> p.getUserId().equals(participantId));
     }
 
-    public List<CreatedAgendaDetail> addAgendas(List<AgendaDetail> agendaDetails) {
+    public void addAgendas(List<AgendaDetail> agendaDetails, long accessUserId) {
+        validateHostAuthority(accessUserId);
+
         if (agendaDetails == null) {
             throw new DomainException(MeetingDomainErrorCode.NULL_AGENDA_LIST);
         }
 
-        List<CreatedAgendaDetail> createdAgendaDetails = new ArrayList<>();
         for (AgendaDetail detail : agendaDetails) {
             Agenda newAgenda = new Agenda(this, detail.getContent());
             this.agendas.add(newAgenda);
-            createdAgendaDetails.add(new CreatedAgendaDetail(newAgenda.getId(), newAgenda.getContent()));
         }
-
-        return createdAgendaDetails;
     }
 
     public void changeAgendaStatus(long agendaId, long accessUserId, boolean isCompleted) {

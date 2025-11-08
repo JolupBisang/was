@@ -1,4 +1,4 @@
-package com.jolupbisang.demo.infrastructure.whisper.event;
+package com.jolupbisang.demo.application.summary.event;
 
 import java.time.LocalDateTime;
 

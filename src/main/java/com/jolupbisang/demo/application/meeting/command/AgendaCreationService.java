@@ -9,6 +9,7 @@ import com.jolupbisang.demo.global.exception.NotFoundException;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -18,6 +19,7 @@ public class AgendaCreationService {
 
     private final MeetingRepository meetingRepository;
 
+    @Transactional
     public AgendaCreationRes create(long meetingId, long accessUserId, AgendaCreateReq agendaCreateReq) {
 
         Meeting meeting = meetingRepository.findByIdWithAllDetail(meetingId)
@@ -27,8 +29,14 @@ public class AgendaCreationService {
                 .map(AgendaDetail::new)
                 .toList();
 
-        List<CreatedAgendaDetail> createdAgendaDetails = meeting.addAgendas(agendaDetails);
+        meeting.addAgendas(agendaDetails, accessUserId);
 
-        return AgendaCreationRes.of(meetingId, createdAgendaDetails);
+        meetingRepository.save(meeting);
+
+        List<CreatedAgendaDetail> agendas = meeting.getAgendas().stream()
+                .map(agenda -> new CreatedAgendaDetail(agenda.getId(), agenda.getContent())).toList();
+
+
+        return AgendaCreationRes.of(meetingId, agendas);
     }
 } 

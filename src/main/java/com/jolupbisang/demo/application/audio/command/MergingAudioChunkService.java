@@ -2,6 +2,7 @@ package com.jolupbisang.demo.application.audio.command;
 
 import com.jolupbisang.demo.application.audio.command.dto.StepFunctionOutput;
 import com.jolupbisang.demo.domain.meeting.event.MeetingCompletedEvent;
+import com.jolupbisang.demo.domain.meeting.model.MeetingCompletedOrder;
 import com.jolupbisang.demo.infrastructure.aws.sfn.SfnClientUtil;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingWebsocketManager;
 import com.jolupbisang.demo.presentation.audio.dto.response.SocketResponseType;
@@ -25,7 +26,7 @@ public class MergingAudioChunkService {
     private String MERGE_AUDIO_STATE_MACHINE_ARN;
 
 
-    @Order(4)
+    @Order(MeetingCompletedOrder.AUDIO_MERGING)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleMeetingCompletedEvent(MeetingCompletedEvent event) {
         long meetingId = event.meetingId();
