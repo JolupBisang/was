@@ -125,6 +125,11 @@ spring:
   config:
     activate:
       on-profile: dev
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
 
 logging:
   level:
