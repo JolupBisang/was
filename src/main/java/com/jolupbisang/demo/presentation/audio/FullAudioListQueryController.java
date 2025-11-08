@@ -16,7 +16,7 @@ public class FullAudioListQueryController {
 
     private final FullAudioListQueryService fullAudioListQueryService;
 
-    @GetMapping("/api/v1/meeting/{meetingId}/fullAudio")
+    @GetMapping("/api/v1/meetings/{meetingId}/fullAudio")
     public ResponseEntity<AudioListRes> getCompletedMeetingAudioList(@PathVariable("meetingId") Long meetingId,
                                                                      @AuthenticationPrincipal CustomUserDetails userDetails) {
         return ResponseEntity.ok(fullAudioListQueryService.getCompletedMeetingAudioList(meetingId, userDetails.getUserId()));
