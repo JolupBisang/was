@@ -4,9 +4,12 @@ import com.jolupbisang.demo.application.segment.event.CompletedSegmentReceivedEv
 import com.jolupbisang.demo.global.config.RabbitMQConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.core.MessageDeliveryMode;
+import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -23,7 +26,8 @@ public class CompletedSegmentPublishService {
                 message -> {
                     message.getMessageProperties().setDeliveryMode(MessageDeliveryMode.PERSISTENT);
                     return message;
-                }
+                },
+                new CorrelationData(UUID.randomUUID().toString())
         );
     }
 }
