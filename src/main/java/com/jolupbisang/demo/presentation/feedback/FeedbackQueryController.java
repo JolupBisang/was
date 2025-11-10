@@ -21,7 +21,7 @@ public class FeedbackQueryController {
 
     @GetMapping("/api/v1/meetings/{meetingId}/feedbacks")
     public Slice<FeedbackListRes> getFeedbacks(@PathVariable long meetingId,
-                                               @PageableDefault(size = 30, sort = "timestamp", direction = Sort.Direction.DESC) Pageable pageable,
+                                               @PageableDefault(size = 30, sort = "generatedDateTime", direction = Sort.Direction.DESC) Pageable pageable,
                                                @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         return feedbackService.getFeedbackDetails(meetingId, userDetails.getUserId(), pageable);
