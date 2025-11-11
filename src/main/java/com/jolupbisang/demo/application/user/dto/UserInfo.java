@@ -5,12 +5,15 @@ import com.jolupbisang.demo.domain.user.User;
 public record UserInfo(
         Long id,
         String email,
-        String nickname
+        String nickname,
+        String pictureURL
 ) {
     public static UserInfo fromEntity(User user) {
         return new UserInfo(
                 user.getId(),
                 user.getEmail(),
-                user.getNickname());
+                user.getNickname(),
+                user.getPictureURL()
+        );
     }
 }

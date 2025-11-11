@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +21,7 @@ public class SummaryDetailQueryService {
     private final SummaryRepository summaryRepository;
     private final MeetingRepository meetingRepository;
 
+    @Transactional(readOnly = true)
     public Slice<SummaryListRes> getSummaries(Long meetingId, Long accessUserId, boolean isRecap, Pageable pageable) {
         Meeting meeting = meetingRepository.findByIdWithParticipant(meetingId)
                 .orElseThrow(() -> new NotFoundException("meetingId: %d", meetingId));

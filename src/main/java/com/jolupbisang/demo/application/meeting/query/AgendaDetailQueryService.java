@@ -7,6 +7,7 @@ import com.jolupbisang.demo.global.exception.NotFoundException;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -15,10 +16,10 @@ import java.util.List;
 public class AgendaDetailQueryService {
     private final MeetingRepository meetingRepository;
 
-
+    @Transactional(readOnly = true)
     public AgendaListRes getAgendas(long meetingId, long userId) {
 
-        Meeting meeting = meetingRepository.findByIdWithParticipant(meetingId)
+        Meeting meeting = meetingRepository.findByIdWithAllDetail(meetingId)
                 .orElseThrow(() -> new NotFoundException("meetingId: %d", meetingId));
 
         meeting.validateViewAuthority(userId);

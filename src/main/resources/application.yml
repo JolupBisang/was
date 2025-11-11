@@ -20,6 +20,7 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
+        jdbc.time_zone: ${HIBERNATE_TIMEZONE:Asia/Seoul}
         jdbc.batch_size: ${HIBERNATE_JDBC_BATCH_SIZE:64}
         default_batch_fetch_size: ${HIBERNATE_DEFAULT_BATCH_FETCH_SIZE:64}
         jdbc.batch_versioned_data: ${HIBERNATE_BATCH_VERSIONED:false}
@@ -135,7 +136,7 @@ logging:
   level:
     root: INFO
     org.hibernate.SQL: DEBUG
-    org.hibernate.orm.jdbc.bind: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
     com.jolupbisang: DEBUG
   config: classpath:logback-dev.xml
 

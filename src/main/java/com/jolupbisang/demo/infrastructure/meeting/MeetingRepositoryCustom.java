@@ -1,10 +1,12 @@
 package com.jolupbisang.demo.infrastructure.meeting;
 
 import com.jolupbisang.demo.domain.meeting.model.Meeting;
+import com.jolupbisang.demo.domain.meeting.model.MeetingStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface MeetingRepositoryCustom {
     List<Meeting> findByUserIdAndStartTimeBetween(Long userId, LocalDateTime startOfMonth, LocalDateTime endOfMonth);
@@ -14,4 +16,6 @@ public interface MeetingRepositoryCustom {
     Optional<Meeting> findByIdWithAgenda(long meetingId, long agendaId);
 
     Optional<Meeting> findByIdWithAllDetail(long meetingId);
+
+    List<Meeting> findByScheduledTimeAndParticipantAndStatuses(LocalDateTime startTime, LocalDateTime endTime, long userId, Set<MeetingStatus> statuses);
 }

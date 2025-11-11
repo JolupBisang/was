@@ -23,7 +23,7 @@ public class SummaryDetailQueryController {
     @GetMapping("/api/v1/meetings/{meetingId}/summary")
     public Slice<SummaryListRes> getSummaries(@PathVariable long meetingId,
                                               @RequestParam(defaultValue = "false") boolean isRecap,
-                                              @PageableDefault(size = 30, sort = "timestamp", direction = Sort.Direction.DESC) Pageable pageable,
+                                              @PageableDefault(size = 30, sort = "generatedDateTime", direction = Sort.Direction.DESC) Pageable pageable,
                                               @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         return summaryDetailQueryService.getSummaries(meetingId, userDetails.getUserId(), isRecap, pageable);

@@ -18,6 +18,7 @@ public class GoogleClient extends OAuthClient {
         String id = rootNode.path("id").asText();
         String email = rootNode.path("email").asText();
         String name = rootNode.path("name").asText();
-        return OAuthUserInfoDto.of(id, email, name);
+        String picture = rootNode.path("picture").asText();
+        return OAuthUserInfoDto.of(id, email, name, picture);
     }
 }
