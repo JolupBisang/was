@@ -1,7 +1,14 @@
 package com.jolupbisang.demo.domain.user;
 
 import com.jolupbisang.demo.domain.common.BaseTimeEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,10 +34,14 @@ public class User extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private OAuthPlatform platform;
 
+    @Column(nullable = false)
+    private String pictureURL;
+
     @Builder
-    public User(String email, String nickname, OAuthPlatform platform) {
+    public User(String email, String nickname, OAuthPlatform platform, String pictureURL) {
         this.email = email;
         this.nickname = nickname;
         this.platform = platform;
+        this.pictureURL = pictureURL;
     }
 }

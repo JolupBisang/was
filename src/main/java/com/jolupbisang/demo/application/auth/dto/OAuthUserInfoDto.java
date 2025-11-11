@@ -6,10 +6,11 @@ import com.jolupbisang.demo.domain.user.User;
 public record OAuthUserInfoDto(
         String id,
         String email,
-        String name
+        String name,
+        String picture
 ) {
-    public static OAuthUserInfoDto of(String id, String email, String name) {
-        return new OAuthUserInfoDto(id, email, name);
+    public static OAuthUserInfoDto of(String id, String email, String name, String picture) {
+        return new OAuthUserInfoDto(id, email, name, picture);
     }
 
     public User toEntity(OAuthPlatform platform) {
