@@ -1,6 +1,7 @@
 package com.jolupbisang.demo.infrastructure.meeting;
 
 import com.jolupbisang.demo.domain.meeting.model.Meeting;
+import com.jolupbisang.demo.domain.meeting.model.MeetingStatus;
 import com.jolupbisang.demo.domain.meeting.model.ParticipantStatus;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.jolupbisang.demo.domain.meeting.model.QAgenda.agenda;
 import static com.jolupbisang.demo.domain.meeting.model.QMeeting.meeting;
@@ -76,4 +78,15 @@ public class MeetingRepositoryImpl implements MeetingRepositoryCustom {
         return Optional.ofNullable(resultMeeting);
     }
 
+    @Override
+    public List<Meeting> findByScheduledTimeAndParticipantAndStatuses(LocalDateTime startTime, LocalDateTime endTime, long userId, Set<MeetingStatus> statuses) {
+
+        return queryFactory.selectFrom(meeting)
+                .innerJoin(meeting.participants, participant)
+                .where(participant.userId.eq(userId)
+                        .and(meeting.scheduledTime.scheduledStartTime.lt(endTime))
+                        .and(meeting.scheduledTime.scheduledEndTime.gt(startTime))
+                        .and(meeting.meetingStatus.in(statuses)))
+                .fetch();
+    }
 }
