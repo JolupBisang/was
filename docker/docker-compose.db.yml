@@ -9,6 +9,9 @@ services:
       MYSQL_DATABASE: ${MYSQL_DATABASE:-default_db}
       MYSQL_USER: ${MYSQL_USER:-test_user}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-test_password}
+
+      TZ: Asia/Seoul
+      MYSQL_INIT_TIMEZONE: Asia/Seoul
     volumes:
       - ${MYSQL_DATA_VOLUME:-mysql_data}:/var/lib/mysql
       - ${MYSQL_LOG_PATH:-./docker_logs/mysql}:/var/log/mysql # Adjusted default path
