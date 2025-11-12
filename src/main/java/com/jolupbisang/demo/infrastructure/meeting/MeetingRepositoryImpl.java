@@ -16,6 +16,7 @@ import java.util.Set;
 import static com.jolupbisang.demo.domain.meeting.model.QAgenda.agenda;
 import static com.jolupbisang.demo.domain.meeting.model.QMeeting.meeting;
 import static com.jolupbisang.demo.domain.meeting.model.QParticipant.participant;
+import static com.jolupbisang.demo.domain.meeting.model.QTeamTag.teamTag;
 
 
 @RequiredArgsConstructor
@@ -73,6 +74,29 @@ public class MeetingRepositoryImpl implements MeetingRepositoryCustom {
                     .leftJoin(meeting.agendas, agenda).fetchJoin()
                     .where(meeting.id.eq(meetingId))
                     .fetchOne();
+            
+            queryFactory.selectFrom(meeting)
+                    .leftJoin(meeting.teamTags, teamTag).fetchJoin()
+                    .where(meeting.id.eq(meetingId))
+                    .fetchOne();
+        }
+
+        return Optional.ofNullable(resultMeeting);
+    }
+
+    @Override
+    public Optional<Meeting> findByIdWithTeamTagsAndParticipants(long meetingId) {
+        Meeting resultMeeting = queryFactory
+                .selectFrom(meeting)
+                .leftJoin(meeting.participants, participant).fetchJoin()
+                .where(meeting.id.eq(meetingId))
+                .fetchOne();
+
+        if (resultMeeting != null) {
+            queryFactory.selectFrom(meeting)
+                    .leftJoin(meeting.teamTags, teamTag).fetchJoin()
+                    .where(meeting.id.eq(meetingId))
+                    .fetchOne();
         }
 
         return Optional.ofNullable(resultMeeting);
@@ -89,4 +113,34 @@ public class MeetingRepositoryImpl implements MeetingRepositoryCustom {
                         .and(meeting.meetingStatus.in(statuses)))
                 .fetch();
     }
+
+    @Override
+    public Optional<Meeting> findClosestMeetingByTeamId(Long teamId, LocalDateTime now) {
+        // 1. 미래 회의 중 가장 가까운 회의 조회
+        Meeting futureMeeting = queryFactory
+                .selectFrom(meeting)
+                .innerJoin(meeting.teamTags, teamTag)
+                .where(teamTag.teamId.eq(teamId)
+                        .and(meeting.scheduledTime.scheduledStartTime.gt(now)))
+                .orderBy(meeting.scheduledTime.scheduledStartTime.asc())
+                .limit(1)
+                .fetchOne();
+
+        if (futureMeeting != null) {
+            return Optional.of(futureMeeting);
+        }
+
+        // 2. 지난 회의 중 가장 최근 회의 조회
+        Meeting pastMeeting = queryFactory
+                .selectFrom(meeting)
+                .innerJoin(meeting.teamTags, teamTag)
+                .where(teamTag.teamId.eq(teamId)
+                        .and(meeting.scheduledTime.scheduledStartTime.loe(now)))
+                .orderBy(meeting.scheduledTime.scheduledStartTime.desc())
+                .limit(1)
+                .fetchOne();
+
+        return Optional.ofNullable(pastMeeting);
+    }
 }
+
