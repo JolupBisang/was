@@ -67,9 +67,12 @@ public class Meeting extends BaseTimeEntity {
     @OneToMany(mappedBy = "meeting", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<Agenda> agendas = new ArrayList<>();
 
+    @OneToMany(mappedBy = "meeting", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private final List<TeamTag> teamTags = new ArrayList<>();
+
     private static final long MAX_MEETING_HOST_COUNT = 1L;
 
-    public Meeting(String title, String location, ScheduledTime scheduledTime, ActualProgressTime actualProgressTime, RestTime restTime, List<ParticipantDetail> participantDetails, List<AgendaDetail> agendaDetails) {
+    public Meeting(String title, String location, ScheduledTime scheduledTime, ActualProgressTime actualProgressTime, RestTime restTime, List<ParticipantDetail> participantDetails, List<AgendaDetail> agendaDetails, List<Long> teamIds) {
         setTitle(title);
         setLocation(location);
         setScheduledTime(scheduledTime);
@@ -77,6 +80,7 @@ public class Meeting extends BaseTimeEntity {
         setRestTime(restTime);
         setParticipants(participantDetails);
         setAgendas(agendaDetails);
+        setTeamTags(teamIds);
         initiateStatus();
     }
 
@@ -169,6 +173,17 @@ public class Meeting extends BaseTimeEntity {
         }
     }
 
+    public void updateAgenda(long agendaId, long accessUserId, String content) {
+        validateHostAuthority(accessUserId);
+
+        Agenda foundAgenda = agendas.stream()
+                .filter(a -> a.getId().equals(agendaId))
+                .findFirst()
+                .orElseThrow(() -> new DomainException(MeetingDomainErrorCode.NON_EXISTING_AGENDA, "agendaId: %d", agendaId));
+
+        foundAgenda.updateContent(content);
+    }
+
     public void changeAgendaStatus(long agendaId, long accessUserId, boolean isCompleted) {
         validateHostAuthority(accessUserId);
 
@@ -194,6 +209,15 @@ public class Meeting extends BaseTimeEntity {
     public void validateViewAuthority(long accessUserId) {
         if (!isParticipant(accessUserId)) {
             throw new DomainException(MeetingDomainErrorCode.NOT_PARTICIPANT, "userId: %d", accessUserId);
+        }
+    }
+
+    public void validateHostAuthority(long accessUserId) {
+        boolean isHost = participants.stream()
+                .anyMatch(p -> p.getUserId().equals(accessUserId) && p.getRole() == MeetingRole.HOST);
+
+        if (!isHost) {
+            throw new DomainException(MeetingDomainErrorCode.ONLY_FOR_HOST_AUTHORITY);
         }
     }
 
@@ -228,6 +252,22 @@ public class Meeting extends BaseTimeEntity {
                     }
                 });
         Events.raise(new ParticipationRateSavedEvent(this.id));
+    }
+
+    public void addTeamTag(Long teamId) {
+        if (hasTeamTag(teamId)) {
+            return;
+        }
+        teamTags.add(new TeamTag(this, teamId));
+    }
+
+    public void removeTeamTag(Long teamId) {
+        teamTags.removeIf(teamTag -> teamTag.getTeamId().equals(teamId));
+    }
+
+    public boolean hasTeamTag(Long teamId) {
+        return teamTags.stream()
+                .anyMatch(teamTag -> teamTag.getTeamId().equals(teamId));
     }
 
     private void setTitle(String title) {
@@ -277,6 +317,12 @@ public class Meeting extends BaseTimeEntity {
                 .forEach(agendas::add);
     }
 
+    private void setTeamTags(List<Long> teamIds) {
+        if (teamIds != null && !teamIds.isEmpty()) {
+            teamIds.forEach(teamId -> teamTags.add(new TeamTag(this, teamId)));
+        }
+    }
+
     private void initiateStatus() {
         meetingStatus = MeetingStatus.WAITING;
     }
@@ -289,25 +335,5 @@ public class Meeting extends BaseTimeEntity {
         if (hostCount > MAX_MEETING_HOST_COUNT) {
             throw new TooManyHostException(MeetingDomainErrorCode.TOO_MANY_HOST, "hostCount: %d", hostCount);
         }
-    }
-
-    private void validateHostAuthority(long accessUserId) {
-        boolean isHost = participants.stream()
-                .anyMatch(p -> p.getUserId().equals(accessUserId) && p.getRole() == MeetingRole.HOST);
-
-        if (!isHost) {
-            throw new DomainException(MeetingDomainErrorCode.ONLY_FOR_HOST_AUTHORITY);
-        }
-    }
-
-    public void updateAgenda(long agendaId, long accessUserId, String content) {
-        validateHostAuthority(accessUserId);
-
-        Agenda foundAgenda = agendas.stream()
-                .filter(a -> a.getId().equals(agendaId))
-                .findFirst()
-                .orElseThrow(() -> new DomainException(MeetingDomainErrorCode.NON_EXISTING_AGENDA, "agendaId: %d", agendaId));
-
-        foundAgenda.updateContent(content);
     }
 }

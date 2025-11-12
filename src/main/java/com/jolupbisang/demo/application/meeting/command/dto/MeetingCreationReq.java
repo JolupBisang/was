@@ -43,6 +43,10 @@ public record MeetingCreationReq(
 
         @Schema(description = "회의 안건 목록")
         @NotNull(message = "회의 안건 목록은 필수입니다.")
-        List<@NotBlank(message = "회의 안건은 1글자 이상이어야 합니다.") String> agendas
+        List<@NotBlank(message = "회의 안건은 1글자 이상이어야 합니다.") String> agendas,
+
+        @Schema(description = "팀 ID 목록", example = "[1, 2, 3]")
+        @NotNull(message = "팀 목록은 필수입니다.")
+        List<Long> teams
 ) {
 }

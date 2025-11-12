@@ -2,7 +2,13 @@ package com.jolupbisang.demo.application.meeting.command;
 
 import com.jolupbisang.demo.application.meeting.command.dto.MeetingCreationReq;
 import com.jolupbisang.demo.application.meeting.command.dto.MeetingCreationRes;
-import com.jolupbisang.demo.domain.meeting.model.*;
+import com.jolupbisang.demo.domain.meeting.model.ActualProgressTime;
+import com.jolupbisang.demo.domain.meeting.model.AgendaDetail;
+import com.jolupbisang.demo.domain.meeting.model.Meeting;
+import com.jolupbisang.demo.domain.meeting.model.MeetingRole;
+import com.jolupbisang.demo.domain.meeting.model.ParticipantDetail;
+import com.jolupbisang.demo.domain.meeting.model.RestTime;
+import com.jolupbisang.demo.domain.meeting.model.ScheduledTime;
 import com.jolupbisang.demo.domain.user.User;
 import com.jolupbisang.demo.global.exception.NotFoundException;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
@@ -49,7 +55,8 @@ public class MeetingCreationService {
                 actualProgressTime,
                 restTime,
                 participantDetails,
-                agendaDetails
+                agendaDetails,
+                req.teams()
         );
     }
 
