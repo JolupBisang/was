@@ -67,6 +67,8 @@ public class Team {
     }
 
     public void addMember(Long userId, TeamMemberRole role) {
+        if (isMember(userId)) return;
+        
         TeamMember member = new TeamMember(this, userId, role);
         this.members.add(member);
     }
@@ -79,6 +81,17 @@ public class Team {
     public void validateViewAuthority(Long accessUserId) {
         if (!isMember(accessUserId)) {
             throw new DomainException(TeamDomainErrorCode.NOT_MEMBER, "userId: %d", accessUserId);
+        }
+    }
+
+    public boolean isOwner(Long userId) {
+        return members.stream()
+                .anyMatch(member -> member.getUserId().equals(userId) && member.getRole() == TeamMemberRole.TEAM_OWNER);
+    }
+
+    public void validateOwnerAuthority(Long accessUserId) {
+        if (!isOwner(accessUserId)) {
+            throw new DomainException(TeamDomainErrorCode.ONLY_FOR_OWNER_AUTHORITY, "userId: %d", accessUserId);
         }
     }
 }
