@@ -9,7 +9,10 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum TeamDomainErrorCode implements ErrorCode {
     INVALID_TEAM_NAME("TD-0001", HttpStatus.BAD_REQUEST, "잘못된 팀 이름입니다."),
-    NULL_TEAM_NAME("TD-0002", HttpStatus.BAD_REQUEST, "팀 이름은 필수 입니다.");
+    NULL_TEAM_NAME("TD-0002", HttpStatus.BAD_REQUEST, "팀 이름은 필수 입니다."),
+    NULL_TEAM("TD-0003", HttpStatus.BAD_REQUEST, "팀은 필수입니다."),
+    INVALID_USER_ID("TD-0004", HttpStatus.BAD_REQUEST, "사용자 ID는 0보다 커야 합니다."),
+    NULL_TEAM_MEMBER_ROLE("TD-0005", HttpStatus.BAD_REQUEST, "팀 멤버 역할은 필수입니다.");
 
     private final String code;
     private final HttpStatus status;
