@@ -32,8 +32,9 @@ public class Team {
     @OneToMany(mappedBy = "team", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     List<TeamMember> members = new ArrayList<>();
 
-    public Team(TeamName teamName) {
+    public Team(TeamName teamName, Long creatorId, List<Long> memberIds) {
         setTeamName(teamName);
+        setMembers(creatorId, memberIds);
     }
 
     private void setTeamName(TeamName teamName) {
@@ -41,5 +42,32 @@ public class Team {
             throw new DomainException(TeamDomainErrorCode.NULL_TEAM_NAME);
         }
         this.teamName = teamName;
+    }
+
+    private void setMembers(Long creatorId, List<Long> memberIds) {
+        if (creatorId == null || creatorId <= 0) {
+            throw new DomainException(TeamDomainErrorCode.INVALID_USER_ID, "creatorId: %d", creatorId);
+        }
+        if (memberIds == null) {
+            throw new DomainException(TeamDomainErrorCode.EMPTY_TEAM_MEMBERS);
+        }
+
+        // 생성자는 TEAM_OWNER 역할로 추가
+        members.add(new TeamMember(this, creatorId, TeamMemberRole.TEAM_OWNER));
+
+        // 리스트에서 생성자 제외하고 중복 제거 후 TEAM_MEMBER로 추가
+        List<Long> distinctMemberIds = memberIds.stream()
+                .filter(memberId -> !memberId.equals(creatorId))
+                .distinct()
+                .toList();
+
+        distinctMemberIds.forEach(memberId ->
+                members.add(new TeamMember(this, memberId, TeamMemberRole.TEAM_MEMBER))
+        );
+    }
+
+    public void addMember(Long userId, TeamMemberRole role) {
+        TeamMember member = new TeamMember(this, userId, role);
+        this.members.add(member);
     }
 }
