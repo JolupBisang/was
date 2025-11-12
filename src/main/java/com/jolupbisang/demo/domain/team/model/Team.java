@@ -70,4 +70,15 @@ public class Team {
         TeamMember member = new TeamMember(this, userId, role);
         this.members.add(member);
     }
+
+    public boolean isMember(Long userId) {
+        return members.stream()
+                .anyMatch(member -> member.getUserId().equals(userId));
+    }
+
+    public void validateViewAuthority(Long accessUserId) {
+        if (!isMember(accessUserId)) {
+            throw new DomainException(TeamDomainErrorCode.NOT_MEMBER, "userId: %d", accessUserId);
+        }
+    }
 }
