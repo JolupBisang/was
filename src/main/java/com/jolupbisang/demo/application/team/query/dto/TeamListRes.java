@@ -9,7 +9,7 @@ public record TeamListRes(
     public static TeamListRes fromEntity(Team team) {
         return new TeamListRes(
                 team.getId(),
-                team.getTeamName().name()
+                team.getTeamName().getName()
         );
     }
 }
