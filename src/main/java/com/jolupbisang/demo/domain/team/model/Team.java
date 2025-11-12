@@ -1,5 +1,7 @@
 package com.jolupbisang.demo.domain.team.model;
 
+import com.jolupbisang.demo.domain.team.exception.TeamDomainErrorCode;
+import com.jolupbisang.demo.global.exception.DomainException;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -29,4 +31,15 @@ public class Team {
 
     @OneToMany(mappedBy = "team", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     List<TeamMember> members = new ArrayList<>();
+
+    public Team(TeamName teamName) {
+        setTeamName(teamName);
+    }
+
+    private void setTeamName(TeamName teamName) {
+        if (teamName == null) {
+            throw new DomainException(TeamDomainErrorCode.NULL_TEAM_NAME);
+        }
+        this.teamName = teamName;
+    }
 }
