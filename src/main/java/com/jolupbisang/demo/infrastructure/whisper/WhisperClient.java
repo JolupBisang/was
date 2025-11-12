@@ -1,11 +1,15 @@
 package com.jolupbisang.demo.infrastructure.whisper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jolupbisang.demo.application.event.whisper.WhisperContextEvent;
+import com.jolupbisang.demo.application.context.event.WhisperContextEvent;
 import com.jolupbisang.demo.application.event.whisper.WhisperEmbeddedEvent;
 import com.jolupbisang.demo.application.segment.event.TextTranslatedEvent;
 import com.jolupbisang.demo.global.properties.WhisperProperties;
-import com.jolupbisang.demo.infrastructure.audio.client.dto.request.*;
+import com.jolupbisang.demo.infrastructure.audio.client.dto.request.ContextDoneRequest;
+import com.jolupbisang.demo.infrastructure.audio.client.dto.request.ContextRequest;
+import com.jolupbisang.demo.infrastructure.audio.client.dto.request.DiarizedRequest;
+import com.jolupbisang.demo.infrastructure.audio.client.dto.request.EmbeddingRequest;
+import com.jolupbisang.demo.infrastructure.audio.client.dto.request.ReferenceRequest;
 import com.jolupbisang.demo.infrastructure.audio.client.dto.response.ContextResponse;
 import com.jolupbisang.demo.infrastructure.audio.client.dto.response.EmbeddedVectorResponse;
 import com.jolupbisang.demo.infrastructure.audio.client.dto.response.WhisperResponseType;
@@ -40,8 +44,8 @@ public class WhisperClient extends BinaryWebSocketHandler {
 
     private final WhisperProperties whisperProperties;
 
-    private static final int MAX_RETRY_ATTEMPTS = 5;
-    private static final int RETRY_DELAY_SECONDS = 5;
+    private static final int MAX_RETRY_ATTEMPTS = 1;
+    private static final int RETRY_DELAY_SECONDS = 1;
 
     @PostConstruct
     public void init() {
