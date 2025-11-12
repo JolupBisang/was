@@ -113,5 +113,34 @@ public class MeetingRepositoryImpl implements MeetingRepositoryCustom {
                         .and(meeting.meetingStatus.in(statuses)))
                 .fetch();
     }
+
+    @Override
+    public Optional<Meeting> findClosestMeetingByTeamId(Long teamId, LocalDateTime now) {
+        // 1. 미래 회의 중 가장 가까운 회의 조회
+        Meeting futureMeeting = queryFactory
+                .selectFrom(meeting)
+                .innerJoin(meeting.teamTags, teamTag)
+                .where(teamTag.teamId.eq(teamId)
+                        .and(meeting.scheduledTime.scheduledStartTime.gt(now)))
+                .orderBy(meeting.scheduledTime.scheduledStartTime.asc())
+                .limit(1)
+                .fetchOne();
+
+        if (futureMeeting != null) {
+            return Optional.of(futureMeeting);
+        }
+
+        // 2. 지난 회의 중 가장 최근 회의 조회
+        Meeting pastMeeting = queryFactory
+                .selectFrom(meeting)
+                .innerJoin(meeting.teamTags, teamTag)
+                .where(teamTag.teamId.eq(teamId)
+                        .and(meeting.scheduledTime.scheduledStartTime.loe(now)))
+                .orderBy(meeting.scheduledTime.scheduledStartTime.desc())
+                .limit(1)
+                .fetchOne();
+
+        return Optional.ofNullable(pastMeeting);
+    }
 }
 
