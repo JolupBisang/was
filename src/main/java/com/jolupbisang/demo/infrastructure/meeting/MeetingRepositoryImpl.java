@@ -88,10 +88,16 @@ public class MeetingRepositoryImpl implements MeetingRepositoryCustom {
     public Optional<Meeting> findByIdWithTeamTagsAndParticipants(long meetingId) {
         Meeting resultMeeting = queryFactory
                 .selectFrom(meeting)
-                .leftJoin(meeting.teamTags, teamTag).fetchJoin()
                 .leftJoin(meeting.participants, participant).fetchJoin()
                 .where(meeting.id.eq(meetingId))
                 .fetchOne();
+
+        if (resultMeeting != null) {
+            queryFactory.selectFrom(meeting)
+                    .leftJoin(meeting.teamTags, teamTag).fetchJoin()
+                    .where(meeting.id.eq(meetingId))
+                    .fetchOne();
+        }
 
         return Optional.ofNullable(resultMeeting);
     }
@@ -108,3 +114,4 @@ public class MeetingRepositoryImpl implements MeetingRepositoryCustom {
                 .fetch();
     }
 }
+
