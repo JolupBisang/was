@@ -74,6 +74,11 @@ public class MeetingRepositoryImpl implements MeetingRepositoryCustom {
                     .leftJoin(meeting.agendas, agenda).fetchJoin()
                     .where(meeting.id.eq(meetingId))
                     .fetchOne();
+            
+            queryFactory.selectFrom(meeting)
+                    .leftJoin(meeting.teamTags, teamTag).fetchJoin()
+                    .where(meeting.id.eq(meetingId))
+                    .fetchOne();
         }
 
         return Optional.ofNullable(resultMeeting);

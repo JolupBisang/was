@@ -18,10 +18,11 @@ public record MeetingDetailRes(
         String meetingStatus,
         List<ParticipantInfoRes> participants,
         List<AgendaInfoRes> agendas,
+        List<String> teamNames,
         boolean isHost
 ) {
 
-    public static MeetingDetailRes from(Meeting meeting, List<ParticipantInfoRes> participantInfos, List<AgendaInfoRes> agendas, boolean isHost) {
+    public static MeetingDetailRes from(Meeting meeting, List<ParticipantInfoRes> participantInfos, List<AgendaInfoRes> agendas, List<String> teamNames, boolean isHost) {
         return new MeetingDetailRes(
                 meeting.getId(),
                 meeting.getTitle(),
@@ -35,6 +36,7 @@ public record MeetingDetailRes(
                 meeting.getMeetingStatus().name(),
                 participantInfos,
                 agendas,
+                teamNames,
                 isHost
         );
     }
