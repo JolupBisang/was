@@ -17,5 +17,7 @@ public interface MeetingRepositoryCustom {
 
     Optional<Meeting> findByIdWithAllDetail(long meetingId);
 
+    Optional<Meeting> findByIdWithTeamTagsAndParticipants(long meetingId);
+
     List<Meeting> findByScheduledTimeAndParticipantAndStatuses(LocalDateTime startTime, LocalDateTime endTime, long userId, Set<MeetingStatus> statuses);
 }

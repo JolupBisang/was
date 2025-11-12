@@ -16,6 +16,7 @@ import java.util.Set;
 import static com.jolupbisang.demo.domain.meeting.model.QAgenda.agenda;
 import static com.jolupbisang.demo.domain.meeting.model.QMeeting.meeting;
 import static com.jolupbisang.demo.domain.meeting.model.QParticipant.participant;
+import static com.jolupbisang.demo.domain.meeting.model.QTeamTag.teamTag;
 
 
 @RequiredArgsConstructor
@@ -74,6 +75,18 @@ public class MeetingRepositoryImpl implements MeetingRepositoryCustom {
                     .where(meeting.id.eq(meetingId))
                     .fetchOne();
         }
+
+        return Optional.ofNullable(resultMeeting);
+    }
+
+    @Override
+    public Optional<Meeting> findByIdWithTeamTagsAndParticipants(long meetingId) {
+        Meeting resultMeeting = queryFactory
+                .selectFrom(meeting)
+                .leftJoin(meeting.teamTags, teamTag).fetchJoin()
+                .leftJoin(meeting.participants, participant).fetchJoin()
+                .where(meeting.id.eq(meetingId))
+                .fetchOne();
 
         return Optional.ofNullable(resultMeeting);
     }
