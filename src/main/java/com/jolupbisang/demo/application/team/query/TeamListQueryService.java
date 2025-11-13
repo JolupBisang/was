@@ -20,17 +20,19 @@ public class TeamListQueryService {
     private final MeetingRepository meetingRepository;
 
     @Transactional(readOnly = true)
-    public List<TeamListRes> getTeamsByUserId(Long userId) {
+    public TeamListRes getTeamsByUserId(Long userId) {
         List<Team> teams = teamRepository.findByMembersUserId(userId);
         LocalDateTime now = LocalDateTime.now();
-        
-        return teams.stream()
+
+        List<TeamListRes.TeamInfo> teamInfos = teams.stream()
                 .map(team -> {
                     Meeting closestMeeting = meetingRepository.findClosestMeetingByTeamId(team.getId(), now)
                             .orElse(null);
-                    return TeamListRes.fromEntity(team, closestMeeting);
+                    return TeamListRes.TeamInfo.fromEntity(team, closestMeeting);
                 })
                 .toList();
+
+        return TeamListRes.from(teamInfos);
     }
 }
 
