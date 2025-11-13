@@ -142,5 +142,17 @@ public class MeetingRepositoryImpl implements MeetingRepositoryCustom {
 
         return Optional.ofNullable(pastMeeting);
     }
+
+    @Override
+    public List<Meeting> findByIdsWithParticipant(List<Long> meetingIds) {
+        if (meetingIds == null || meetingIds.isEmpty()) {
+            return List.of();
+        }
+        return queryFactory
+                .selectFrom(meeting)
+                .leftJoin(meeting.participants, participant).fetchJoin()
+                .where(meeting.id.in(meetingIds))
+                .fetch();
+    }
 }
 

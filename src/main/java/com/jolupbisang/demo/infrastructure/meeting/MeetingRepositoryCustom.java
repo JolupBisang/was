@@ -22,4 +22,6 @@ public interface MeetingRepositoryCustom {
     List<Meeting> findByScheduledTimeAndParticipantAndStatuses(LocalDateTime startTime, LocalDateTime endTime, long userId, Set<MeetingStatus> statuses);
 
     Optional<Meeting> findClosestMeetingByTeamId(Long teamId, LocalDateTime now);
+
+    List<Meeting> findByIdsWithParticipant(List<Long> meetingIds);
 }
