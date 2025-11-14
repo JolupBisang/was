@@ -60,7 +60,7 @@ public class WebsocketManager {
         if (sender != null) {
             String jsonMessage = makeMessageToString(message);
             if (jsonMessage != null) {
-                sender.send(message);
+                sender.send(jsonMessage);
             }
         }
     }

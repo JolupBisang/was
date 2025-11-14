@@ -6,9 +6,14 @@ import com.jolupbisang.demo.application.auth.dto.OAuthUserInfoDto;
 import com.jolupbisang.demo.application.auth.exception.AuthErrorCode;
 import com.jolupbisang.demo.application.auth.service.ClientPlatform;
 import com.jolupbisang.demo.global.exception.CustomException;
+import com.jolupbisang.demo.global.exception.InfraException;
 import com.jolupbisang.demo.global.properties.OAuthProperties;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -34,7 +39,7 @@ public abstract class OAuthClient {
             JsonNode rootNode = objectMapper.readTree(response.getBody());
             return rootNode.path("access_token").asText();
         } catch (Exception e) {
-            throw new CustomException(AuthErrorCode.PLATFORM_ERROR);
+            throw new InfraException(AuthErrorCode.PLATFORM_ERROR, e, "구글 문제입니다. 문의해주세요");
         }
     }
 

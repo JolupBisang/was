@@ -54,7 +54,7 @@ public class AudioChunk {
     }
 
     private void setCreatedDateTime(LocalDateTime createdDateTime) {
-        if (createdDateTime == null || createdDateTime.isAfter(LocalDateTime.now())) {
+        if (createdDateTime == null || createdDateTime.isBefore(LocalDateTime.now())) {
             throw new DomainException(AudioDomainErrorCode.FUTURE_CREATED_DATE_TIME, "createdDateTime: %s", createdDateTime);
         }
         this.createdDateTime = createdDateTime;
