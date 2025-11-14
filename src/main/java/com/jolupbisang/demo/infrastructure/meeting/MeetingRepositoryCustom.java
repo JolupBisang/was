@@ -2,6 +2,8 @@ package com.jolupbisang.demo.infrastructure.meeting;
 
 import com.jolupbisang.demo.domain.meeting.model.Meeting;
 import com.jolupbisang.demo.domain.meeting.model.MeetingStatus;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,4 +26,6 @@ public interface MeetingRepositoryCustom {
     Optional<Meeting> findClosestMeetingByTeamId(Long teamId, LocalDateTime now);
 
     List<Meeting> findByIdsWithParticipant(List<Long> meetingIds);
+
+    Slice<Meeting> findByTitleContainingAndUserId(String title, Long userId, Pageable pageable);
 }

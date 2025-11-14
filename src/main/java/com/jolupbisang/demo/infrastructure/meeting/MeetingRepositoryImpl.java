@@ -7,6 +7,9 @@ import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -153,6 +156,28 @@ public class MeetingRepositoryImpl implements MeetingRepositoryCustom {
                 .leftJoin(meeting.participants, participant).fetchJoin()
                 .where(meeting.id.in(meetingIds))
                 .fetch();
+    }
+
+    @Override
+    public Slice<Meeting> findByTitleContainingAndUserId(String title, Long userId, Pageable pageable) {
+        int pageSize = pageable.getPageSize();
+        List<Meeting> meetings = queryFactory
+                .selectFrom(meeting)
+                .where(
+                        meeting.id.in(findAcceptedMeetingByUserId(userId))
+                                .and(meeting.title.containsIgnoreCase(title))
+                )
+                .orderBy(meeting.scheduledTime.scheduledStartTime.desc())
+                .limit(pageSize + 1)
+                .offset(pageable.getOffset())
+                .fetch();
+
+        boolean hasNext = meetings.size() > pageSize;
+        if (hasNext) {
+            meetings.remove(meetings.size() - 1);
+        }
+
+        return new SliceImpl<>(meetings, pageable, hasNext);
     }
 }
 
