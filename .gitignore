@@ -47,3 +47,6 @@ out/
 /docker/loki-config.yml
 /docker/promtail-config.yml
 
+# GitHub Secrets
+.github/secrets.env
+/docker/scripts/*
