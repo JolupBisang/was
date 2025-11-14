@@ -26,7 +26,7 @@ services:
     container_name: green
     environment:
       - PROFILES=${SPRING_PROFILE:-local}
-      - ENV=${SPRING_ENV:-blue}
+      - ENV=${SPRING_ENV:-green}
     env_file:
       - "${ENV_FILE:-.env.dev}"
     ports:
