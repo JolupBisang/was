@@ -67,7 +67,7 @@ public class NonBlockingWebsocketSender {
             } else if (message instanceof String) {
                 session.sendMessage(new TextMessage((String) message));
             } else {
-                log.error("Unsupported message type: {}", message.getClass().getName());
+                throw new IllegalArgumentException("지원되지 않는 타입의 전송입니다.");
             }
         } catch (IOException e) {
             log.error("Failed to send message to WebSocket session. Cause: {}", e.getMessage(), e);
