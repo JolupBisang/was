@@ -1,9 +1,9 @@
 name: cd
 
 on:
- push:
-   branches:
-     - develop
+  push:
+    branches:
+      - develop
 
 permissions:
   contents: read
@@ -48,12 +48,12 @@ jobs:
           script_stop: true
           script: |
             # 프로젝트 디렉토리 찾기
-            if [ -d "/home/${{ secrets.EC2_USERNAME }}/silrok/docker" ]; then
-              cd /home/${{ secrets.EC2_USERNAME }}/silrok/docker
+            if [ -d "/home/${{ secrets.EC2_USERNAME }}/docker" ]; then
+              cd /home/${{ secrets.EC2_USERNAME }}/docker
             elif [ -d "~/silrok/docker" ]; then
-              cd ~/silrok/docker
-            elif [ -d "/opt/silrok/docker" ]; then
-              cd /opt/silrok/docker
+              cd ~/docker
+            elif [ -d "/opt/docker" ]; then
+              cd /opt/docker
             else
               echo "Error: docker directory not found"
               exit 1
