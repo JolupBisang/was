@@ -49,4 +49,4 @@ out/
 
 # GitHub Secrets
 .github/secrets.env
-/docker/scripts/*
+.githubscripts/*
