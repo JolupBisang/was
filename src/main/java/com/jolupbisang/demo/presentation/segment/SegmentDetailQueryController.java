@@ -21,7 +21,7 @@ public class SegmentDetailQueryController {
 
     @GetMapping("/api/v1/meetings/{meetingId}/segments")
     public Slice<SegmentDetailRes> getSegments(@PathVariable Long meetingId,
-                                               @PageableDefault(size = 40, sort = "segmentOrder", direction = Sort.Direction.DESC) Pageable pageable,
+                                               @PageableDefault(size = 40, sort = "order", direction = Sort.Direction.DESC) Pageable pageable,
                                                @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         return segmentDetailQueryService.getSegmentDetails(meetingId, userDetails.getUserId(), pageable);
