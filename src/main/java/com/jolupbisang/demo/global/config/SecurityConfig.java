@@ -25,7 +25,8 @@ public class SecurityConfig {
             "/swagger-resources/**", "/swagger-ui/**", "/webjars/**", "/v3/api-docs/**",  //Swagger
             "/error",
             "/api/auth/**",
-            "/ws/**"
+            "/ws/**",
+            "/actuator/**"  // Actuator endpoints (health check 등)
     };
 
 
