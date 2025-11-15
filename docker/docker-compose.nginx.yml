@@ -9,12 +9,8 @@ services:
       - ./nginx/service-env.inc:/etc/nginx/conf.d/service-env.inc:ro
     networks:
       - app_network
-    restart: always
-    healthcheck:
-      test: [ "CMD", "nginx", "-t" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+    restart: unless-stopped
+    # resolve 옵션으로 nginx가 blue/green 없이도 시작 가능
 
 networks:
   app_network:
