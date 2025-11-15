@@ -99,6 +99,7 @@ management:
     web:
       exposure:
         include: health,info,metrics,prometheus   # prod 헬스/메트릭 노출용
+      base-path: /actuator  # 기본값이지만 명시적으로 설정
   endpoint:
     health:
       probes:

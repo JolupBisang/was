@@ -107,17 +107,32 @@ jobs:
             MAX_ATTEMPTS=30
             ATTEMPT=0
             while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
-              if curl -sf http://localhost:$TARGET_PORT/actuator/health > /dev/null 2>&1; then
-                echo "$TARGET_SERVICE is healthy!"
-                break
+              # HTTP 응답 확인
+              HTTP_CODE=$(curl -sf -o /dev/null -w "%{http_code}" http://127.0.0.1:$TARGET_PORT/actuator/health 2>/dev/null || echo "000")
+              
+              if [ "$HTTP_CODE" = "200" ]; then
+                # 응답 본문 확인 (status가 UP인지 확인)
+                HEALTH_RESPONSE=$(curl -sf http://127.0.0.1:$TARGET_PORT/actuator/health 2>/dev/null || echo "")
+                
+                if echo "$HEALTH_RESPONSE" | grep -q '"status":"UP"'; then
+                  echo "$TARGET_SERVICE is healthy! (HTTP $HTTP_CODE)"
+                  break
+                else
+                  echo "Attempt $ATTEMPT/$MAX_ATTEMPTS: $TARGET_SERVICE responded but status is not UP"
+                  echo "Response: $HEALTH_RESPONSE"
+                fi
+              else
+                echo "Attempt $ATTEMPT/$MAX_ATTEMPTS: $TARGET_SERVICE not responding (HTTP $HTTP_CODE)"
               fi
+              
               ATTEMPT=$((ATTEMPT + 1))
-              echo "Attempt $ATTEMPT/$MAX_ATTEMPTS: Waiting for $TARGET_SERVICE..."
               sleep 10
             done
             
             if [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then
-              echo "Error: $TARGET_SERVICE failed to become healthy"
+              echo "Error: $TARGET_SERVICE failed to become healthy after $MAX_ATTEMPTS attempts"
+              echo "Last HTTP code: $HTTP_CODE"
+              echo "Last response: $HEALTH_RESPONSE"
               exit 1
             fi
             
