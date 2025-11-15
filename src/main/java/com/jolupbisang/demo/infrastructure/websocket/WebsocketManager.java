@@ -46,10 +46,10 @@ public class WebsocketManager {
     public void broadcast(Object message) {
         ArrayList<NonBlockingWebsocketSender> senders = new ArrayList<>(websocketSenders.values());
 
+        String jsonMessage = makeMessageToString(message);
         for (NonBlockingWebsocketSender sender : senders) {
-            String jsonMessage = makeMessageToString(message);
             if (jsonMessage != null) {
-                sender.send(message);
+                sender.send(jsonMessage);
             }
         }
     }
