@@ -52,7 +52,7 @@ public class Participant {
     }
 
     public void updateParticipationRate(double rate, long totalParticipationChunk) {
-        participationRate = new ParticipationRate(rate * 100, totalParticipationChunk);
+        participationRate = new ParticipationRate(rate / 100, totalParticipationChunk);
     }
 
     private void setUserId(long userId) {
