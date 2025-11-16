@@ -1,6 +1,5 @@
 package com.jolupbisang.demo.infrastructure.websocket;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.socket.BinaryMessage;
@@ -14,11 +13,19 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
-@RequiredArgsConstructor
 public class NonBlockingWebsocketSender {
     private final WebSocketSession session;
     private final Queue<Object> queue = new ConcurrentLinkedQueue<>();
     private final AtomicBoolean writing = new AtomicBoolean(false);
+
+    public NonBlockingWebsocketSender(WebSocketSession session) {
+        this.session = session;
+    }
+
+    public NonBlockingWebsocketSender(WebSocketSession session, NonBlockingWebsocketSender previousSender) {
+        this.session = session;
+        this.queue.addAll(previousSender.queue);
+    }
 
     @Async("websocketExecutor")
     public void send(Object msg) {
@@ -33,6 +40,10 @@ public class NonBlockingWebsocketSender {
         }
         queue.clear();
         writing.set(false);
+    }
+
+    public boolean isOpen() {
+        return session.isOpen();
     }
 
     private void drain() {
@@ -62,7 +73,11 @@ public class NonBlockingWebsocketSender {
 
     private void sendMessage(WebSocketSession session, Object message) {
         try {
-            if (message instanceof ByteBuffer) {
+            if (message instanceof BinaryMessage) {
+                session.sendMessage((BinaryMessage) message);
+            } else if (message instanceof TextMessage) {
+                session.sendMessage((TextMessage) message);
+            } else if (message instanceof ByteBuffer) {
                 session.sendMessage(new BinaryMessage((ByteBuffer) message));
             } else if (message instanceof String) {
                 session.sendMessage(new TextMessage((String) message));
