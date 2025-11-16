@@ -45,8 +45,8 @@ public class WhisperClient extends BinaryWebSocketHandler {
 
     private final WhisperProperties whisperProperties;
 
-    private static final int MAX_RETRY_ATTEMPTS = 5;
-    private static final int RETRY_DELAY_SECONDS = 5;
+    private static final int MAX_RETRY_ATTEMPTS = 3;
+    private static final int RETRY_DELAY_SECONDS = 3;
 
     @PostConstruct
     public void init() {
