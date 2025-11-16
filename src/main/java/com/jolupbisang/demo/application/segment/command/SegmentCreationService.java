@@ -61,6 +61,10 @@ public class SegmentCreationService {
     }
 
     private void updateSegment(Segment segment, SegmentDto segmentDto, LocalDateTime firstProcessedTime) {
+        if (segmentDto.translatedTime().isBefore(segment.getTranslatedDateTime())) {
+            return;
+        }
+
         segment.update(
                 segmentDto.userId(),
                 segmentDto.audioUserId(),
@@ -74,7 +78,8 @@ public class SegmentCreationService {
                         .toList(),
                 segmentDto.text(),
                 segmentDto.lang().isEmpty() ? null : segmentDto.lang().get(0),
-                segmentTimeCalculator.calculateSpokenTime(segmentDto, firstProcessedTime)
+                segmentTimeCalculator.calculateSpokenTime(segmentDto, firstProcessedTime),
+                segmentDto.translatedTime()
         );
     }
 
@@ -94,7 +99,8 @@ public class SegmentCreationService {
                         .toList(),
                 segmentDto.text(),
                 segmentDto.lang().isEmpty() ? null : segmentDto.lang().get(0),
-                segmentTimeCalculator.calculateSpokenTime(segmentDto, firstProcessedTime)
+                segmentTimeCalculator.calculateSpokenTime(segmentDto, firstProcessedTime),
+                segmentDto.translatedTime()
         );
     }
 }

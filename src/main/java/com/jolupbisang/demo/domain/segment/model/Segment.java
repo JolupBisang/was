@@ -3,7 +3,14 @@ package com.jolupbisang.demo.domain.segment.model;
 import com.jolupbisang.demo.domain.common.BaseTimeEntity;
 import com.jolupbisang.demo.domain.segment.exception.SegmentDomainErrorCode;
 import com.jolupbisang.demo.global.exception.DomainException;
-import jakarta.persistence.*;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -49,9 +56,12 @@ public class Segment extends BaseTimeEntity {
     @Column(name = "spoken_date_time")
     private LocalDateTime spokenDateTime;
 
+    @Column
+    private LocalDateTime translatedDateTime;
+
     private static final String DEFAULT_LANG = "ko";
 
-    public Segment(long meetingId, long userId, long audioUserId, int order, List<Word> words, String text, String lang, LocalDateTime spokenDateTime) {
+    public Segment(long meetingId, long userId, long audioUserId, int order, List<Word> words, String text, String lang, LocalDateTime spokenDateTime, LocalDateTime translatedDateTime) {
         setMeetingId(meetingId);
         setUserId(userId);
         setAudioUserId(audioUserId);
@@ -60,15 +70,17 @@ public class Segment extends BaseTimeEntity {
         setText(text);
         setLang(lang);
         setSpokenDateTime(spokenDateTime);
+        setTranslatedDateTime(translatedDateTime);
     }
 
-    public void update(long userId, long audioUserId, List<Word> words, String text, String lang, LocalDateTime spokenDateTime) {
+    public void update(long userId, long audioUserId, List<Word> words, String text, String lang, LocalDateTime spokenDateTime, LocalDateTime translatedDateTime) {
         setUserId(userId);
         setAudioUserId(audioUserId);
         setWords(words);
         setText(text);
         setLang(lang);
         setSpokenDateTime(spokenDateTime);
+        setTranslatedDateTime(translatedDateTime);
     }
 
     private void setMeetingId(long meetingId) {
@@ -120,5 +132,12 @@ public class Segment extends BaseTimeEntity {
             throw new DomainException(SegmentDomainErrorCode.NULL_SPOKEN_DATE_TIME);
         }
         this.spokenDateTime = spokenDateTime;
+    }
+
+    private void setTranslatedDateTime(LocalDateTime translatedDateTime) {
+        if (translatedDateTime == null) {
+            throw new DomainException(SegmentDomainErrorCode.NULL_SPOKEN_DATE_TIME);
+        }
+        this.translatedDateTime = translatedDateTime;
     }
 }

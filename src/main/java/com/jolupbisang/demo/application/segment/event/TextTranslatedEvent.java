@@ -30,7 +30,8 @@ public record TextTranslatedEvent(
                         .map(TextTranslatedEvent::createWordDto)
                         .toList(),
                 whisperSegment.userId(),
-                whisperSegment.audioUserId()
+                whisperSegment.audioUserId(),
+                whisperSegment.translatedTime()
         );
     }
 

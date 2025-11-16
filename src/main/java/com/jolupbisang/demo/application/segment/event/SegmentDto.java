@@ -2,6 +2,7 @@ package com.jolupbisang.demo.application.segment.event;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public record SegmentDto(
@@ -12,6 +13,7 @@ public record SegmentDto(
         @JsonProperty("user_id")
         long userId,
         @JsonProperty("audio_id")
-        long audioUserId
+        long audioUserId,
+        LocalDateTime translatedTime
 ) {
 }
