@@ -44,8 +44,8 @@ public class WhisperClient extends BinaryWebSocketHandler {
 
     private final WhisperProperties whisperProperties;
 
-    private static final int MAX_RETRY_ATTEMPTS = 1;
-    private static final int RETRY_DELAY_SECONDS = 1;
+    private static final int MAX_RETRY_ATTEMPTS = 5;
+    private static final int RETRY_DELAY_SECONDS = 5;
 
     @PostConstruct
     public void init() {
@@ -155,27 +155,29 @@ public class WhisperClient extends BinaryWebSocketHandler {
         }
     }
 
-    private void connectToWhisperServer() {
+    public boolean connectToWhisperServer() {
         WebSocketClient client = new StandardWebSocketClient();
         for (int attempt = 1; attempt <= MAX_RETRY_ATTEMPTS; attempt++) {
             try {
                 whisperSession = client.execute(this, whisperProperties.getWebsocketUrl()).get();
                 log.info("[WhisperClient] Connection successful on attempt {}", attempt);
-                return;
+                return true;
             } catch (InterruptedException | ExecutionException e) {
-                log.error("[WhisperClient] Connection failed on attempt {}/{}: {}", attempt, MAX_RETRY_ATTEMPTS, e.getMessage());
+                log.error("[WhisperClient] Connection failed on attempt {}/{}: {}", attempt, MAX_RETRY_ATTEMPTS, e.getMessage(), e);
                 if (attempt < MAX_RETRY_ATTEMPTS) {
                     try {
                         TimeUnit.SECONDS.sleep(RETRY_DELAY_SECONDS);
                     } catch (InterruptedException ie) {
                         Thread.currentThread().interrupt();
                         log.error("[WhisperClient] Thread interrupted during retry delay", ie);
-                        return;
+                        return false;
                     }
                 }
             }
         }
         log.error("[WhisperClient] Failed to connect to Whisper server after {} attempts. Retries exhausted.", MAX_RETRY_ATTEMPTS);
+
+        return false;
     }
 
     private int readJsonLength(ByteBuffer payload) {

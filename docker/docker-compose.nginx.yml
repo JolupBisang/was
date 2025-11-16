@@ -5,12 +5,11 @@ services:
     ports:
       - "${NGINX_PORT:-80}:80"
     volumes:
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./nginx/service-env.inc:/etc/nginx/conf.d/service-env.inc:ro
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/service-env.inc:/etc/nginx/conf.d/service-env.inc
     networks:
       - app_network
     restart: unless-stopped
-    # resolve 옵션으로 nginx가 blue/green 없이도 시작 가능
 
 networks:
   app_network:
