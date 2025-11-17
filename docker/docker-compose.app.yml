@@ -5,6 +5,7 @@ services:
     environment:
       - PROFILES=${SPRING_PROFILE:-local}
       - ENV=${SPRING_ENV:-blue}
+      - TZ=Asia/Seoul
     env_file:
       - "${ENV_FILE:-.env.dev}"
     ports:
@@ -27,6 +28,7 @@ services:
     environment:
       - PROFILES=${SPRING_PROFILE:-local}
       - ENV=${SPRING_ENV:-green}
+      - TZ=Asia/Seoul
     env_file:
       - "${ENV_FILE:-.env.dev}"
     ports:

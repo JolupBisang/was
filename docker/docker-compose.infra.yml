@@ -2,6 +2,8 @@ services:
   redis:
     image: redis:${REDIS_VERSION:-7.0-alpine}
     container_name: ${REDIS_CONTAINER_NAME:-my-redis}
+    environment:
+      - TZ=Asia/Seoul
     ports:
       - "${REDIS_PORT:-6379}:6379"
     command: [ "redis-server" ]
@@ -25,6 +27,7 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-test_user}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-test_password}
+      TZ: Asia/Seoul
     networks:
       - infra_net
     restart: always

@@ -130,7 +130,7 @@ jobs:
             
             # Nginx upstream 변경 (트래픽 전환)
             echo "Switching nginx upstream to $TARGET_UPSTREAM..."
-            sudo docker exec -i nginx_server bash -c "echo 'set \$service_url $TARGET_UPSTREAM;' > /etc/nginx/conf.d/service-env.inc && nginx -s reload"
+            sudo docker exec -i nginx_server sh -c "printf 'set \$service_url %s;\n' '$TARGET_UPSTREAM' > /etc/nginx/conf.d/service-env.inc && nginx -s reload"
             
             # 기존 서버 중지 및 제거
             if [ "$CURRENT_UPSTREAM" != "none" ]; then
