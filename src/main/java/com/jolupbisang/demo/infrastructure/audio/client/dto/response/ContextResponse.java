@@ -10,14 +10,21 @@ public record ContextResponse(
         long groupId,
         @JsonProperty("is_recap")
         boolean isRecap,
-        String context,
-        List<Integer> agenda,
+        SummaryRes summary,
+        List<Long> agenda,
         List<FeedbackRes> feedback
 ) {
     public record FeedbackRes(
             @JsonProperty("user_id")
             Long userId,
-            String comment
+            String content,
+            List<Long> ids
+    ) {
+    }
+
+    public record SummaryRes(
+            String content,
+            List<Long> ids
     ) {
     }
 }

@@ -75,12 +75,12 @@ public class ContextService {
         long meetingId = contextResponse.groupId();
         boolean isRecap = contextResponse.isRecap();
 
-        String context = contextResponse.context();
-        if (context != null && !context.isEmpty()) {
-            eventPublisher.publishEvent(new SummaryReceivedEvent(meetingId, context, isRecap, LocalDateTime.now()));
+        ContextResponse.SummaryRes summary = contextResponse.summary();
+        if (summary != null && !summary.content().isEmpty()) {
+            eventPublisher.publishEvent(new SummaryReceivedEvent(meetingId, summary.content(), summary.ids(), isRecap, LocalDateTime.now()));
         }
 
-        List<Integer> agenda = contextResponse.agenda();
+        List<Long> agenda = contextResponse.agenda();
         if (agenda != null && !agenda.isEmpty()) {
             eventPublisher.publishEvent(new AgendaReceivedEvent(source, meetingId, agenda));
         }
@@ -88,8 +88,8 @@ public class ContextService {
         List<ContextResponse.FeedbackRes> feedbackResList = contextResponse.feedback();
         if (feedbackResList != null && !feedbackResList.isEmpty()) {
             for (ContextResponse.FeedbackRes feedbackRes : feedbackResList) {
-                if (feedbackRes != null && feedbackRes.userId() != null && feedbackRes.comment() != null && !feedbackRes.comment().isEmpty()) {
-                    eventPublisher.publishEvent(new FeedbackReceivedEvent(meetingId, feedbackRes.userId(), feedbackRes.comment(), LocalDateTime.now()));
+                if (feedbackRes != null && feedbackRes.userId() != null && feedbackRes.content() != null && !feedbackRes.content().isEmpty()) {
+                    eventPublisher.publishEvent(new FeedbackReceivedEvent(meetingId, feedbackRes.userId(), feedbackRes.content(), feedbackRes.ids(), LocalDateTime.now()));
                 }
             }
         }
