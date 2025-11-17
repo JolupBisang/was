@@ -4,6 +4,9 @@ import com.jolupbisang.demo.domain.meeting.model.Meeting;
 import com.jolupbisang.demo.domain.meetingFolder.model.MeetingFolder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -58,6 +61,28 @@ public class MeetingFolderRepositoryImpl implements MeetingFolderRepositoryCusto
                 .fetchOne();
 
         return Optional.ofNullable(folder);
+    }
+
+    @Override
+    public Slice<MeetingFolder> findByNameContainingAndUserId(String name, Long userId, Pageable pageable) {
+        int pageSize = pageable.getPageSize();
+        List<MeetingFolder> folders = queryFactory
+                .selectFrom(meetingFolder)
+                .where(
+                        meetingFolder.userId.eq(userId)
+                                .and(meetingFolder.name.containsIgnoreCase(name))
+                )
+                .orderBy(meetingFolder.id.desc())
+                .limit(pageSize + 1)
+                .offset(pageable.getOffset())
+                .fetch();
+
+        boolean hasNext = folders.size() > pageSize;
+        if (hasNext) {
+            folders.remove(folders.size() - 1);
+        }
+
+        return new SliceImpl<>(folders, pageable, hasNext);
     }
 }
 
