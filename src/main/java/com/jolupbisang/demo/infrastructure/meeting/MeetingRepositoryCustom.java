@@ -28,4 +28,6 @@ public interface MeetingRepositoryCustom {
     List<Meeting> findByIdsWithParticipant(List<Long> meetingIds);
 
     Slice<Meeting> findByTitleContainingAndUserId(String title, Long userId, Pageable pageable);
+
+    Slice<Meeting> findMeetingsByConditions(Long userId, Integer year, Integer month, String title, Pageable pageable);
 }
