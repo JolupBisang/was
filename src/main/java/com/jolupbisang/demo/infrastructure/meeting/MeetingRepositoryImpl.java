@@ -3,6 +3,7 @@ package com.jolupbisang.demo.infrastructure.meeting;
 import com.jolupbisang.demo.domain.meeting.model.Meeting;
 import com.jolupbisang.demo.domain.meeting.model.MeetingStatus;
 import com.jolupbisang.demo.domain.meeting.model.ParticipantStatus;
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -177,6 +178,42 @@ public class MeetingRepositoryImpl implements MeetingRepositoryCustom {
             meetings.remove(meetings.size() - 1);
         }
 
+        return new SliceImpl<>(meetings, pageable, hasNext);
+    }
+
+    @Override
+    public Slice<Meeting> findMeetingsByConditions(Long userId, Integer year, Integer month, String title, Pageable pageable) {
+        BooleanBuilder builder = new BooleanBuilder();
+        
+        // userId 필터 (필수)
+        builder.and(meeting.id.in(findAcceptedMeetingByUserId(userId)));
+        
+        // year, month 필터 (선택적)
+        if (year != null && month != null) {
+            LocalDateTime startOfMonth = LocalDateTime.of(year, month, 1, 0, 0, 0);
+            LocalDateTime endOfMonth = startOfMonth.plusMonths(1).minusNanos(1);
+            builder.and(meeting.scheduledTime.scheduledStartTime.between(startOfMonth, endOfMonth));
+        }
+        
+        // title 필터 (선택적)
+        if (title != null && !title.trim().isEmpty()) {
+            builder.and(meeting.title.containsIgnoreCase(title));
+        }
+        
+        int pageSize = pageable.getPageSize();
+        List<Meeting> meetings = queryFactory
+                .selectFrom(meeting)
+                .where(builder)
+                .orderBy(meeting.scheduledTime.scheduledStartTime.desc())
+                .limit(pageSize + 1)
+                .offset(pageable.getOffset())
+                .fetch();
+        
+        boolean hasNext = meetings.size() > pageSize;
+        if (hasNext) {
+            meetings.remove(meetings.size() - 1);
+        }
+        
         return new SliceImpl<>(meetings, pageable, hasNext);
     }
 }

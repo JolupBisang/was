@@ -6,11 +6,12 @@ import com.jolupbisang.demo.domain.team.model.Team;
 import com.jolupbisang.demo.infrastructure.meeting.MeetingRepository;
 import com.jolupbisang.demo.infrastructure.team.TeamRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -20,19 +21,17 @@ public class TeamListQueryService {
     private final MeetingRepository meetingRepository;
 
     @Transactional(readOnly = true)
-    public TeamListRes getTeamsByUserId(Long userId) {
-        List<Team> teams = teamRepository.findByMembersUserId(userId);
+    public TeamListRes getTeamsByUserId(String name, Long userId, Pageable pageable) {
+        Slice<Team> teamSlice = teamRepository.findByNameContainingAndUserId(name, userId, pageable);
         LocalDateTime now = LocalDateTime.now();
 
-        List<TeamListRes.TeamInfo> teamInfos = teams.stream()
-                .map(team -> {
-                    Meeting closestMeeting = meetingRepository.findClosestMeetingByTeamId(team.getId(), now)
-                            .orElse(null);
-                    return TeamListRes.TeamInfo.fromEntity(team, closestMeeting);
-                })
-                .toList();
+        Slice<TeamListRes.TeamInfo> teamInfoSlice = teamSlice.map(team -> {
+            Meeting closestMeeting = meetingRepository.findClosestMeetingByTeamId(team.getId(), now)
+                    .orElse(null);
+            return TeamListRes.TeamInfo.fromEntity(team, closestMeeting);
+        });
 
-        return TeamListRes.from(teamInfos);
+        return TeamListRes.from(teamInfoSlice);
     }
 }
 

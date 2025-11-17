@@ -13,6 +13,7 @@ import com.jolupbisang.demo.infrastructure.audio.client.dto.request.ReferenceReq
 import com.jolupbisang.demo.infrastructure.audio.client.dto.response.ContextResponse;
 import com.jolupbisang.demo.infrastructure.audio.client.dto.response.EmbeddedVectorResponse;
 import com.jolupbisang.demo.infrastructure.audio.client.dto.response.WhisperResponseType;
+import com.jolupbisang.demo.infrastructure.websocket.NonBlockingWebsocketSender;
 import com.jolupbisang.demo.infrastructure.whisper.dto.WhisperDiarizedRes;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -40,12 +41,12 @@ public class WhisperClient extends BinaryWebSocketHandler {
 
     private final ObjectMapper objectMapper;
     private final ApplicationEventPublisher eventPublisher;
-    private WebSocketSession whisperSession;
+    private NonBlockingWebsocketSender whisperSender;
 
     private final WhisperProperties whisperProperties;
 
-    private static final int MAX_RETRY_ATTEMPTS = 5;
-    private static final int RETRY_DELAY_SECONDS = 5;
+    private static final int MAX_RETRY_ATTEMPTS = 3;
+    private static final int RETRY_DELAY_SECONDS = 3;
 
     @PostConstruct
     public void init() {
@@ -98,9 +99,9 @@ public class WhisperClient extends BinaryWebSocketHandler {
 
     public void sendDiarization(long meetingId, long userId, Integer scOffset, byte[] audioData) {
         try {
-            if (whisperSession != null && whisperSession.isOpen()) {
+            if (whisperSender != null && whisperSender.isOpen()) {
                 DiarizedRequest request = DiarizedRequest.of(meetingId, userId, scOffset, audioData);
-                whisperSession.sendMessage(request.toBinaryMessage(objectMapper));
+                whisperSender.send(request.toBinaryMessage(objectMapper));
             }
         } catch (IOException e) {
             log.error("[WhisperClient] Failed to send diarized request", e);
@@ -109,9 +110,9 @@ public class WhisperClient extends BinaryWebSocketHandler {
 
     public void sendContext(long meetingId) {
         try {
-            if (whisperSession != null && whisperSession.isOpen()) {
+            if (whisperSender != null && whisperSender.isOpen()) {
                 ContextRequest request = ContextRequest.of(meetingId);
-                whisperSession.sendMessage(request.toBinaryMessage(objectMapper));
+                whisperSender.send(request.toBinaryMessage(objectMapper));
             }
         } catch (IOException e) {
             log.error("[WhisperClient] Failed to send context request to Whisper server", e);
@@ -120,9 +121,9 @@ public class WhisperClient extends BinaryWebSocketHandler {
 
     public void sendContextDone(long meetingId) {
         try {
-            if (whisperSession != null && whisperSession.isOpen()) {
+            if (whisperSender != null && whisperSender.isOpen()) {
                 ContextDoneRequest request = ContextDoneRequest.of(meetingId);
-                whisperSession.sendMessage(request.toBinaryMessage(objectMapper));
+                whisperSender.send(request.toBinaryMessage(objectMapper));
             }
         } catch (IOException e) {
             log.error("[WhisperClient] Failed to send context_done request to Whisper server", e);
@@ -131,9 +132,9 @@ public class WhisperClient extends BinaryWebSocketHandler {
 
     public void sendEmbeddingAudio(long userId, byte[] audioData) {
         try {
-            if (whisperSession != null && whisperSession.isOpen()) {
+            if (whisperSender != null && whisperSender.isOpen()) {
                 EmbeddingRequest embeddingRequest = EmbeddingRequest.of(userId, audioData);
-                whisperSession.sendMessage(embeddingRequest.toBinaryMessage(objectMapper));
+                whisperSender.send(embeddingRequest.toBinaryMessage(objectMapper));
             } else {
                 log.warn("[WhisperClient] Whisper session is not open. Cannot send embedding audio for user ID: {}", userId);
             }
@@ -144,9 +145,9 @@ public class WhisperClient extends BinaryWebSocketHandler {
 
     public void sendRefenceVector(long groupId, List<Long> userIds, List<Integer> counts, List<byte[]> vectors) {
         try {
-            if (whisperSession != null && whisperSession.isOpen()) {
+            if (whisperSender != null && whisperSender.isOpen()) {
                 ReferenceRequest referenceRequest = ReferenceRequest.of(groupId, userIds, counts, vectors);
-                whisperSession.sendMessage(referenceRequest.toBinaryMessage(objectMapper));
+                whisperSender.send(referenceRequest.toBinaryMessage(objectMapper));
             } else {
                 log.warn("[WhisperClient] Whisper session is not open. Cannot send embedded vector for groupx ID: {}", groupId);
             }
@@ -159,7 +160,13 @@ public class WhisperClient extends BinaryWebSocketHandler {
         WebSocketClient client = new StandardWebSocketClient();
         for (int attempt = 1; attempt <= MAX_RETRY_ATTEMPTS; attempt++) {
             try {
-                whisperSession = client.execute(this, whisperProperties.getWebsocketUrl()).get();
+                WebSocketSession session = client.execute(this, whisperProperties.getWebsocketUrl()).get();
+                if (whisperSender != null) {
+                    whisperSender = new NonBlockingWebsocketSender(session, whisperSender);
+                } else {
+                    whisperSender = new NonBlockingWebsocketSender(session);
+                }
+
                 log.info("[WhisperClient] Connection successful on attempt {}", attempt);
                 return true;
             } catch (InterruptedException | ExecutionException e) {

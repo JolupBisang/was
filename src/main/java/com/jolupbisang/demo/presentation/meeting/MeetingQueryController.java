@@ -1,6 +1,6 @@
 package com.jolupbisang.demo.presentation.meeting;
 
-import com.jolupbisang.demo.application.meeting.query.MeetingSearchQueryService;
+import com.jolupbisang.demo.application.meeting.query.MeetingQueryService;
 import com.jolupbisang.demo.application.meeting.query.dto.MeetingDetailSummary;
 import com.jolupbisang.demo.infrastructure.auth.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
@@ -14,17 +14,21 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-public class MeetingSearchQueryController {
+public class MeetingQueryController {
 
-    private final MeetingSearchQueryService meetingSearchQueryService;
+    private final MeetingQueryService meetingQueryService;
 
-    @GetMapping("/api/v1/meetings/search")
-    public ResponseEntity<Slice<MeetingDetailSummary>> searchMeetings(
-            @RequestParam String title,
+    @GetMapping("/api/v1/meetings")
+    public ResponseEntity<Slice<MeetingDetailSummary>> getMeetings(
+            @RequestParam(required = false) Integer year,
+            @RequestParam(required = false) Integer month,
+            @RequestParam(required = false) String title,
             @AuthenticationPrincipal CustomUserDetails userDetails,
             Pageable pageable) {
-        Slice<MeetingDetailSummary> summaries = meetingSearchQueryService.searchMeetingsByTitle(title, userDetails.getUserId(), pageable);
-        return ResponseEntity.ok(summaries);
+        Slice<MeetingDetailSummary> meetings = meetingQueryService.getMeetings(
+            userDetails.getUserId(), year, month, title, pageable
+        );
+        return ResponseEntity.ok(meetings);
     }
 }
 

@@ -2,15 +2,17 @@ package com.jolupbisang.demo.application.meetingFolder.query.dto;
 
 import com.jolupbisang.demo.domain.meeting.model.Meeting;
 import com.jolupbisang.demo.domain.meetingFolder.model.MeetingFolder;
+import org.springframework.data.domain.Slice;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 public record MeetingFolderListRes(
-        List<MeetingFolderInfo> folders
+        List<MeetingFolderInfo> folders,
+        boolean hasNext
 ) {
-    public static MeetingFolderListRes from(List<MeetingFolderInfo> folderInfos) {
-        return new MeetingFolderListRes(folderInfos);
+    public static MeetingFolderListRes from(Slice<MeetingFolderInfo> folderSlice) {
+        return new MeetingFolderListRes(folderSlice.getContent(), folderSlice.hasNext());
     }
 
     public record MeetingFolderInfo(

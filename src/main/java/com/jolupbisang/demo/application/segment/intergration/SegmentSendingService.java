@@ -44,6 +44,7 @@ public class SegmentSendingService {
 
         return new RealtimeSegmentDto(
                 segmentTimeCalculator.calculateSpokenTime(segmentDto, firstProcessedTime),
+                segmentDto.translatedTime(),
                 segmentDto.userId(),
                 segmentDto.order(),
                 segmentDto.text()

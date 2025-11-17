@@ -2,7 +2,17 @@ package com.jolupbisang.demo.domain.meeting.model;
 
 import com.jolupbisang.demo.domain.meeting.exception.MeetingDomainErrorCode;
 import com.jolupbisang.demo.global.exception.DomainException;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -42,7 +52,7 @@ public class Participant {
     }
 
     public void updateParticipationRate(double rate, long totalParticipationChunk) {
-        participationRate = new ParticipationRate(rate, totalParticipationChunk);
+        participationRate = new ParticipationRate(rate / 100, totalParticipationChunk);
     }
 
     private void setUserId(long userId) {

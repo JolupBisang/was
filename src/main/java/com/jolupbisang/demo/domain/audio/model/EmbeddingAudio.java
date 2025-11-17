@@ -36,8 +36,9 @@ public class EmbeddingAudio {
     }
 
     private void setCreatedDateTime(LocalDateTime createdDateTime) {
-        if (createdDateTime == null || createdDateTime.isAfter(LocalDateTime.now())) {
-            throw new DomainException(AudioDomainErrorCode.FUTURE_CREATED_DATE_TIME, "createdDateTime: %s", createdDateTime);
+        LocalDateTime now = LocalDateTime.now();
+        if (createdDateTime == null || createdDateTime.isAfter(now)) {
+            throw new DomainException(AudioDomainErrorCode.FUTURE_CREATED_DATE_TIME, "createdDateTime: %s, now: %s", createdDateTime, now);
         }
         this.createdDateTime = createdDateTime;
     }

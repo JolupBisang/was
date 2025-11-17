@@ -3,6 +3,7 @@ package com.jolupbisang.demo.infrastructure.whisper.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.jolupbisang.demo.infrastructure.audio.client.dto.response.WhisperResponseType;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public record WhisperDiarizedRes(
@@ -20,7 +21,9 @@ public record WhisperDiarizedRes(
             @JsonProperty("user_id")
             long userId,
             @JsonProperty("audio_id")
-            long audioUserId
+            long audioUserId,
+            @JsonProperty("translated_time")
+            LocalDateTime translatedTime
     ) {
     }
 
