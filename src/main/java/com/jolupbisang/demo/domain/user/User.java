@@ -34,7 +34,6 @@ public class User extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private OAuthPlatform platform;
 
-    @Column(nullable = false)
     private String pictureURL;
 
     @Builder
