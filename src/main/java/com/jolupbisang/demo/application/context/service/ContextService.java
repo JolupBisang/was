@@ -77,7 +77,7 @@ public class ContextService {
 
         ContextResponse.SummaryRes summary = contextResponse.summary();
         if (summary != null && !summary.content().isEmpty()) {
-            log.info("Context received - meetingId: {}, content: {}", meetingId, summary.content());
+            log.info("Summary received - meetingId: {}, content: {}", meetingId, summary.content());
             eventPublisher.publishEvent(new SummaryReceivedEvent(meetingId, summary.content(), summary.ids(), isRecap, LocalDateTime.now()));
         }
 
