@@ -45,7 +45,7 @@ public class MeetingSseManager {
 
     public void sendEvent(long meetingId, long userId, MeetingSseEventType eventType, Object data) {
         if (!meetingEmitters.containsKey(meetingId)) {
-            log.error("해당 회의에 연결된 Sse 클라이언트가 없습니다. meetingId: {}", meetingId);
+            log.error("해당 회의에 연결된 Sse 클라이언트가 없습니다. meetingId: {}, 보내려던 userId {}", meetingId, userId);
             return;
         }
 
@@ -63,12 +63,12 @@ public class MeetingSseManager {
         });
 
         emitter.onTimeout(() -> {
-            log.info("[{}]: meetingId {} SSE connection timed out", emitter, meetingId);
+            log.info("[{}]: meetingId {}, userId {} SSE connection timed out", emitter, meetingId, userId);
             emitter.complete();
         });
 
         emitter.onError((ex) -> {
-            log.info("[{}]: meetingId {} SSE connection error", emitter, meetingId, ex);
+            log.info("[{}]: meetingId {}, userId {} SSE connection error", emitter, meetingId, userId, ex);
             emitter.complete();
         });
 
