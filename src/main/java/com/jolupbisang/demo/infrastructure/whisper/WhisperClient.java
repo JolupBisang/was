@@ -24,7 +24,6 @@ import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.client.WebSocketClient;
-import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.handler.BinaryWebSocketHandler;
 
 import java.io.IOException;
@@ -41,9 +40,10 @@ public class WhisperClient extends BinaryWebSocketHandler {
 
     private final ObjectMapper objectMapper;
     private final ApplicationEventPublisher eventPublisher;
-    private NonBlockingWebsocketSender whisperSender;
-
+    private final WebSocketClient webSocketClient;
     private final WhisperProperties whisperProperties;
+
+    private NonBlockingWebsocketSender whisperSender;
 
     private static final int MAX_RETRY_ATTEMPTS = 3;
     private static final int RETRY_DELAY_SECONDS = 3;
@@ -157,10 +157,9 @@ public class WhisperClient extends BinaryWebSocketHandler {
     }
 
     public boolean connectToWhisperServer() {
-        WebSocketClient client = new StandardWebSocketClient();
         for (int attempt = 1; attempt <= MAX_RETRY_ATTEMPTS; attempt++) {
             try {
-                WebSocketSession session = client.execute(this, whisperProperties.getWebsocketUrl()).get();
+                WebSocketSession session = webSocketClient.execute(this, whisperProperties.getWebsocketUrl()).get();
                 if (whisperSender != null) {
                     whisperSender = new NonBlockingWebsocketSender(session, whisperSender);
                 } else {
