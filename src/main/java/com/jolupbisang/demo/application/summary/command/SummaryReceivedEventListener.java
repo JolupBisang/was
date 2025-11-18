@@ -25,22 +25,25 @@ public class SummaryReceivedEventListener {
     @Transactional
     @EventListener
     public void handleSummaryReceived(SummaryReceivedEvent event) {
-        Map<Long, String> idToNicknameMap = userRepository.findIdAndNicknameByIdIn(event.ids()).stream()
-                .collect(Collectors.toMap(UserSummary::id, UserSummary::nickname));
+        String content = event.content();
+        if (!event.ids().isEmpty()) {
+            Map<Long, String> idToNicknameMap = userRepository.findIdAndNicknameByIdIn(event.ids()).stream()
+                    .collect(Collectors.toMap(UserSummary::id, UserSummary::nickname));
 
-        String[] nicknames = new String[event.ids().size()];
-        for (int i = 0; i < event.ids().size(); i++) {
-            Long userId = event.ids().get(i);
-            String nickname = idToNicknameMap.get(userId);
-            if (nickname == null) {
-                log.error("User not found for id: {}. Total ids: {}, Found nicknames: {}",
-                        userId, event.ids().size(), idToNicknameMap.size());
-                return;
+            String[] nicknames = new String[event.ids().size()];
+            for (int i = 0; i < event.ids().size(); i++) {
+                Long userId = event.ids().get(i);
+                String nickname = idToNicknameMap.get(userId);
+                if (nickname == null) {
+                    log.error("User not found for id: {}. Total ids: {}, Found nicknames: {}",
+                            userId, event.ids().size(), idToNicknameMap.size());
+                    return;
+                }
+                nicknames[i] = nickname;
             }
-            nicknames[i] = nickname;
-        }
 
-        String content = String.format(event.content(), (Object[]) nicknames);
+            content = String.format(event.content(), (Object[]) nicknames);
+        }
 
         summaryRepository.save(
                 new Summary(
