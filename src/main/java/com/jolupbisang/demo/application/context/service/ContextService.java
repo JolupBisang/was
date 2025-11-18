@@ -42,7 +42,7 @@ public class ContextService {
     @Value("${schedule.context}")
     private long CONTEXT_SEND_INTERVAL_MINUTES;
 
-    @Async("AsyncTaskExecutor")
+    @Async("externalApiExecutor")
     @EventListener
     public void handleMeetingStart(MeetingStartedEvent event) {
         long meetingId = event.meetingId();

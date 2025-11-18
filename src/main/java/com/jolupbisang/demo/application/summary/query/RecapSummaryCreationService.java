@@ -17,7 +17,7 @@ public class RecapSummaryCreationService {
     private final WhisperClient whisperClient;
 
     @Order(MeetingCompletedOrder.RECAP_SUMMARY_CREATION)
-    @Async("AsyncTaskExecutor")
+    @Async("externalApiExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void createWholeSummary(MeetingCompletedEvent event) {
         whisperClient.sendContextDone(event.meetingId());

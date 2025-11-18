@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.Order;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -25,8 +26,8 @@ public class MergingAudioChunkService {
     @Value("${cloud.aws.sfn.merge-audio-state-machine-arn}")
     private String MERGE_AUDIO_STATE_MACHINE_ARN;
 
-
     @Order(MeetingCompletedOrder.AUDIO_MERGING)
+    @Async("externalApiExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleMeetingCompletedEvent(MeetingCompletedEvent event) {
         long meetingId = event.meetingId();
