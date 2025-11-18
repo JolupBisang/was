@@ -25,23 +25,27 @@ public class FeedbackReceivedEventListener {
     @EventListener
     @Transactional
     public void handleFeedbackEvent(FeedbackReceivedEvent event) {
-        Map<Long, String> idToNicknameMap = userRepository.findIdAndNicknameByIdIn(event.ids()).stream()
-                .collect(Collectors.toMap(UserSummary::id, UserSummary::nickname));
+        String comment = event.comment();
+        if (!event.ids().isEmpty()) {
+            Map<Long, String> idToNicknameMap = userRepository.findIdAndNicknameByIdIn(event.ids()).stream()
+                    .collect(Collectors.toMap(UserSummary::id, UserSummary::nickname));
 
-        String[] nicknames = new String[event.ids().size()];
-        for (int i = 0; i < event.ids().size(); i++) {
-            Long userId = event.ids().get(i);
-            String nickname = idToNicknameMap.get(userId);
-            if (nickname == null) {
-                log.error("User not found for id: {}. Total ids: {}, Found nicknames: {}",
-                        userId, event.ids().size(), idToNicknameMap.size());
-                return;
+            String[] nicknames = new String[event.ids().size()];
+            for (int i = 0; i < event.ids().size(); i++) {
+                Long userId = event.ids().get(i);
+                String nickname = idToNicknameMap.get(userId);
+                if (nickname == null) {
+                    log.error("User not found for id: {}. Total ids: {}, Found nicknames: {}",
+                            userId, event.ids().size(), idToNicknameMap.size());
+                    return;
+                }
+                nicknames[i] = nickname;
             }
-            nicknames[i] = nickname;
+
+            // nickname들을 String.format에 적용
+            comment = String.format(event.comment(), (Object[]) nicknames);
         }
 
-        // nickname들을 String.format에 적용
-        String comment = String.format(event.comment(), (Object[]) nicknames);
 
         feedbackRepository.save(
                 new Feedback(
