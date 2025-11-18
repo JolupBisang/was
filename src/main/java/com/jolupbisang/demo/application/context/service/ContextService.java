@@ -77,11 +77,13 @@ public class ContextService {
 
         ContextResponse.SummaryRes summary = contextResponse.summary();
         if (summary != null && !summary.content().isEmpty()) {
+            log.info("Context received - meetingId: {}, content: {}", meetingId, summary.content());
             eventPublisher.publishEvent(new SummaryReceivedEvent(meetingId, summary.content(), summary.ids(), isRecap, LocalDateTime.now()));
         }
 
         List<Long> agenda = contextResponse.agenda();
         if (agenda != null && !agenda.isEmpty()) {
+            log.info("Agenda received - meetingId: {}, agenda: {}", meetingId, agenda);
             eventPublisher.publishEvent(new AgendaReceivedEvent(source, meetingId, agenda));
         }
 
@@ -89,6 +91,7 @@ public class ContextService {
         if (feedbackResList != null && !feedbackResList.isEmpty()) {
             for (ContextResponse.FeedbackRes feedbackRes : feedbackResList) {
                 if (feedbackRes != null && feedbackRes.userId() != null && feedbackRes.content() != null && !feedbackRes.content().isEmpty()) {
+                    log.info("Feedback received - meetingId: {}, userId: {}, content: {}", meetingId, feedbackRes.userId(), feedbackRes.content());
                     eventPublisher.publishEvent(new FeedbackReceivedEvent(meetingId, feedbackRes.userId(), feedbackRes.content(), feedbackRes.ids(), LocalDateTime.now()));
                 }
             }
