@@ -23,17 +23,23 @@ public class MeetingQueryService {
 
     @Transactional(readOnly = true)
     public Slice<MeetingDetailSummary> getMeetings(Long userId, Integer year, Integer month, String title, Pageable pageable) {
-        // year, month 유효성 검사 (둘 다 있거나 둘 다 없어야 함)
-        if ((year != null && month == null) || (year == null && month != null)) {
+        // year, month 유효성 검사
+        // 1) month만 단독으로 있는 경우는 허용하지 않음
+        // 2) year만 있거나, year와 month가 함께 있거나, 둘 다 없는 경우는 허용
+        if (year == null && month != null) {
             throw new ApplicationException(MeetingApplicationErrorCode.INVALID_QUERY_DATE, 
-                "year and month must be both present or both absent");
+                "month cannot be provided without year");
         }
         
         // year, month가 제공된 경우 범위 검사
-        if (year != null && month != null) {
-            if (year < MIN_YEAR || month < MIN_MONTH || month > MAX_MONTH) {
+        if (year != null) {
+            if (year < MIN_YEAR) {
                 throw new ApplicationException(MeetingApplicationErrorCode.INVALID_QUERY_DATE, 
-                    "year: %d, month: %d", year, month);
+                    "invalid year: %d", year);
+            }
+            if (month != null && (month < MIN_MONTH || month > MAX_MONTH)) {
+                throw new ApplicationException(MeetingApplicationErrorCode.INVALID_QUERY_DATE, 
+                    "invalid month: %d", month);
             }
         }
 

@@ -78,7 +78,7 @@ public class MeetingRepositoryImpl implements MeetingRepositoryCustom {
                     .leftJoin(meeting.agendas, agenda).fetchJoin()
                     .where(meeting.id.eq(meetingId))
                     .fetchOne();
-            
+
             queryFactory.selectFrom(meeting)
                     .leftJoin(meeting.teamTags, teamTag).fetchJoin()
                     .where(meeting.id.eq(meetingId))
@@ -184,22 +184,33 @@ public class MeetingRepositoryImpl implements MeetingRepositoryCustom {
     @Override
     public Slice<Meeting> findMeetingsByConditions(Long userId, Integer year, Integer month, String title, Pageable pageable) {
         BooleanBuilder builder = new BooleanBuilder();
-        
+
         // userId 필터 (필수)
         builder.and(meeting.id.in(findAcceptedMeetingByUserId(userId)));
-        
+
         // year, month 필터 (선택적)
-        if (year != null && month != null) {
-            LocalDateTime startOfMonth = LocalDateTime.of(year, month, 1, 0, 0, 0);
-            LocalDateTime endOfMonth = startOfMonth.plusMonths(1).minusNanos(1);
-            builder.and(meeting.scheduledTime.scheduledStartTime.between(startOfMonth, endOfMonth));
+        if (year != null) {
+            LocalDateTime startOfPeriod;
+            LocalDateTime endOfPeriod;
+
+            if (month != null) {
+                // year와 month가 모두 있는 경우: 해당 월만 조회
+                startOfPeriod = LocalDateTime.of(year, month, 1, 0, 0, 0);
+                endOfPeriod = startOfPeriod.plusMonths(1).minusNanos(1);
+            } else {
+                // year만 있는 경우: 해당 연도 전체 조회 (1월 1일 ~ 12월 31일)
+                startOfPeriod = LocalDateTime.of(year, 1, 1, 0, 0, 0);
+                endOfPeriod = LocalDateTime.of(year, 12, 31, 23, 59, 59, 999999999);
+            }
+
+            builder.and(meeting.scheduledTime.scheduledStartTime.between(startOfPeriod, endOfPeriod));
         }
-        
+
         // title 필터 (선택적)
         if (title != null && !title.trim().isEmpty()) {
             builder.and(meeting.title.containsIgnoreCase(title));
         }
-        
+
         int pageSize = pageable.getPageSize();
         List<Meeting> meetings = queryFactory
                 .selectFrom(meeting)
@@ -208,12 +219,12 @@ public class MeetingRepositoryImpl implements MeetingRepositoryCustom {
                 .limit(pageSize + 1)
                 .offset(pageable.getOffset())
                 .fetch();
-        
+
         boolean hasNext = meetings.size() > pageSize;
         if (hasNext) {
             meetings.remove(meetings.size() - 1);
         }
-        
+
         return new SliceImpl<>(meetings, pageable, hasNext);
     }
 }
