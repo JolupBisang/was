@@ -1,6 +1,8 @@
 package com.jolupbisang.demo.infrastructure.audio;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface AudioProgressRepository {
@@ -11,6 +13,8 @@ public interface AudioProgressRepository {
     void deleteAudioProgress(Long userId, Long meetingId);
 
     Optional<LocalDateTime> findFirstProcessedTime(Long meetingId);
+
+    Map<Long, LocalDateTime> findFirstProcessedTimes(List<Long> meetingIds);
 
     void setFirstChunkFlag(long meetingId, long userId);
 

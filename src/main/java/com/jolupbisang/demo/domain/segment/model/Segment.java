@@ -3,20 +3,16 @@ package com.jolupbisang.demo.domain.segment.model;
 import com.jolupbisang.demo.domain.common.BaseTimeEntity;
 import com.jolupbisang.demo.domain.segment.exception.SegmentDomainErrorCode;
 import com.jolupbisang.demo.global.exception.DomainException;
-import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -39,14 +35,6 @@ public class Segment extends BaseTimeEntity {
     @Column(name = "segment_order", nullable = false)
     private Integer order;
 
-    @ElementCollection
-    @CollectionTable(
-            name = "segment_word",
-            joinColumns = @JoinColumn(name = "segment_id")
-    )
-    private List<Word> words;
-
-
     @Column(nullable = false, length = 500)
     private String text;
 
@@ -61,22 +49,20 @@ public class Segment extends BaseTimeEntity {
 
     private static final String DEFAULT_LANG = "ko";
 
-    public Segment(long meetingId, long userId, long audioUserId, int order, List<Word> words, String text, String lang, LocalDateTime spokenDateTime, LocalDateTime translatedDateTime) {
+    public Segment(long meetingId, long userId, long audioUserId, int order, String text, String lang, LocalDateTime spokenDateTime, LocalDateTime translatedDateTime) {
         setMeetingId(meetingId);
         setUserId(userId);
         setAudioUserId(audioUserId);
         setOrder(order);
-        setWords(words);
         setText(text);
         setLang(lang);
         setSpokenDateTime(spokenDateTime);
         setTranslatedDateTime(translatedDateTime);
     }
 
-    public void update(long userId, long audioUserId, List<Word> words, String text, String lang, LocalDateTime spokenDateTime, LocalDateTime translatedDateTime) {
+    public void update(long userId, long audioUserId, String text, String lang, LocalDateTime spokenDateTime, LocalDateTime translatedDateTime) {
         setUserId(userId);
         setAudioUserId(audioUserId);
-        setWords(words);
         setText(text);
         setLang(lang);
         setSpokenDateTime(spokenDateTime);
@@ -106,10 +92,6 @@ public class Segment extends BaseTimeEntity {
 
     private void setOrder(int order) {
         this.order = order;
-    }
-
-    private void setWords(List<Word> words) {
-        this.words = words;
     }
 
     private void setText(String text) {

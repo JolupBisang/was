@@ -1,6 +1,7 @@
 package com.jolupbisang.demo.application.segment.command;
 
 import com.jolupbisang.demo.application.segment.event.CompletedSegmentReceivedEvent;
+import com.jolupbisang.demo.application.segment.event.SegmentDto;
 import com.jolupbisang.demo.global.config.RabbitMQConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +10,10 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Component
@@ -24,13 +28,21 @@ public class SegmentCreationEventListener {
             backoff = @Backoff(delay = 1000, multiplier = 2, maxDelay = 10000)
     )
     public void receiveSegmentBatch(List<CompletedSegmentReceivedEvent> messages) {
-        log.info("Processing batch of {} segments", messages.size());
+        Map<Long, List<SegmentDto>> segmentsByMeetingId = groupSegmentsByMeetingId(messages);
+        segmentCreationService.saveAllBatch(segmentsByMeetingId);
+    }
 
-        for (CompletedSegmentReceivedEvent message : messages) {
-            segmentCreationService.saveAll(message.meetingId(), message.completed());
+    private Map<Long, List<SegmentDto>> groupSegmentsByMeetingId(List<CompletedSegmentReceivedEvent> events) {
+        Map<Long, List<SegmentDto>> result = new HashMap<>();
+
+        for (CompletedSegmentReceivedEvent event : events) {
+            long meetingId = event.meetingId();
+            List<SegmentDto> segments = event.completed();
+
+            result.computeIfAbsent(meetingId, k -> new ArrayList<>()).addAll(segments);
         }
 
-        log.info("Successfully processed batch of {} segments", messages.size());
+        return result;
     }
 
 }

@@ -57,15 +57,13 @@ public class AudioChunk {
         if (createdDateTime == null) {
             throw new DomainException(AudioDomainErrorCode.NULL_CREATED_DATE_TIME);
         }
-        
-        // 클라이언트-서버 간 시계 동기화 차이와 네트워크 지연을 고려하여 ±30초 허용
+
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime minAllowedTime = now.minusSeconds(30);
         LocalDateTime maxAllowedTime = now.plusSeconds(30);
-        
-        if (createdDateTime.isBefore(minAllowedTime) || createdDateTime.isAfter(maxAllowedTime)) {
-            throw new DomainException(AudioDomainErrorCode.FUTURE_CREATED_DATE_TIME, 
-                "timestamp out of acceptable range. createdDateTime: %s, now: %s", createdDateTime, now);
+
+        if (createdDateTime.isAfter(maxAllowedTime)) {
+            throw new DomainException(AudioDomainErrorCode.FUTURE_CREATED_DATE_TIME,
+                    "timestamp out of acceptable range. createdDateTime: %s, now: %s", createdDateTime, now);
         }
         this.createdDateTime = createdDateTime;
     }
