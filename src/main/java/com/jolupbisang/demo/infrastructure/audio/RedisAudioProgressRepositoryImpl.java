@@ -6,7 +6,11 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -51,6 +55,32 @@ public class RedisAudioProgressRepositoryImpl implements AudioProgressRepository
             return Optional.empty();
         }
         return Optional.of(LocalDateTime.parse(value, DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+    }
+
+    @Override
+    public Map<Long, LocalDateTime> findFirstProcessedTimes(List<Long> meetingIds) {
+        if (meetingIds.isEmpty()) {
+            return Map.of();
+        }
+
+        List<String> keys = meetingIds.stream()
+                .map(this::generateFirstProcessedKey)
+                .collect(Collectors.toList());
+
+        List<String> values = redisTemplate.opsForValue().multiGet(keys);
+
+        Map<Long, LocalDateTime> result = new HashMap<>();
+        for (int i = 0; i < meetingIds.size(); i++) {
+            if (values != null && values.get(i) != null) {
+                try {
+                    LocalDateTime dateTime = LocalDateTime.parse(values.get(i), DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+                    result.put(meetingIds.get(i), dateTime);
+                } catch (Exception e) {
+                    // 파싱 실패 시 무시
+                }
+            }
+        }
+        return result;
     }
 
     @Override
