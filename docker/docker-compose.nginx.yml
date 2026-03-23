@@ -1,0 +1,20 @@
+services:
+  nginx:
+    image: nginx:${NGINX_VERSION:-1.25-alpine}
+    container_name: nginx_server
+    environment:
+      - TZ=Asia/Seoul
+    ports:
+      - "${NGINX_PORT:-80}:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/service-env.inc:/etc/nginx/conf.d/service-env.inc
+    networks:
+      - app_network
+    restart: unless-stopped
+
+networks:
+  app_network:
+    external: true
+    name: ${DOCKER_NETWORK_NAME:-combined_network}
+

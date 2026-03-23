@@ -1,0 +1,47 @@
+services:
+  redis:
+    image: redis:${REDIS_VERSION:-7.0-alpine}
+    container_name: ${REDIS_CONTAINER_NAME:-my-redis}
+    environment:
+      - TZ=Asia/Seoul
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    command: [ "redis-server" ]
+    volumes:
+      - ${REDIS_DATA_VOLUME:-redis_data}:/data
+    networks:
+      - infra_net
+    restart: always
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:${RABBITMQ_VERSION:-3.12-management-alpine}
+    container_name: ${RABBITMQ_CONTAINER_NAME:-my_rabbitmq}
+    ports:
+      - "${RABBITMQ_AMQP_PORT:-5672}:5672"
+      - "${RABBITMQ_MANAGEMENT_PORT:-15672}:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-test_user}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-test_password}
+      TZ: Asia/Seoul
+    networks:
+      - infra_net
+    restart: always
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "check_port_connectivity", "5672" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+volumes:
+  redis_data:
+
+networks:
+  infra_net:
+    external: true
+    name: ${DOCKER_NETWORK_NAME:-combined_network}
+

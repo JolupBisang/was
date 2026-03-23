@@ -1,0 +1,339 @@
+package com.jolupbisang.demo.domain.meeting.model;
+
+import com.jolupbisang.demo.domain.common.BaseTimeEntity;
+import com.jolupbisang.demo.domain.meeting.dto.MeetingDetailUpdateDto;
+import com.jolupbisang.demo.domain.meeting.event.MeetingCompletedEvent;
+import com.jolupbisang.demo.domain.meeting.event.MeetingStartedEvent;
+import com.jolupbisang.demo.domain.meeting.event.ParticipationRateSavedEvent;
+import com.jolupbisang.demo.domain.meeting.exception.MeetingDomainErrorCode;
+import com.jolupbisang.demo.domain.meeting.exception.TooManyHostException;
+import com.jolupbisang.demo.global.event.Events;
+import com.jolupbisang.demo.global.exception.DomainException;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * 회의 관리 어그리거트 루트
+ */
+@Entity
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Meeting extends BaseTimeEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "meeting_id")
+    private Long id;
+
+    @Column(nullable = false)
+    private String title;
+
+    @Column(nullable = false)
+    private String location;
+
+    @Embedded
+    private ScheduledTime scheduledTime;
+
+    @Embedded
+    private ActualProgressTime actualProgressTime;
+
+    @Embedded
+    private RestTime restTime;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private MeetingStatus meetingStatus;
+
+    @OneToMany(mappedBy = "meeting", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private final List<Participant> participants = new ArrayList<>();
+
+    @OneToMany(mappedBy = "meeting", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private final List<Agenda> agendas = new ArrayList<>();
+
+    @OneToMany(mappedBy = "meeting", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private final List<TeamTag> teamTags = new ArrayList<>();
+
+    private static final long MAX_MEETING_HOST_COUNT = 1L;
+
+    public Meeting(String title, String location, ScheduledTime scheduledTime, ActualProgressTime actualProgressTime, RestTime restTime, List<ParticipantDetail> participantDetails, List<AgendaDetail> agendaDetails, List<Long> teamIds) {
+        setTitle(title);
+        setLocation(location);
+        setScheduledTime(scheduledTime);
+        setActualProgressTime(actualProgressTime);
+        setRestTime(restTime);
+        setParticipants(participantDetails);
+        setAgendas(agendaDetails);
+        setTeamTags(teamIds);
+        initiateStatus();
+    }
+
+    public void start(long accessUserId) {
+        validateHostAuthority(accessUserId);
+
+        if (!isWaiting()) {
+            throw new DomainException(MeetingDomainErrorCode.NOT_WAITING_STATUS, "meetingStatus: %s", meetingStatus);
+        }
+
+        meetingStatus = MeetingStatus.IN_PROGRESS;
+        actualProgressTime = new ActualProgressTime(LocalDateTime.now(), null);
+        Events.raise(new MeetingStartedEvent(id));
+    }
+
+    public void complete(long accessUserId) {
+        validateHostAuthority(accessUserId);
+
+        if (!isInProgress()) {
+            throw new DomainException(MeetingDomainErrorCode.NOT_PROGRESSING_STATUS, "meetingStatus: %s", meetingStatus);
+        }
+        meetingStatus = MeetingStatus.COMPLETED;
+        actualProgressTime = new ActualProgressTime(actualProgressTime.getActualStartTime(), LocalDateTime.now());
+        Events.raise(new MeetingCompletedEvent(id));
+    }
+
+    public void cancel(long accessUserId) {
+        validateHostAuthority(accessUserId);
+
+        if (!isWaiting()) {
+            throw new DomainException(MeetingDomainErrorCode.NOT_WAITING_STATUS, "meetingStatus: %s", meetingStatus);
+        }
+        meetingStatus = MeetingStatus.CANCELLED;
+    }
+
+    public boolean isWaiting() {
+        return meetingStatus == MeetingStatus.WAITING;
+    }
+
+    public boolean isInProgress() {
+        return meetingStatus == MeetingStatus.IN_PROGRESS;
+    }
+
+    public boolean isCompleted() {
+        return meetingStatus == MeetingStatus.COMPLETED;
+    }
+
+    public boolean isCancelled() {
+        return meetingStatus == MeetingStatus.CANCELLED;
+    }
+
+    public void addParticipants(List<ParticipantDetail> participantDetails, long accessUserId) {
+        validateHostAuthority(accessUserId);
+
+        if (participantDetails == null) {
+            throw new DomainException(MeetingDomainErrorCode.NULL_PARTICIPANTS_LIST);
+        }
+
+        List<Participant> originalParticipants = new ArrayList<>(participants);
+        try {
+            for (ParticipantDetail detail : participantDetails) {
+                participants.removeIf(p -> p.getUserId().equals(detail.getUserId()));
+                participants.add(new Participant(this, detail.getUserId(), detail.getMeetingRole()));
+            }
+
+            validateHostCount();
+        } catch (TooManyHostException e) {
+            participants.clear();
+            participants.addAll(originalParticipants);
+            throw e;
+        }
+    }
+
+    public void removeParticipant(long accessUserId, long participantId) {
+        validateHostAuthority(accessUserId);
+
+        participants.removeIf(p -> p.getUserId().equals(participantId));
+    }
+
+    public void addAgendas(List<AgendaDetail> agendaDetails, long accessUserId) {
+        validateHostAuthority(accessUserId);
+
+        if (agendaDetails == null) {
+            throw new DomainException(MeetingDomainErrorCode.NULL_AGENDA_LIST);
+        }
+
+        for (AgendaDetail detail : agendaDetails) {
+            Agenda newAgenda = new Agenda(this, detail.getContent());
+            this.agendas.add(newAgenda);
+        }
+    }
+
+    public void updateAgenda(long agendaId, long accessUserId, String content) {
+        validateHostAuthority(accessUserId);
+
+        Agenda foundAgenda = agendas.stream()
+                .filter(a -> a.getId().equals(agendaId))
+                .findFirst()
+                .orElseThrow(() -> new DomainException(MeetingDomainErrorCode.NON_EXISTING_AGENDA, "agendaId: %d", agendaId));
+
+        foundAgenda.updateContent(content);
+    }
+
+    public void changeAgendaStatus(long agendaId, long accessUserId, boolean isCompleted) {
+        validateHostAuthority(accessUserId);
+
+        Agenda foundAgenda = agendas.stream()
+                .filter(a -> a.getId().equals(agendaId))
+                .findFirst()
+                .orElseThrow(() -> new DomainException(MeetingDomainErrorCode.NON_EXISTING_AGENDA, "agendaId: %d", agendaId));
+
+        foundAgenda.changeStatus(isCompleted);
+    }
+
+    public void deleteAgenda(long agendaId, long accessUserId) {
+        validateHostAuthority(accessUserId);
+
+        Agenda foundAgenda = agendas.stream()
+                .filter(a -> a.getId().equals(agendaId))
+                .findFirst()
+                .orElseThrow(() -> new DomainException(MeetingDomainErrorCode.NON_EXISTING_AGENDA, "agendaId: %d", agendaId));
+
+        agendas.remove(foundAgenda);
+    }
+
+    public void validateViewAuthority(long accessUserId) {
+        if (!isParticipant(accessUserId)) {
+            throw new DomainException(MeetingDomainErrorCode.NOT_PARTICIPANT, "userId: %d", accessUserId);
+        }
+    }
+
+    public void validateHostAuthority(long accessUserId) {
+        boolean isHost = participants.stream()
+                .anyMatch(p -> p.getUserId().equals(accessUserId) && p.getRole() == MeetingRole.HOST);
+
+        if (!isHost) {
+            throw new DomainException(MeetingDomainErrorCode.ONLY_FOR_HOST_AUTHORITY);
+        }
+    }
+
+    public boolean isHost(long userId) {
+        return participants.stream()
+                .anyMatch(p -> p.getUserId().equals(userId) && p.getRole() == MeetingRole.HOST);
+    }
+
+    public boolean isParticipant(long userId) {
+        return participants.stream()
+                .anyMatch(p -> p.getUserId().equals(userId));
+    }
+
+    public void updateDetails(MeetingDetailUpdateDto updateDto, long accessUserId) {
+        validateHostAuthority(accessUserId);
+
+        if (!isWaiting()) {
+            throw new DomainException(MeetingDomainErrorCode.NOT_WAITING_STATUS, "meetingStatus: %s", meetingStatus);
+        }
+
+        setTitle(updateDto.title());
+        setLocation(updateDto.location());
+        setScheduledTime(updateDto.scheduledTime());
+        setRestTime(updateDto.RestTime());
+    }
+
+    public void updateParticipationRates(Map<Long, Double> participationRates, Map<Long, Long> participantChunks) {
+        participants
+                .forEach(participant -> {
+                    if (participationRates.containsKey(participant.getUserId())) {
+                        participant.updateParticipationRate(participationRates.get(participant.getUserId()), participantChunks.get(participant.getUserId()));
+                    }
+                });
+        Events.raise(new ParticipationRateSavedEvent(this.id));
+    }
+
+    public void addTeamTag(Long teamId) {
+        if (hasTeamTag(teamId)) {
+            return;
+        }
+        teamTags.add(new TeamTag(this, teamId));
+    }
+
+    public void removeTeamTag(Long teamId) {
+        teamTags.removeIf(teamTag -> teamTag.getTeamId().equals(teamId));
+    }
+
+    public boolean hasTeamTag(Long teamId) {
+        return teamTags.stream()
+                .anyMatch(teamTag -> teamTag.getTeamId().equals(teamId));
+    }
+
+    private void setTitle(String title) {
+        if (title == null || title.isBlank()) {
+            throw new DomainException(MeetingDomainErrorCode.EMPTY_TITLE);
+        }
+        this.title = title;
+    }
+
+    private void setLocation(String location) {
+        if (location == null || location.isBlank()) {
+            throw new DomainException(MeetingDomainErrorCode.EMPTY_LOCATION);
+        }
+        this.location = location;
+    }
+
+    private void setScheduledTime(ScheduledTime scheduledTime) {
+        if (scheduledTime == null) {
+            throw new DomainException(MeetingDomainErrorCode.NULL_SCHEDULED_TIME);
+        }
+        this.scheduledTime = scheduledTime;
+    }
+
+    private void setActualProgressTime(ActualProgressTime actualProgressTime) {
+        if (actualProgressTime == null) {
+            throw new DomainException(MeetingDomainErrorCode.NULL_ACTUAL_PROGRESS_TIME);
+        }
+        this.actualProgressTime = actualProgressTime;
+    }
+
+    private void setRestTime(RestTime restTime) {
+        if (restTime == null) {
+            throw new DomainException(MeetingDomainErrorCode.NULL_REST_TIME);
+        }
+        this.restTime = restTime;
+    }
+
+    private void setParticipants(List<ParticipantDetail> participantDetails) {
+        participantDetails.stream()
+                .map(detail -> new Participant(this, detail.getUserId(), detail.getMeetingRole()))
+                .forEach(participants::add);
+    }
+
+    private void setAgendas(List<AgendaDetail> agendaDetails) {
+        agendaDetails.stream()
+                .map(agendaDetail -> new Agenda(this, agendaDetail.getContent()))
+                .forEach(agendas::add);
+    }
+
+    private void setTeamTags(List<Long> teamIds) {
+        if (teamIds != null && !teamIds.isEmpty()) {
+            teamIds.forEach(teamId -> teamTags.add(new TeamTag(this, teamId)));
+        }
+    }
+
+    private void initiateStatus() {
+        meetingStatus = MeetingStatus.WAITING;
+    }
+
+    private void validateHostCount() {
+        long hostCount = participants.stream()
+                .filter(p -> p.getRole() == MeetingRole.HOST)
+                .count();
+
+        if (hostCount > MAX_MEETING_HOST_COUNT) {
+            throw new TooManyHostException(MeetingDomainErrorCode.TOO_MANY_HOST, "hostCount: %d", hostCount);
+        }
+    }
+}

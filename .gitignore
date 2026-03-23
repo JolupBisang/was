@@ -4,6 +4,9 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
+/logs
+.env.dev
+.env.prod
 
 ### STS ###
 .apt_generated
@@ -25,6 +28,7 @@ bin/
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
+.DS_Store
 
 ### NetBeans ###
 /nbproject/private/
@@ -35,3 +39,14 @@ out/
 
 ### VS Code ###
 .vscode/
+
+/docker/.env.*
+/docker/logstash.conf
+/docker/.docker.env
+/docker/prometheus.yml
+/docker/loki-config.yml
+/docker/promtail-config.yml
+
+# GitHub Secrets
+.github/secrets.env
+.githubscripts/*
