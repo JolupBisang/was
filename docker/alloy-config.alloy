@@ -1,0 +1,95 @@
+// ============================================================
+// Alloy Configuration - SilRok Monitoring
+// Replaces Promtail: log collection + metric scrape & push
+// ============================================================
+
+// ---- Log Collection ----
+
+// Discover Spring Boot log files (blue/green)
+local.file_match "spring_logs" {
+  path_targets = [
+    {__path__ = "/var/log/docker/spring/**/*.log", job = "spring-boot", app = "silrok"},
+  ]
+  sync_period = "5s"
+}
+
+// Read matched log files
+loki.source.file "spring_logs" {
+  targets    = local.file_match.spring_logs.targets
+  forward_to = [loki.process.spring_pipeline.receiver]
+
+  file_watch {
+    min_poll_frequency = "250ms"
+    max_poll_frequency = "5s"
+  }
+}
+
+// Parse JSON logs and extract labels
+loki.process "spring_pipeline" {
+  forward_to = [loki.write.default.receiver]
+
+  stage.json {
+    expressions = {
+      level   = "level",
+      logger  = "logger_name",
+      thread  = "thread_name",
+    }
+  }
+
+  stage.labels {
+    values = {
+      level  = "",
+      logger = "",
+      thread = "",
+    }
+  }
+}
+
+// Push logs to Loki on monitoring EC2
+loki.write "default" {
+  endpoint {
+    url = "http://" + env("LOKI_HOST") + ":3100/loki/api/v1/push"
+  }
+  external_labels = {
+    source = "alloy",
+  }
+}
+
+// ---- Metric Collection ----
+
+// Scrape Spring Boot Actuator metrics
+prometheus.scrape "spring_boot" {
+  targets = [
+    {"__address__" = "blue:8080", "instance" = "blue"},
+    {"__address__" = "green:8081", "instance" = "green"},
+  ]
+  metrics_path = "/actuator/prometheus"
+  scrape_interval = "15s"
+  forward_to = [prometheus.remote_write.default.receiver]
+}
+
+// Scrape Redis Exporter metrics (Data EC2)
+prometheus.scrape "redis" {
+  targets = [
+    {"__address__" = env("DATA_HOST") + ":9121", "instance" = "redis_cache"},
+  ]
+  scrape_interval = "15s"
+  forward_to = [prometheus.remote_write.default.receiver]
+}
+
+// Scrape RabbitMQ metrics (Data EC2)
+prometheus.scrape "rabbitmq" {
+  targets = [
+    {"__address__" = env("DATA_HOST") + ":15692", "instance" = "rabbitmq_broker"},
+  ]
+  metrics_path = "/metrics"
+  scrape_interval = "15s"
+  forward_to = [prometheus.remote_write.default.receiver]
+}
+
+// Push metrics to Prometheus on monitoring EC2
+prometheus.remote_write "default" {
+  endpoint {
+    url = "http://" + env("PROMETHEUS_HOST") + ":9090/api/v1/write"
+  }
+}

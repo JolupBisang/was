@@ -11,7 +11,7 @@ services:
     ports:
       - "${BLUE_PORT:-8080}:8080"
     volumes:
-      - ${BLUE_LOG_PATH:-./docker_logs/spring/blue}:/app/logs
+      - ${BLUE_LOG_PATH:-./docker_logs/spring/blue}:/opt/app/logs
     networks:
       - app_network
     restart: always
@@ -34,7 +34,7 @@ services:
     ports:
       - "${GREEN_PORT:-8081}:8080"
     volumes:
-      - ${GREEN_LOG_PATH:-./docker_logs/spring/green}:/app/logs
+      - ${GREEN_LOG_PATH:-./docker_logs/spring/green}:/opt/app/logs
     networks:
       - app_network
     restart: always
@@ -44,6 +44,29 @@ services:
       timeout: 3s
       retries: 5
       start_period: 20s
+
+  alloy:
+    image: grafana/alloy:latest
+    container_name: my-alloy
+    environment:
+      - TZ=Asia/Seoul
+      - LOKI_HOST=${LOKI_HOST}
+      - PROMETHEUS_HOST=${PROMETHEUS_HOST}
+      - DATA_HOST=${DATA_HOST}
+    volumes:
+      - ./alloy-config.alloy:/etc/alloy/config.alloy
+      - alloy_positions:/alloy
+      - ${BLUE_LOG_PATH:-./docker_logs/spring/blue}:/var/log/docker/spring/blue:ro
+      - ${GREEN_LOG_PATH:-./docker_logs/spring/green}:/var/log/docker/spring/green:ro
+    command:
+      - run
+      - /etc/alloy/config.alloy
+    networks:
+      - app_network
+    restart: unless-stopped
+
+volumes:
+  alloy_positions:
 
 networks:
   app_network:
