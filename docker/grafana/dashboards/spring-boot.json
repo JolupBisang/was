@@ -1,0 +1,341 @@
+{
+  "uid": "silrok-spring-boot",
+  "title": "Spring Boot",
+  "tags": ["spring-boot", "silrok"],
+  "timezone": "Asia/Seoul",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "instance",
+        "type": "query",
+        "datasource": { "type": "prometheus", "uid": "silrok-prometheus" },
+        "query": "label_values(process_uptime_seconds, instance)",
+        "refresh": 2,
+        "includeAll": false,
+        "multi": false,
+        "sort": 1,
+        "current": {}
+      }
+    ]
+  },
+  "panels": [
+    {
+      "type": "row",
+      "title": "Overview",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "collapsed": false
+    },
+    {
+      "type": "stat",
+      "title": "Uptime",
+      "datasource": { "type": "prometheus", "uid": "silrok-prometheus" },
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 1 },
+      "targets": [
+        {
+          "expr": "process_uptime_seconds{instance=~\"$instance\"}",
+          "legendFormat": "{{instance}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null }
+            ]
+          }
+        }
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Request Rate",
+      "datasource": { "type": "prometheus", "uid": "silrok-prometheus" },
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 1 },
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_requests_seconds_count{instance=~\"$instance\"}[5m]))",
+          "legendFormat": "req/s"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null }
+            ]
+          }
+        }
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Error Rate (5xx)",
+      "datasource": { "type": "prometheus", "uid": "silrok-prometheus" },
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 1 },
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_requests_seconds_count{instance=~\"$instance\", status=~\"5..\"}[5m])) / sum(rate(http_server_requests_seconds_count{instance=~\"$instance\"}[5m]))",
+          "legendFormat": "error rate"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 0.01 },
+              { "color": "red", "value": 0.05 }
+            ]
+          }
+        }
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Avg Response Time",
+      "datasource": { "type": "prometheus", "uid": "silrok-prometheus" },
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 1 },
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_requests_seconds_sum{instance=~\"$instance\"}[5m])) / sum(rate(http_server_requests_seconds_count{instance=~\"$instance\"}[5m]))",
+          "legendFormat": "avg"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 0.5 },
+              { "color": "red", "value": 1 }
+            ]
+          }
+        }
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      }
+    },
+    {
+      "type": "row",
+      "title": "HTTP",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 },
+      "collapsed": false
+    },
+    {
+      "type": "timeseries",
+      "title": "Request Rate by Status",
+      "datasource": { "type": "prometheus", "uid": "silrok-prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
+      "targets": [
+        {
+          "expr": "sum by (status)(rate(http_server_requests_seconds_count{instance=~\"$instance\"}[5m]))",
+          "legendFormat": "{{status}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "pointSize": 5,
+            "lineWidth": 1
+          }
+        }
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Response Time p95 / p99",
+      "datasource": { "type": "prometheus", "uid": "silrok-prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le)(rate(http_server_requests_seconds_bucket{instance=~\"$instance\"}[5m])))",
+          "legendFormat": "p95"
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum by (le)(rate(http_server_requests_seconds_bucket{instance=~\"$instance\"}[5m])))",
+          "legendFormat": "p99"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "pointSize": 5,
+            "lineWidth": 1
+          }
+        }
+      }
+    },
+    {
+      "type": "row",
+      "title": "JVM Memory",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 14 },
+      "collapsed": false
+    },
+    {
+      "type": "timeseries",
+      "title": "Heap Used vs Max",
+      "datasource": { "type": "prometheus", "uid": "silrok-prometheus" },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 15 },
+      "targets": [
+        {
+          "expr": "sum(jvm_memory_used_bytes{instance=~\"$instance\", area=\"heap\"})",
+          "legendFormat": "used"
+        },
+        {
+          "expr": "sum(jvm_memory_max_bytes{instance=~\"$instance\", area=\"heap\"})",
+          "legendFormat": "max"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "pointSize": 5,
+            "lineWidth": 1
+          }
+        }
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Non-Heap Memory",
+      "datasource": { "type": "prometheus", "uid": "silrok-prometheus" },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 15 },
+      "targets": [
+        {
+          "expr": "sum(jvm_memory_used_bytes{instance=~\"$instance\", area=\"nonheap\"})",
+          "legendFormat": "used"
+        },
+        {
+          "expr": "sum(jvm_memory_committed_bytes{instance=~\"$instance\", area=\"nonheap\"})",
+          "legendFormat": "committed"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "pointSize": 5,
+            "lineWidth": 1
+          }
+        }
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "GC Pause Time",
+      "datasource": { "type": "prometheus", "uid": "silrok-prometheus" },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 15 },
+      "targets": [
+        {
+          "expr": "sum by (gc)(rate(jvm_gc_pause_seconds_sum{instance=~\"$instance\"}[5m]))",
+          "legendFormat": "{{gc}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "pointSize": 5,
+            "lineWidth": 1
+          }
+        }
+      }
+    },
+    {
+      "type": "row",
+      "title": "JVM Threads & CPU",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 23 },
+      "collapsed": false
+    },
+    {
+      "type": "timeseries",
+      "title": "Threads by State",
+      "datasource": { "type": "prometheus", "uid": "silrok-prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 24 },
+      "targets": [
+        {
+          "expr": "jvm_threads_states_threads{instance=~\"$instance\"}",
+          "legendFormat": "{{state}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 30,
+            "pointSize": 5,
+            "lineWidth": 1,
+            "stacking": { "mode": "normal" }
+          }
+        }
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "CPU Usage",
+      "datasource": { "type": "prometheus", "uid": "silrok-prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 24 },
+      "targets": [
+        {
+          "expr": "process_cpu_usage{instance=~\"$instance\"}",
+          "legendFormat": "process"
+        },
+        {
+          "expr": "system_cpu_usage{instance=~\"$instance\"}",
+          "legendFormat": "system"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0,
+          "max": 1,
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "pointSize": 5,
+            "lineWidth": 1
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+groups:
+  - name: instance
+    rules:
+      - alert: InstanceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Instance {{ $labels.instance }} down"
+          description: "{{ $labels.job }}/{{ $labels.instance }} has been down for more than 1 minute."
+
+  - name: spring-boot
+    rules:
+      - alert: HighErrorRate
+        expr: >
+          sum(rate(http_server_requests_seconds_count{status=~"5.."}[5m]))
+          /
+          sum(rate(http_server_requests_seconds_count[5m]))
+          > 0.05
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High 5xx error rate"
+          description: "5xx error rate is above 5% for 5 minutes (current: {{ $value | humanizePercentage }})."
+
+      - alert: HighMemoryUsage
+        expr: >
+          jvm_memory_used_bytes{area="heap"}
+          /
+          jvm_memory_max_bytes{area="heap"}
+          > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "JVM heap memory usage > 90%"
+          description: "{{ $labels.instance }} JVM heap usage is {{ $value | humanizePercentage }}."
+
+  - name: infrastructure
+    rules:
+      - alert: DiskSpaceLow
+        expr: >
+          (node_filesystem_avail_bytes{mountpoint="/"}
+          /
+          node_filesystem_size_bytes{mountpoint="/"})
+          < 0.2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Disk space low on {{ $labels.instance }}"
+          description: "Available disk space is below 20% (current: {{ $value | humanizePercentage }} free)."
+
+      - alert: RabbitMQQueueBacklog
+        expr: rabbitmq_queue_messages > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "RabbitMQ queue backlog on {{ $labels.queue }}"
+          description: "Queue {{ $labels.queue }} has {{ $value }} messages (threshold: 1000)."

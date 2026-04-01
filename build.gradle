@@ -67,6 +67,9 @@ dependencies {
     //Retry
     implementation 'org.springframework.retry:spring-retry'
     implementation 'org.springframework:spring-aspects'
+
+    //Logging
+    implementation 'net.logstash.logback:logstash-logback-encoder:8.0'
 }
 
 tasks.named('test') {

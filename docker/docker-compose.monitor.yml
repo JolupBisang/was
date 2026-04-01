@@ -4,12 +4,15 @@ services:
     container_name: my-loki
     environment:
       - TZ=Asia/Seoul
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - S3_BUCKET=${S3_BUCKET}
     ports:
       - "${LOKI_PORT:-3100}:3100"
     volumes:
       - ${LOKI_CONFIG_PATH:-./loki-config.yml}:/etc/loki/loki-config.yml
       - ${LOKI_DATA_VOLUME:-loki_data}:/loki
-    command: -config.file=/etc/loki/loki-config.yml
+    command: -config.file=/etc/loki/loki-config.yml -config.expand-env=true
     networks:
       - monitor_net
     restart: unless-stopped
@@ -28,8 +31,9 @@ services:
       - "${GRAFANA_PORT:-3000}:3000"
     volumes:
       - ${GRAFANA_DATA_VOLUME:-grafana_data}:/var/lib/grafana
-      - ${GRAFANA_LOG_PATH:-./docker_logs/grafana}:/var/log/grafana # Adjusted default path
+      - ${GRAFANA_LOG_PATH:-./docker_logs/grafana}:/var/log/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
     networks:
       - monitor_net
     restart: always
@@ -41,19 +45,25 @@ services:
 
   prometheus:
     image: prom/prometheus:${PROMETHEUS_VERSION:-v2.49.1}
-    container_name: ${PROMETHEUS_CONTAINER_NAME:-my-prometheus}
+    container_name: my-prometheus
     environment:
       - TZ=Asia/Seoul
     ports:
       - "${PROMETHEUS_PORT:-9090}:9090"
     volumes:
       - ${PROMETHEUS_CONFIG_PATH:-./prometheus.yml}:/etc/prometheus/prometheus.yml
+      - ./alert-rules.yml:/etc/prometheus/alert-rules.yml
       - ${PROMETHEUS_DATA_VOLUME:-prometheus_data}:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=15d'
+      - '--web.enable-remote-write-receiver'
     networks:
       - monitor_net
     restart: always
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://prometheus:9090/-/ready" ]
+      test: [ "CMD", "curl", "-f", "http://localhost:9090/-/ready" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -63,17 +73,19 @@ services:
         max-size: "10m"
         max-file: "3"
 
-  promtail:
-    image: grafana/promtail:${PROMTAIL_VERSION:-3.0.0}
-    container_name: ${PROMTAIL_CONTAINER_NAME:-my-promtail}
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    container_name: my-alertmanager
     environment:
       - TZ=Asia/Seoul
+      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL}
+      - SLACK_CHANNEL=${SLACK_CHANNEL}
+    ports:
+      - "9093:9093"
     volumes:
-      - ${PROMTAIL_CONFIG_PATH:-./promtail-config.yml}:/etc/promtail/promtail-config.yml
-      - ${DOCKER_LOGS_PATH:-./docker_logs}:/var/log/docker
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    command: -config.file=/etc/promtail/promtail-config.yml
+      - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
     networks:
       - monitor_net
     restart: unless-stopped

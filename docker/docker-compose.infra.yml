@@ -37,6 +37,21 @@ services:
       timeout: 10s
       retries: 5
 
+  redis-exporter:
+    image: oliver006/redis_exporter:v1.58.0
+    container_name: redis-exporter
+    environment:
+      - TZ=Asia/Seoul
+      - REDIS_ADDR=redis://redis:6379
+    ports:
+      - "9121:9121"
+    networks:
+      - infra_net
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+
 volumes:
   redis_data:
 
